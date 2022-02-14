@@ -9,14 +9,16 @@
   "dependencies": {
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
+    "@mui/icons-material": "^5.0.3",
     "@mui/material": "^5.0.3",
+    "@mui/styles": "^5.0.1",
+    "@mui/system": "^5.0.3",
+    "@tiptap/starter-kit": "^2.0.0-beta.139",
     "history": "^5.0.1",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
-<<<<<<< HEAD
     "react-feather": "^2.0.9",
-=======
->>>>>>> 9d2c6cdf28a74f002151eae0dfa12925c6ff88db
+    "react-perfect-scrollbar": "^1.5.8",
     "react-router": "^6.0.0-beta.6",
     "react-router-dom": "^6.0.0-beta.6"
   },

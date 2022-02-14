@@ -8,7 +8,7 @@ import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import Hidden from '@mui/material/Hidden';
 import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
+import Typography from '@mui/material/Typography'
 
 import {
   AlertCircle as AlertCircleIcon,
@@ -20,8 +20,7 @@ import {
   UserPlus as UserPlusIcon,
   Users as UsersIcon
 } from 'react-feather';
-
-import NavItem from 'components/admin/NavItem';
+import NavItem from 'components/NavItem';
 
 const user = {
   avatar: '/static/images/avatars/avatar_6.png',
@@ -31,45 +30,20 @@ const user = {
 
 const items = [
   {
-    href: '/app/dashboard',
+    href: '/',
     icon: BarChartIcon,
     title: 'Dashboard'
   },
   {
-    href: '/app/customers',
+    href: '/editor',
     icon: UsersIcon,
-    title: 'Customers'
+    title: 'Editor'
   },
   {
-    href: '/app/products',
-    icon: ShoppingBagIcon,
-    title: 'Products'
+    href: '/tables',
+    icon: UsersIcon,
+    title: 'Tables'
   },
-  {
-    href: '/app/account',
-    icon: UserIcon,
-    title: 'Account'
-  },
-  {
-    href: '/app/settings',
-    icon: SettingsIcon,
-    title: 'Settings'
-  },
-  {
-    href: '/login',
-    icon: LockIcon,
-    title: 'Login'
-  },
-  {
-    href: '/register',
-    icon: UserPlusIcon,
-    title: 'Register'
-  },
-  {
-    href: '/404',
-    icon: AlertCircleIcon,
-    title: 'Error'
-  }
 ];
 
 const Sidebar = ({ onMobileClose, openMobile }: any) => {
@@ -132,44 +106,6 @@ const Sidebar = ({ onMobileClose, openMobile }: any) => {
             />
           ))}
         </List>
-      </Box>
-      <Box sx={{ flexGrow: 1 }} />
-      <Box
-        sx={{
-          backgroundColor: 'background.default',
-          m: 2,
-          p: 2
-        }}
-      >
-        <Typography
-          align="center"
-          gutterBottom
-          variant="h4"
-        >
-          Need more?
-        </Typography>
-        <Typography
-          align="center"
-          variant="body2"
-        >
-          Upgrade to PRO version and access 20 more screens
-        </Typography>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            pt: 2
-          }}
-        >
-          <Button
-            color="primary"
-            component="a"
-            href="https://react-material-kit.devias.io"
-            variant="contained"
-          >
-            See PRO version
-          </Button>
-        </Box>
       </Box>
     </Box>
   );
