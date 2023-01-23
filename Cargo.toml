@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-axum = "0.6.2"
+axum = "0.6.3"
 ftp = "3.0.1"
 #rocket = { version = "0.5.0-rc.2", features = ["json"] }
 #rocket_cors = { git = "https://github.com/lawliet89/rocket_cors" }
