@@ -28,7 +28,7 @@
     "react-password-strength-bar": "^0.4.1",
     "react-router": "6.21.1",
     "react-router-dom": "6.21.1",
-    "sass": "1.69.5",
+    "sass": "1.69.6",
     "vite-tsconfig-paths": "4.2.2"
   },
   "devDependencies": {
