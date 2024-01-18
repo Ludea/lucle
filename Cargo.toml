@@ -50,7 +50,7 @@ rustls-native-certs = "0.7.0"
 hyper-util = "0.1.1"
 tower-service = "0.3.2"
 users = "0.11.0"
-which = "5.0.0"
+which = "6.0.0"
 time = "0.3.30"
 
 [build-dependencies]
