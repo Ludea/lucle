@@ -6,7 +6,7 @@ license = "Apache-2.0"
 
 [dependencies]
 axum = "0.6.20" 
-axum-server = { version = "0.5", features = ["tls-rustls"] }
+axum-server = { version = "0.6", features = ["tls-rustls"] }
 chrono = { version = "0.4.24", default-features = false, features = ["clock", "std"] }
 ftp = "3.0.1"
 diesel = { version = "2.1.1", features = ["postgres", "mysql", "chrono", "sqlite", "returning_clauses_for_sqlite_3_35"] }
