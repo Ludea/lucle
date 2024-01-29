@@ -31,7 +31,7 @@ serde = { version = "1.0.0", features = ["derive"] }
 serde_regex = "1.1"
 regex = "1.0.6"
 syn = { version = "2", features = ["visit"] }
-libsqlite3-sys = { version = "0.27.0", features = ["bundled"] } 
+libsqlite3-sys = { version = "0.28.0", features = ["bundled"] } 
 pki-types = { package = "rustls-pki-types", version = "1" }
 rcgen = "0.12.0"
 rustls-pemfile = "2.0.0"
