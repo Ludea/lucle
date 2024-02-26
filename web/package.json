@@ -19,7 +19,7 @@
     "@emotion/styled": "11.11.0",
     "@mui/icons-material": "5.15.4",
     "@mui/material": "5.15.4",
-    "@mui/styles": "5.15.4",
+    "@mui/styles": "5.15.11",
     "@types/prop-types": "^15.7.5",
     "chroma-js": "^2.4.2",
     "prop-types": "^15.8.1",
