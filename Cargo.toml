@@ -20,7 +20,7 @@ tonic-web = "0.10.2"
 tokio-stream = "0.1"
 heck = "0.4.0"
 hyper = "1.0"
-hyper-rustls = { version = "0.24.0", features = ["http2"]}
+hyper-rustls = { version = "0.27.0", features = ["http2"]}
 tracing-subscriber = { version = "0.3", features = ["env-filter", "time"] }
 tower = "0.4"
 tower-http = { version = "0.4.0", features = ["fs", "trace", "cors", "add-extension", "util"] }
