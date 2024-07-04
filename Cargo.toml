@@ -71,6 +71,6 @@ thiserror = "1.0.61"
 once_cell = "1.19.0"
 
 [build-dependencies]
-tonic-build = { version = "0.10.0", features = ["prost"] } 
+tonic-build = { version = "0.11.0", features = ["prost"] } 
 prost-build = "0.12"
 protox = "0.5.1"
