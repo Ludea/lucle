@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@bufbuild/protobuf": "^1.10.0",
-    "@bufbuild/protoc-gen-es": "^1.10.0",
+    "@bufbuild/protoc-gen-es": "^2.1.0",
     "@connectrpc/protoc-gen-connect-es": "^1.1.2",
     "@types/react": "^18.2.74",
     "@types/react-dom": "^18.2.18",
