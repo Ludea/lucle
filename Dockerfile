@@ -4,7 +4,7 @@ ARG TARGETARCH
 #TODO: Workaround to fix link issue
 RUN apk add mariadb-connector-c postgresql-client libgcc
 COPY lucle-$TARGETARCH/lucle .
-COPY  web/dist .
+COPY  ./web/dist .
 EXPOSE 3000
 EXPOSE 8080
 CMD ["./lucle"] 
