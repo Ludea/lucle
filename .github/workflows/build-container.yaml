@@ -12,21 +12,11 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ghcr.io/blackdex/rust-musl:aarch64-musl
+    container: ghcr.io/blackdex/rust-musl:aarch64-musl-nightly-2024-10-25
     steps:
       - uses: actions/checkout@v4
       - name: Build
-        run: |
-          echo ""
-          echo "# COMMAND #####################################"
-          command -v cargo
-          echo ""
-          echo "# #######################################"
-          echo "# #######################################"
-          echo ""
-          env
-          echo ""
-          echo "# #######################################"
+        run: cargo build --release
       - run: ls target/
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
