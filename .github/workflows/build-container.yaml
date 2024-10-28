@@ -71,7 +71,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: lucle-*
-          merge-multiple: true
       - uses: actions/download-artifact@v4
         with:
           name: web
