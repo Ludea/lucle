@@ -44,7 +44,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: lucle-aarch64
+          name: lucle-arm64
           if-no-files-found: error
           path: target/aarch64-unknown-linux-musl/release/lucle
 
@@ -60,7 +60,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: lucle-x86_64
+          name: lucle-amd64
           if-no-files-found: error
           path: target/release/lucle   
       
