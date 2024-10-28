@@ -1,4 +1,7 @@
-use axum::Router;
+use axum::{
+    Router, 
+    routing::get,
+};
 use std::net::SocketAddr;
 use tower_http::{
     services::{ServeDir, ServeFile},
