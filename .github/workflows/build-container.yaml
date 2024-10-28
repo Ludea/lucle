@@ -25,6 +25,12 @@ jobs:
         run: cd web && pnpm install
       - name: Build frontend (js side)
         run: cd web && pnpm build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web/dist
+          if-no-files-found: error
+          path: web/dist
       
   build_aarch64:
     runs-on: ubuntu-latest
