@@ -13,8 +13,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: blackdex/rust-musl:aarch64-musl
-    env:
-      HOME: /root
     steps:
       - uses: actions/checkout@v4
       - name: Build
