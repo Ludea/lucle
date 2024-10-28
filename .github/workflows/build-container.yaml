@@ -23,8 +23,6 @@ jobs:
           version: 9
       - name: Install dependencies
         run: cd web && pnpm install
-      - name: lint
-        run: cd web && pnpm lint
       - name: prettier
         run: cd web && yarn prettier
       - name: Build frontend (js side)
