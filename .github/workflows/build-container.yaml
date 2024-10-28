@@ -28,7 +28,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: web/dist
+          name: web
           if-no-files-found: error
           path: web/dist
       
@@ -74,6 +74,9 @@ jobs:
         with:
           pattern: lucle-*
           merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: web
       - run: ls -R .
       - name: Login to Docker Hub
         uses: docker/login-action@v3
