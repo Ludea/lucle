@@ -10,8 +10,29 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: Install dependencies
+        run: cd web && pnpm install
+      - name: lint
+        run: cd web && pnpm lint
+      - name: prettier
+        run: cd web && yarn prettier
+      - name: Build frontend (js side)
+        run: cd web && pnpm build
+      
   build:
     runs-on: ubuntu-latest
+    needs: frontend
     container: ghcr.io/blackdex/rust-musl:aarch64-musl-nightly-2024-10-25
     env:
       HOME: /root
@@ -25,7 +46,7 @@ jobs:
         with:
           name: lucle
           if-no-files-found: error
-          path: target/release/lucle        
+          path: target/aarch64-unknown-linux-musl/release/lucle        
       
   build-container:
     runs-on: ubuntu-22.04
