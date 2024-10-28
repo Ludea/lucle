@@ -5,6 +5,10 @@ use tower_http::{
     trace::TraceLayer,
 };
 
+async fn health_check() -> &'static str {
+    "OK"
+}
+
 pub async fn serve_dir() {
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
@@ -15,6 +19,7 @@ pub async fn serve_dir() {
 
     let app = Router::new()
         .nest_service("/", serve_dir.clone())
+        .route("/health", get(health_check))
         .fallback_service(serve_dir)
         .layer(TraceLayer::new_for_http());
 
