@@ -291,6 +291,8 @@ pub async fn rpc_api(
     let api = LucleApi::default();
     let api = LucleServer::new(api);
 
+    tracing::info!("gRPC server listening on {addr}");
+
     let cors_layer = CorsLayer::new()
         .allow_origin(Any)
         .allow_headers(Any)
