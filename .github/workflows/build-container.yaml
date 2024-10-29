@@ -86,6 +86,7 @@ jobs:
       - name: Build container
         uses: docker/build-push-action@v6
         with:
+          path: .
           context: .
           push: true
           tags: ludea/lucle:latest
