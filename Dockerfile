@@ -8,7 +8,7 @@ RUN chmod +x lucle
 RUN ls -R .
 RUN pwd
 RUN ls -lah .
-RUN file ./lucle
+RUN stat ./lucle
 COPY  web/dist .
 EXPOSE 3000
 EXPOSE 8080
