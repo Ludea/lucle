@@ -51,8 +51,6 @@ jobs:
   build_x86_64:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          docker run -it ludea/lucle /bin/sh ls
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
