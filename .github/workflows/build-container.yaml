@@ -59,6 +59,7 @@ jobs:
         run: cargo build --release
       - run: ls -Rlah target/release
       - run: file target/release/lucle
+      - run: target/release/lucle
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
