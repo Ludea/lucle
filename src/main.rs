@@ -58,7 +58,7 @@ async fn main() {
         )
         .init();
 
-    let config_file = "config.toml";
+/*    let config_file = "config.toml";
     let mut db = DbType::NoDatabase;
     match fs::read_to_string(config_file) {
         Ok(content) => {
@@ -70,7 +70,7 @@ async fn main() {
             }
         }
         Err(err) => tracing::error!("Unable to get config: {}", err),
-    };
+    }; */
 
     if !Path::new(".tls/ca_cert.pem").exists()
         || !Path::new(".tls/server_cert.pem").exists()
