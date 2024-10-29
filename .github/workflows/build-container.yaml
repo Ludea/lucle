@@ -50,11 +50,9 @@ jobs:
 
   build_x86_64:
     runs-on: ubuntu-latest
+    container: ghcr.io/blackdex/rust-musl:x86_64-musl
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
       - name: Build
         run: cargo build --release
       - run: ls -Rlah target/release
