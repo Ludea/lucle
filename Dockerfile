@@ -6,8 +6,7 @@ COPY lucle-$TARGETARCH/lucle .
 RUN chmod +x lucle
 
 COPY  web/dist ./web/dist
-RUN ls -Rlah .
-RUN stat ./lucle 
+
 EXPOSE 3000
 EXPOSE 8080
 
