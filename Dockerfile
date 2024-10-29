@@ -5,11 +5,9 @@ ARG TARGETARCH
 RUN apk add mariadb-connector-c postgresql-client libgcc
 COPY lucle-$TARGETARCH/lucle .
 RUN chmod +x lucle
-RUN ls -R .
-RUN pwd
-RUN ls -lah .
+RUN ls -Rlah .
 RUN stat ./lucle
 COPY  web/dist .
 EXPOSE 3000
 EXPOSE 8080
-CMD ["/opt/lucle/lucle"] 
+CMD ["./lucle"] 
