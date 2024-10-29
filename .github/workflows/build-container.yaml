@@ -62,7 +62,7 @@ jobs:
         with:
           name: lucle-amd64
           if-no-files-found: error
-          path: target/release/lucle   
+          path: target/x86_64-unknown-linux-musl/release/lucle   
       
   build-container:
     runs-on: ubuntu-22.04
