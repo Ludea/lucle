@@ -10,4 +10,4 @@ RUN ls -Rlah .
 RUN stat ./lucle 
 EXPOSE 3000
 EXPOSE 8080
-CMD ["/opt/lucle/lucle"] 
+ENTRYPOINT ["./lucle"] 
