@@ -1,4 +1,4 @@
-FROM alpine:3.20 AS alpine
+FROM alpine:3.20
 WORKDIR /opt/lucle
 ARG TARGETARCH
 
