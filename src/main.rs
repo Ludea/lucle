@@ -71,6 +71,7 @@ async fn main() {
         }
         Err(err) => tracing::error!("Unable to get config: {}", err),
     }; */
+    let db = DbType::Mysql(diesel::create_pool());
 
     if !Path::new(".tls/ca_cert.pem").exists()
         || !Path::new(".tls/server_cert.pem").exists()
