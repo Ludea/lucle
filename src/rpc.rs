@@ -286,7 +286,7 @@ pub async fn rpc_api(
     _key: &mut BufReader<File>,
     _db: DbType,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "127.0.0.1:3000".parse().unwrap();
+    let addr = "0.0.0.0:3000".parse().unwrap();
 
     let api = LucleApi::default();
     let api = LucleServer::new(api);

@@ -58,7 +58,7 @@ async fn main() {
         )
         .init();
 
-/*    let config_file = "config.toml";
+    /*    let config_file = "config.toml";
     let mut db = DbType::NoDatabase;
     match fs::read_to_string(config_file) {
         Ok(content) => {
