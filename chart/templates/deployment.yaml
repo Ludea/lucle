@@ -37,6 +37,9 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+            - name: grpc
+              containerPort: 3000
+              protocol: TCP
           livenessProbe:
             httpGet:
               path: /health
