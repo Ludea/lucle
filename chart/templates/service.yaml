@@ -10,4 +10,8 @@ spec:
       targetPort: 8080
       protocol: TCP
       name: http
+    - port: {{ .Values.service.grpcport }}
+      targetPort: 3000
+      protocol: TCP
+      name: grpc
   selector: {{- include "lucle.selectorLabels" . | nindent 4 }}
