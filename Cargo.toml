@@ -46,7 +46,7 @@ futures = "0.3"
 jsonwebtoken = "9.3.0"
 ring = "0.17.8"
 base64 = "0.22.1"
-thiserror = "1.0.61"
+thiserror = "2.0.0"
 once_cell = "1.19.0"
 surrealdb = { version = "2.0", features = ["kv-surrealkv"] }
 h2 = "0.4"
