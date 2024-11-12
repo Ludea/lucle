@@ -1,7 +1,3 @@
-import { createPromiseClient } from "@connectrpc/connect";
-import { createGrpcWebTransport } from "@connectrpc/connect-web";
-import { Lucle } from "gen/lucle_connect";
-
 export const checkIfInstalled = async (client: any) =>
   new Promise((resolve, reject) => {
     client

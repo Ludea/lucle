@@ -11,7 +11,6 @@ import { Lucle } from "gen/lucle_connect";
 // Material Dashboard 2 React main context
 const MaterialUI = createContext();
 const LucleRPC = createContext();
-const SpeedupdateRPC = createContext();
 
 // Setting custom name for the context which is visible on react dev tools
 MaterialUI.displayName = "MaterialUIContext";

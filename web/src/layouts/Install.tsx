@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
 // MUI
@@ -12,12 +12,13 @@ import Button from "@mui/material/Button";
 // Components
 import CreateDB from "views/Install/createDB";
 import CreateDefaultUser from "views/Install/createUser";
+import ApiURL from "views/Install/apiURL";
 import { createUser, createDB } from "utils/rpc";
 
 // Context
 import { LucleRPC } from "context";
 
-const steps = ["Create Database", "Create default user"];
+const steps = ["Api Url", "Create Database", "Create default user"];
 
 function InstallStep(
   step: number,
@@ -33,6 +34,8 @@ function InstallStep(
 ) {
   switch (step) {
     case 1:
+      return <ApiURL />;
+    case 2:
       return (
         <CreateDB
           dbInfos={dbInfos}
@@ -41,7 +44,7 @@ function InstallStep(
           selectedDB={selectedDB}
         />
       );
-    case 2:
+    case 3:
       return (
         <CreateDefaultUser
           user={setUsername}
@@ -132,7 +135,7 @@ export default function Install() {
             </Button>
             <Box sx={{ flex: "1 1 auto" }} />
             <Button
-              disabled={activeStep == 1 && passwordStrengh < 3}
+              disabled={activeStep === 1 && passwordStrengh < 3}
               onClick={() => {
                 switch (activeStep) {
                   case 0:
@@ -145,7 +148,7 @@ export default function Install() {
                     }
                     break;
                   case steps.length - 1:
-                    if (password == confirmPassword && password) {
+                    if (password === confirmPassword && password) {
                       createUser(
                         client,
                         username,
