@@ -5,8 +5,8 @@ import PropTypes from "prop-types";
 
 // RPC Connect
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
-import { createPromiseClient } from "@connectrpc/connect";
-import { Lucle } from "gen/lucle_connect";
+import { createClient } from "@connectrpc/connect";
+import { Lucle } from "gen/lucle_pb";
 
 // Material Dashboard 2 React main context
 const MaterialUI = createContext();
@@ -80,7 +80,7 @@ function LucleRPCProvider({ children }) {
   const transport = createGrpcWebTransport({
     baseUrl: `http://127.0.0.1:3000`,
   });
-  const client = createPromiseClient(Lucle, transport);
+  const client = createClient(Lucle, transport);
   return <LucleRPC.Provider value={client}>{children}</LucleRPC.Provider>;
 }
 

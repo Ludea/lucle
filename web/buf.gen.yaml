@@ -1,8 +1,7 @@
-version: v1
+version: v2
+clean: true
 plugins:
-  - name: es
-    out: src/gen
+  - local: protoc-gen-es
     opt: target=ts
-  - name: connect-es
     out: src/gen
-    opt: target=ts
+

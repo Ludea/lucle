@@ -1,6 +1,7 @@
 FROM ghcr.io/lapce/lapdev-devcontainer-gnome
 
 RUN apt-get update && apt install -y --no-install-recommends \
+    build-essential \
     wget \
     nodejs \
     npm \

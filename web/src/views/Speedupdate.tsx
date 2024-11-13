@@ -30,9 +30,8 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 
 // RPC Connect
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
-import { createPromiseClient } from "@connectrpc/connect";
-import { Repo } from "gen/speedupdate_connect";
-
+import { createClient } from "@connectrpc/connect";
+import { Repo } from "gen/speedupdate_pb";
 // api
 import {
   init,
@@ -55,7 +54,7 @@ import { LucleRPC } from "context";
 const transport = createGrpcWebTransport({
   baseUrl: "http://0.0.0.0:3000",
 });
-const client = createPromiseClient(Repo, transport);
+const client = createClient(Repo, transport);
 
 const DisplaySizeUnit = (TotalSize: number) => {
   if (TotalSize > 0 && TotalSize < 1024) {

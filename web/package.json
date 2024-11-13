@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@bufbuild/buf": "^1.41.0",
-    "@connectrpc/connect": "^1.1.2",
-    "@connectrpc/connect-web": "^1.1.2",
+    "@connectrpc/connect": "^2.0.0-rc.3",
+    "@connectrpc/connect-web": "^2.0.0-rc.3",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
@@ -45,9 +45,8 @@
     "vite-tsconfig-paths": "^5.0.1"
   },
   "devDependencies": {
-    "@bufbuild/protobuf": "^1.6.0",
-    "@bufbuild/protoc-gen-es": "^1.6.0",
-    "@connectrpc/protoc-gen-connect-es": "^1.1.2",
+    "@bufbuild/protobuf": "^2.2.0",
+    "@bufbuild/protoc-gen-es": "^2.2.0",
     "@types/react": "^18.2.74",
     "@types/react-dom": "^18.2.18",
     "@types/regenerator-runtime": "^0",
