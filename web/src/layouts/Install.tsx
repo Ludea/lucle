@@ -143,7 +143,7 @@ export default function Install() {
                 switch (activeStep) {
                   case 0:
                     {
-                          setActiveStep((prevActiveStep) => prevActiveStep + 1)
+                      setActiveStep((prevActiveStep) => prevActiveStep + 1);
                     }
                     break;
                   case 1:
