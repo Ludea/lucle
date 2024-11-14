@@ -1,4 +1,10 @@
-import { createContext, useContext, useReducer, useMemo } from "react";
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useMemo,
+  ReactNode,
+} from "react";
 
 // prop-types is a library for typechecking of props
 import PropTypes from "prop-types";
@@ -76,9 +82,15 @@ function MaterialUIControllerProvider({ children }) {
   return <MaterialUI.Provider value={value}>{children}</MaterialUI.Provider>;
 }
 
-function LucleRPCProvider({ children }) {
+function LucleRPCProvider({
+  children,
+  url,
+}: {
+  children: ReactNode;
+  url: string;
+}) {
   const transport = createGrpcWebTransport({
-    baseUrl: `http://127.0.0.1:3000`,
+    baseUrl: url,
   });
   const client = createClient(Lucle, transport);
   return <LucleRPC.Provider value={client}>{children}</LucleRPC.Provider>;

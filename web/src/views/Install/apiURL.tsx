@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 
-function ApiURL({ url }: { url: String }) {
+function ApiURL({ url }) {
   return (
     <Box>
       <TextField

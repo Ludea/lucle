@@ -31,10 +31,11 @@ function InstallStep(
   setEmail: (email: string) => void,
   dbInfos: any,
   setDBInfos: (infos: any) => void,
+  setApiUrl: (apiurl: string) => void,
 ) {
   switch (step) {
     case 1:
-      return <ApiURL />;
+      return <ApiURL url={setApiUrl} />;
     case 2:
       return (
         <CreateDB
@@ -62,6 +63,7 @@ function InstallStep(
 export default function Install() {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [apiURL, setApiURL] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [passwordStrengh, setPasswordStrengh] = useState(0);
   const [email, setEmail] = useState<string>("");
@@ -121,6 +123,7 @@ export default function Install() {
             setEmail,
             dbInfos,
             setDBInfos,
+            setApiURL,
           )}
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             <Button
@@ -139,6 +142,10 @@ export default function Install() {
               onClick={() => {
                 switch (activeStep) {
                   case 0:
+                    {
+                    }
+                    break;
+                  case 1:
                     {
                       createDB(client, selectedDB, dbInfos.dbName, dbInfos)
                         .then(() =>
