@@ -90,7 +90,7 @@ function LucleRPCProvider({
   url: string;
 }) {
   const transport = createGrpcWebTransport({
-    baseUrl: url,
+    baseUrl: `http://api.marlin-atlas.ts.net`,
   });
   const client = createClient(Lucle, transport);
   return <LucleRPC.Provider value={client}>{children}</LucleRPC.Provider>;

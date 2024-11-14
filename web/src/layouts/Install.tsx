@@ -13,7 +13,7 @@ import Button from "@mui/material/Button";
 import CreateDB from "views/Install/createDB";
 import CreateDefaultUser from "views/Install/createUser";
 import ApiURL from "views/Install/apiURL";
-import { createUser, createDB } from "utils/rpc";
+import { createUser, createDB, health } from "utils/rpc";
 
 // Context
 import { LucleRPC } from "context";
@@ -143,6 +143,7 @@ export default function Install() {
                 switch (activeStep) {
                   case 0:
                     {
+                          setActiveStep((prevActiveStep) => prevActiveStep + 1)
                     }
                     break;
                   case 1:

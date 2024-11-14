@@ -1,4 +1,4 @@
-import { useContext, createContext, useState } from "react";
+import { useContext, createContext, useState, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Context
@@ -9,7 +9,7 @@ import { connection } from "utils/rpc";
 
 const AuthContext = createContext();
 
-function AuthProvider({ children }) {
+function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [username, setUsername] = useState(localStorage.getItem("username"));
   const [repositories, setRepositories] = useState(
