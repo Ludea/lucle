@@ -47,7 +47,7 @@ import { registerUpdateServer, listRepositories } from "utils/rpc";
 
 // Context
 import { useAuth } from "context/Auth";
-import { LucleRPC } from "context";
+import { LucleRPC } from "context/Luclerpc";
 
 // import { uploadFile } from "utils/minio";
 

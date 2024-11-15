@@ -4,7 +4,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 
 // Context
-import { LucleRPCProvider } from "context";
+import { LucleRPCProvider } from "context/Luclerpc";
 
 // RPC
 import { forgotPassword } from "utils/rpc";

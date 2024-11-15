@@ -16,7 +16,7 @@ import ApiURL from "views/Install/apiURL";
 import { createUser, createDB } from "utils/rpc";
 
 // Context
-import { LucleRPC } from "context";
+import { LucleRPC } from "context/Luclerpc";
 
 const steps = ["Api Url", "Create Database", "Create default user"];
 

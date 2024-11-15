@@ -1,22 +1,10 @@
-import {
-  createContext,
-  useContext,
-  useReducer,
-  useMemo,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useReducer, useMemo } from "react";
 
 // prop-types is a library for typechecking of props
 import PropTypes from "prop-types";
 
-// RPC Connect
-import { createGrpcWebTransport } from "@connectrpc/connect-web";
-import { createClient } from "@connectrpc/connect";
-import { Lucle } from "gen/lucle_pb";
-
 // Material Dashboard 2 React main context
 const MaterialUI = createContext();
-const LucleRPC = createContext();
 
 // Setting custom name for the context which is visible on react dev tools
 MaterialUI.displayName = "MaterialUIContext";
@@ -82,20 +70,6 @@ function MaterialUIControllerProvider({ children }) {
   return <MaterialUI.Provider value={value}>{children}</MaterialUI.Provider>;
 }
 
-function LucleRPCProvider({
-  children,
-  url,
-}: {
-  children: ReactNode;
-  url: string;
-}) {
-  const transport = createGrpcWebTransport({
-    baseUrl: `https://api.marlin-atlas.ts.net`,
-  });
-  const client = createClient(Lucle, transport);
-  return <LucleRPC.Provider value={client}>{children}</LucleRPC.Provider>;
-}
-
 // Material Dashboard 2 React custom hook for using context
 function useMaterialUIController() {
   const context = useContext(MaterialUI);
@@ -135,8 +109,6 @@ const setLayout = (dispatch, value) => dispatch({ type: "LAYOUT", value });
 const setDarkMode = (dispatch, value) => dispatch({ type: "DARKMODE", value });
 
 export {
-  LucleRPCProvider,
-  LucleRPC,
   MaterialUIControllerProvider,
   useMaterialUIController,
   setMiniSidenav,

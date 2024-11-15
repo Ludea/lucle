@@ -20,10 +20,11 @@ import theme from "assets/theme";
 import themeDark from "assets/theme-dark";
 
 // Material Dashboard 2 React contexts
-import { useMaterialUIController, LucleRPC } from "context";
+import { useMaterialUIController } from "context";
 
 // Context
 import AuthProvider from "context/Auth";
+import { LucleRPC } from "context/Luclerpc";
 
 export default function App() {
   const [isInstalled, setIsInstalled] = useState<boolean>();

@@ -14,7 +14,7 @@ import Signup from "components/Signup";
 import { createUser } from "utils/rpc";
 
 // Context
-import { LucleRPC } from "context";
+import { LucleRPC } from "context/Luclerpc";
 import { useAuth } from "context/Auth";
 
 const theme = createTheme();
