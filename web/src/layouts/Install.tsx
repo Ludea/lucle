@@ -35,7 +35,7 @@ function InstallStep(
 ) {
   switch (step) {
     case 1:
-      return <ApiURL url={setApiUrl} />;
+	      return <ApiURL url={setApiUrl} />;
     case 2:
       return (
         <CreateDB
@@ -138,7 +138,7 @@ export default function Install() {
             </Button>
             <Box sx={{ flex: "1 1 auto" }} />
             <Button
-              disabled={activeStep === 1 && passwordStrengh < 3}
+              disabled={activeStep === 2 && passwordStrengh < 3}
               onClick={() => {
                 switch (activeStep) {
                   case 0:
@@ -147,7 +147,7 @@ export default function Install() {
                     }
                     break;
                   case 1:
-                    {
+                    { console.log("12");
                       createDB(client, selectedDB, dbInfos.dbName, dbInfos)
                         .then(() =>
                           setActiveStep((prevActiveStep) => prevActiveStep + 1),
@@ -155,7 +155,7 @@ export default function Install() {
                         .catch((err) => setError(err.rawMessage));
                     }
                     break;
-                  case steps.length - 1:
+                  case 2 : //steps.length - 1:
                     if (password === confirmPassword && password) {
                       createUser(
                         client,
