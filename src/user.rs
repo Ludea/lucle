@@ -22,7 +22,7 @@ pub struct LucleUser {
 
 static POOL: Lazy<Pool<AsyncMysqlConnection>> = Lazy::new(|| {
     let config = AsyncDieselConnectionManager::<diesel_async::AsyncMysqlConnection>::new(
-        "mysql://root:swp@127.0.0.1/lucle",
+        "mysql://root@mariadb-min.mariadb.svc.cluster.local/lucle",
     );
     Pool::builder(config).build().unwrap()
 });
