@@ -2,12 +2,12 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 
 interface dbInfos {
-  dbName: string,
-  hostname: string,
-  port: number,
-  username: string,
-  password: string,
-};
+  dbName: string;
+  hostname: string;
+  port: number;
+  username: string;
+  password: string;
+}
 
 function DatabaseInfo({
   dbInfos,

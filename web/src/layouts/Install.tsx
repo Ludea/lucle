@@ -35,7 +35,7 @@ function InstallStep(
 ) {
   switch (step) {
     case 1:
-	      return <ApiURL url={setApiUrl} />;
+      return <ApiURL url={setApiUrl} />;
     case 2:
       return (
         <CreateDB
@@ -147,7 +147,7 @@ export default function Install() {
                     }
                     break;
                   case 1:
-                    { 
+                    {
                       createDB(client, selectedDB, dbInfos.dbName, dbInfos)
                         .then(() =>
                           setActiveStep((prevActiveStep) => prevActiveStep + 1),

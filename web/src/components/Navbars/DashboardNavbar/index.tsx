@@ -35,7 +35,15 @@ import {
   setOpenConfigurator,
 } from "context";
 
-function DashboardNavbar({ absolute = false, light = false, isMini = false }: { absolute: boolean, light: boolean, isMini: boolean }) {
+function DashboardNavbar({
+  absolute = false,
+  light = false,
+  isMini = false,
+}: {
+  absolute: boolean;
+  light: boolean;
+  isMini: boolean;
+}) {
   const [navbarType, setNavbarType] = useState();
   const [controller, dispatch] = useMaterialUIController();
   const {
