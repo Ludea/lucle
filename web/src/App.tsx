@@ -20,10 +20,9 @@ import theme from "assets/theme";
 import themeDark from "assets/theme-dark";
 
 // Material Dashboard 2 React contexts
-import { useMaterialUIController, CLientConnectBuf } from "context";
+import { useMaterialUIController, LucleRPC } from "context";
 
 // Context
-import { LucleRPC } from "context";
 import AuthProvider from "context/Auth";
 
 export default function App() {

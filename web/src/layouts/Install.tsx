@@ -13,7 +13,7 @@ import Button from "@mui/material/Button";
 import CreateDB from "views/Install/createDB";
 import CreateDefaultUser from "views/Install/createUser";
 import ApiURL from "views/Install/apiURL";
-import { createUser, createDB, health } from "utils/rpc";
+import { createUser, createDB } from "utils/rpc";
 
 // Context
 import { LucleRPC } from "context";
@@ -147,7 +147,7 @@ export default function Install() {
                     }
                     break;
                   case 1:
-                    { console.log("12");
+                    { 
                       createDB(client, selectedDB, dbInfos.dbName, dbInfos)
                         .then(() =>
                           setActiveStep((prevActiveStep) => prevActiveStep + 1),
@@ -155,7 +155,7 @@ export default function Install() {
                         .catch((err) => setError(err.rawMessage));
                     }
                     break;
-                  case 2 : //steps.length - 1:
+                  case 2:
                     if (password === confirmPassword && password) {
                       createUser(
                         client,
