@@ -314,7 +314,7 @@ function Speedupdate() {
   if (!currentRepo) {
     speedupdatecomponent = (
       <div>
-        {listRepo
+        {listRepo.length > 0
           ? listRepo.map((repo_name, index) => (
               <Button
                 key={index}
