@@ -44,9 +44,7 @@ jobs:
         with:
           name: lucle-arm64
           if-no-files-found: error
-          path: |
-            target/aarch64-unknown-linux-musl/release/lucle
-            pkey
+          path: target/aarch64-unknown-linux-musl/release/lucle
 
   build_x86_64:
     runs-on: ubuntu-latest
@@ -60,9 +58,7 @@ jobs:
         with:
           name: lucle-amd64
           if-no-files-found: error
-          path: |
-            target/x86_64-unknown-linux-musl/release/lucle
-            pkey
+          path: target/x86_64-unknown-linux-musl/release/lucle
       
   build-container:
     runs-on: ubuntu-22.04
