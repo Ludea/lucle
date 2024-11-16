@@ -52,7 +52,7 @@ import { LucleRPC } from "context/Luclerpc";
 // import { uploadFile } from "utils/minio";
 
 const transport = createGrpcWebTransport({
-  baseUrl: "https://repo.marlin-atlas.ts.net:3000",
+  baseUrl: "https://repo.marlin-atlas.ts.net/api",
 });
 const client = createClient(Repo, transport);
 
