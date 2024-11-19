@@ -442,7 +442,7 @@ function Speedupdate() {
                   onClick={() => {
                     setCurrentVersion(
                       client,
-                      auth.repository,
+                      currentRepo,
                       selectedVersions[0],
                     ).catch((err) => setError(err.rawMessage));
                     // setVersionsSelected([]);
