@@ -444,7 +444,7 @@ function Speedupdate() {
                       client,
                       auth.repository,
                       selectedVersions[0],
-                    );
+                    ).catch((err) => setError(err.rawMessage));
                     // setVersionsSelected([]);
                   }}
                 >
