@@ -153,25 +153,21 @@ function Speedupdate() {
         });
         setListPackages(fullListPackages);
         setAvailableBinaries(repo.availableBinaries);
+
+        setVisibleVersions(
+          repo.versions.slice(
+            versionsPage * versionsPerPage,
+            versionsPage * versionsPerPage + versionsPerPage,
+          ),
+        );
+
+        setVisiblePackages(
+          listPackages.slice(
+            packagesPage * packagesPerPage,
+            packagesPage * packagesPerPage + packagesPerPage,
+          ),
+        );
       }
-    }
-
-    if (listVersions) {
-      setVisibleVersions(
-        listVersions.slice(
-          versionsPage * versionsPerPage,
-          versionsPage * versionsPerPage + versionsPerPage,
-        ),
-      );
-    }
-
-    if (listPackages) {
-      setVisiblePackages(
-        listPackages.slice(
-          packagesPage * packagesPerPage,
-          packagesPage * packagesPerPage + packagesPerPage,
-        ),
-      );
     }
 
     if (availableBinaries) {
@@ -190,6 +186,7 @@ function Speedupdate() {
     if (currentRepo) {
       Status().catch((err) => setError(err.rawMessage));
     }
+    console.log("15: ", visibleVersions);
   }, [currentRepo]);
 
   const uploadFile = () => {
@@ -475,7 +472,7 @@ function Speedupdate() {
               </TableHead>
               <TableBody>
                 {visibleVersions
-                  ? visibleVersions.map((current_version, index) => {
+                  ? visibleVersions.map((current_version: any, index) => {
                       const isItemSelected = isVersionsSelected(index + 1);
                       const labelId = `enhanced-table-checkbox-${index}`;
                       return (
@@ -562,7 +559,7 @@ function Speedupdate() {
               rowsPerPage={versionsPerPage}
               page={versionsPage}
               labelRowsPerPage="Versions per page"
-              onPageChange={(event, newPage) => setVersionsPage(newPage)}
+              onPageChange={(_, newPage) => setVersionsPage(newPage)}
               onRowsPerPageChange={(event) => {
                 setVersionsPerPage(parseInt(event.target.value, 10));
                 setVersionsPage(0);
