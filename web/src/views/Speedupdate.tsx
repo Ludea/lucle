@@ -186,7 +186,6 @@ function Speedupdate() {
     if (currentRepo) {
       Status().catch((err) => setError(err.rawMessage));
     }
-    console.log("15: ", visibleVersions);
   }, [currentRepo]);
 
   const uploadFile = () => {
