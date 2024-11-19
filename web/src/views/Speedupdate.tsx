@@ -442,7 +442,7 @@ function Speedupdate() {
                   onClick={() => {
                     setCurrentVersion(
                       client,
-                      auth.repaository,
+                      auth.repository,
                       selectedVersions[0],
                     );
                     // setVersionsSelected([]);
