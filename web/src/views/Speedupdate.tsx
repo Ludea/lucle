@@ -443,7 +443,7 @@ function Speedupdate() {
                     setCurrentVersion(
                       client,
                       currentRepo,
-                      selectedVersions[0],
+                      selectedVersionsValues[0],
                     ).catch((err) => setError(err.rawMessage));
                     // setVersionsSelected([]);
                   }}
