@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@bufbuild/buf": "^1.41.0",
-    "@connectrpc/connect": "^2.0.0-rc.3",
-    "@connectrpc/connect-web": "^2.0.0-rc.3",
+    "@connectrpc/connect": "^2.0.0",
+    "@connectrpc/connect-web": "^2.0.0",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
