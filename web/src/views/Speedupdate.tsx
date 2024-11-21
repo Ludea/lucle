@@ -167,16 +167,14 @@ function Speedupdate() {
             packagesPage * packagesPerPage + packagesPerPage,
           ),
         );
-      }
-    }
 
-    if (availableBinaries) {
-      setVisibleBinaries(
-        availableBinaries.slice(
-          binariesPage * binariesPerPage,
-          binariesPage * binariesPerPage + binariesPerPage,
-        ),
-      );
+        setVisibleBinaries(
+          repo.availableBinaries.slice(
+            binariesPage * binariesPerPage,
+            binariesPage * binariesPerPage + binariesPerPage,
+          ),
+        );
+      }
     }
 
     if (auth.repositories) {
