@@ -162,7 +162,7 @@ function Speedupdate() {
         );
 
         setVisiblePackages(
-          listPackages.slice(
+          fullListPackages.slice(
             packagesPage * packagesPerPage,
             packagesPage * packagesPerPage + packagesPerPage,
           ),
