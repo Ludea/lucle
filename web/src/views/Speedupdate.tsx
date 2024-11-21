@@ -191,11 +191,10 @@ function Speedupdate() {
   const uploadFile = () => {
     const formData = new FormData();
     formData.append("file", files[0]);
-    fetch("https://api.marlin-atlas.ts.net/file/" + files[0].name}, {
+    fetch(`https://api.marlin-atlas.ts.net/file/${files[0].name}`, {
       method: "POST",
       body: formData,
-    })
-      .catch((err) => setError(err));
+    }).catch((err) => setError(err));
   };
 
   const RegisterPackages = () => {
@@ -442,9 +441,10 @@ function Speedupdate() {
                     setCurrentVersion(
                       client,
                       currentRepo,
-                      selectedVersionsValues[0].revision,
-                    ).catch((err) => setError(err.rawMessage));
-                    // setVersionsSelected([]);
+                      selectedVersionsValues[0],
+                    )
+                      .then(() => setSelectedVersions([]))
+                      .catch((err) => setError(err.rawMessage));
                   }}
                 >
                   <CheckIcon />
