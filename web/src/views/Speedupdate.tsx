@@ -196,6 +196,7 @@ function Speedupdate() {
   };
 
   const RegisterPackages = () => {
+    setError("");
     selectedPackagesValues.forEach((pack) => {
       registerPackage(client, currentRepo, pack).catch((err) =>
         setError(err.rawMessage),
@@ -207,6 +208,7 @@ function Speedupdate() {
   };
 
   const UnregisterPackages = () => {
+    setError("");
     selectedPackagesValues.forEach((pack) => {
       unregisterPackage(client, currentRepo, pack).catch((err) =>
         setError(err.rawMessage),
@@ -218,6 +220,7 @@ function Speedupdate() {
   };
 
   const DeleteVersion = () => {
+    setError("");
     selectedVersions.forEach((version) => {
       unregisterVersion(client, currentRepo, version).catch((err) =>
         setError(err.rawMessage),
@@ -226,6 +229,7 @@ function Speedupdate() {
   };
 
   const DeletePackages = () => {
+    setError("");
     selectedPackages.forEach((row) => {
       if (listPackages[row].published) {
         unregisterPackage(client, currentRepo, listPackages[row].name).catch(
