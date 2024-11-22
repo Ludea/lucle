@@ -35,7 +35,7 @@
     "react-feather": "^2.0.10",
     "react-github-btn": "^1.4.0",
     "react-password-strength-bar": "^0.4.1",
-    "react-router": "^6.21.2",
+    "react-router": "^7.0.1",
     "react-router-dom": "^6.21.2",
     "react-table": "^7.8.0",
     "regenerator-runtime": "^0.14.1",
