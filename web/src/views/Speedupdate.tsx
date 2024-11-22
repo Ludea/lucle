@@ -349,6 +349,7 @@ function Speedupdate() {
           <Button
             variant="contained"
             onClick={() => {
+              setError("");
               init(client, path)
                 .then(() =>
                   isInit(client, path)
@@ -436,6 +437,7 @@ function Speedupdate() {
               <Tooltip title="SetVersion">
                 <IconButton
                   onClick={() => {
+                    setError("");
                     setCurrentVersion(
                       client,
                       currentRepo,
@@ -528,6 +530,7 @@ function Speedupdate() {
                       <Grid item xs={1}>
                         <IconButton
                           onClick={() => {
+                            setError("");
                             registerVersion(
                               client,
                               currentRepo,
