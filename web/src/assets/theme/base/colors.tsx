@@ -9,7 +9,7 @@ const colors = {
   },
 
   transparent: {
-    main: rgba(0,0,0,0.5),
+    main: "rgba(0,0,0,0)",
   },
 
   white: {
