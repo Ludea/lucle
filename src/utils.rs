@@ -12,6 +12,7 @@ use std::{
 };
 use tera::{Context, Tera};
 use time::{Duration, OffsetDateTime};
+use toml_edit::{value, DocumentMut};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
@@ -19,6 +20,16 @@ struct Claims {
     email: String,
     exp: u64,
     scope: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct LucleConfig {
+    database: DatabaseConfig,
+}
+
+#[derive(Debug, Deserialize)]
+struct DatabaseConfig {
+    database: String,
 }
 
 pub fn send_mail(from: &str, dest: &str, subject: &str, _body: &str) {
@@ -146,4 +157,18 @@ pub fn generate_jwt(username: String, email: String) -> String {
         &encoding_key,
     )
     .unwrap()
+}
+
+pub fn get_config_key(key: String) -> String {
+    let config_file = "config.toml";
+    let file = fs::read_to_string(config_file).unwrap();
+    let content: LucleConfig = toml::from_str(&file).unwrap();
+    content.database.database
+}
+
+pub fn set_config_key(val: String) {
+    let config_file = "config.toml";
+    let content = fs::read_to_string(config_file).unwrap();
+    let mut doc = content.parse::<DocumentMut>().expect("invalid doc");
+    doc["database"]["database"] = value(val)
 }

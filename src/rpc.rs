@@ -1,6 +1,7 @@
 use super::diesel;
-use super::surrealdb;
+use super::surreal;
 use super::user;
+use super::utils;
 use crate::DbType;
 use email_address_parser::EmailAddress;
 use luclerpc::{
@@ -63,6 +64,7 @@ impl Lucle for LucleApi {
                 }
             }
             Ok(DatabaseType::Mysql) => {
+                utils::set_config_key("mysql".to_string());
                 if let Some(db_connection) = inner.db_connection {
                     if let Err(err) = diesel::create_database(
                         &("mysql://".to_owned()
@@ -90,7 +92,7 @@ impl Lucle for LucleApi {
                 }
             }
             Ok(DatabaseType::Surrealdb) => {
-                if let Err(err) = surrealdb::create_database().await {
+                if let Err(err) = surreal::create_database().await {
                     tracing::error!("Unable to create database : {}", err);
                     return Err(Status::internal(err.to_string()));
                 }

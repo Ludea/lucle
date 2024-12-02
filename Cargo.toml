@@ -23,6 +23,7 @@ tower-http = { version = "0.6", features = ["fs", "trace", "cors", "add-extensio
 tracing = "0.1"
 url = "2.2.2"
 toml = "0.8.2"
+toml_edit = "0.22"
 serde = { version = "1.0.0", features = ["derive"] }
 serde_regex = "1.1"
 regex = "1.0.6"
@@ -30,7 +31,6 @@ syn = { version = "2", features = ["visit"] }
 pki-types = { package = "rustls-pki-types", version = "1" }
 rcgen = "0.13.1"
 rustls-pemfile = "2.0.0"
-#rustls-acme = { version = "0.10", features = ["axum"] }
 argon2 = "0.5.2"
 lettre = { version = "0.11.1", default-features = false, features = ["smtp-transport", "pool", "hostname", "builder", "rustls-tls", "file-transport"] }
 email-address-parser = "2.0.0"

@@ -2,13 +2,8 @@ use diesel_async::pooled_connection::deadpool::Pool;
 use diesel_async::AsyncMysqlConnection;
 use once_cell::sync::Lazy;
 use rustls_pemfile::certs;
-use serde::Deserialize;
 use std::path::Path;
-use std::{
-    fs::{self, File},
-    io::BufReader,
-    sync::Arc,
-};
+use std::{fs::File, io::BufReader, sync::Arc};
 use tokio_rustls::rustls::ServerConfig;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -21,23 +16,13 @@ pub mod models;
 mod query_helper;
 mod rpc;
 pub mod schema;
-mod surrealdb;
+mod surreal;
 mod user;
 mod utils;
 
-#[derive(Debug, Deserialize)]
-struct LucleConfig {
-    database: DatabaseConfig,
-}
-
-#[derive(Debug, Deserialize)]
-struct DatabaseConfig {
-    database: String,
-}
-
 pub enum DbType {
     Mysql(Lazy<Pool<AsyncMysqlConnection>>),
-    Surrealdb(i32),
+    Surrealdb(surrealdb::Result<()>),
     NoDatabase,
 }
 
@@ -58,20 +43,11 @@ async fn main() {
         )
         .init();
 
-    /*    let config_file = "config.toml";
-    let mut db = DbType::NoDatabase;
-    match fs::read_to_string(config_file) {
-        Ok(content) => {
-            let decoded: LucleConfig = toml::from_str(&content).unwrap();
-            match decoded.database.database.as_str() {
-                "mysql" => db = DbType::Mysql(diesel::create_pool()),
-                "surrealdb" => db = DbType::Surrealdb(12),
-                &_ => db = DbType::NoDatabase,
-            }
-        }
-        Err(err) => tracing::error!("Unable to get config: {}", err),
-    }; */
-    let db = DbType::Mysql(diesel::create_pool());
+    let db = match utils::get_config_key("database".to_string()).as_str() {
+        "mysql" => DbType::Mysql(diesel::create_pool()),
+        "surrealdb" => DbType::Surrealdb(surreal::create_database().await),
+        _ => DbType::NoDatabase,
+    };
 
     if !Path::new(".tls/ca_cert.pem").exists()
         || !Path::new(".tls/server_cert.pem").exists()

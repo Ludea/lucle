@@ -12,13 +12,12 @@ import Button from "@mui/material/Button";
 // Components
 import CreateDB from "views/Install/createDB";
 import CreateDefaultUser from "views/Install/createUser";
-import ApiURL from "views/Install/apiURL";
 import { createUser, createDB } from "utils/rpc";
 
 // Context
 import { LucleRPC } from "context/Luclerpc";
 
-const steps = ["Api Url", "Create Database", "Create default user"];
+const steps = ["Create Database", "Create default user"];
 
 function InstallStep(
   step: number,
@@ -31,12 +30,9 @@ function InstallStep(
   setEmail: (email: string) => void,
   dbInfos: any,
   setDBInfos: (infos: any) => void,
-  setApiUrl: (apiurl: string) => void,
 ) {
   switch (step) {
     case 1:
-      return <ApiURL url={setApiUrl} />;
-    case 2:
       return (
         <CreateDB
           dbInfos={dbInfos}
@@ -45,7 +41,7 @@ function InstallStep(
           selectedDB={selectedDB}
         />
       );
-    case 3:
+    case 2:
       return (
         <CreateDefaultUser
           user={setUsername}
@@ -63,7 +59,6 @@ function InstallStep(
 export default function Install() {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [apiURL, setApiURL] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [passwordStrengh, setPasswordStrengh] = useState(0);
   const [email, setEmail] = useState<string>("");
@@ -123,7 +118,6 @@ export default function Install() {
             setEmail,
             dbInfos,
             setDBInfos,
-            setApiURL,
           )}
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             <Button
@@ -143,11 +137,6 @@ export default function Install() {
                 switch (activeStep) {
                   case 0:
                     {
-                      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-                    }
-                    break;
-                  case 1:
-                    {
                       createDB(client, selectedDB, dbInfos.dbName, dbInfos)
                         .then(() =>
                           setActiveStep((prevActiveStep) => prevActiveStep + 1),
@@ -155,7 +144,7 @@ export default function Install() {
                         .catch((err) => setError(err.rawMessage));
                     }
                     break;
-                  case 2:
+                  case 1:
                     if (password === confirmPassword && password) {
                       createUser(
                         client,
