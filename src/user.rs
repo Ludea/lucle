@@ -1,5 +1,5 @@
 use crate::errors::Error;
-use crate::models::{NewUser, Permission, Repository, User, UsersRepositories};
+use crate::models::{NewUser, Permission, Platforms, Repository, User, UsersRepositories};
 use crate::schema::{repositories, users, users_repositories};
 use crate::utils;
 use argon2::{
@@ -53,7 +53,11 @@ pub async fn create_user(username: String, password: String, email: String) -> R
     Ok(())
 }
 
-pub async fn register_update_server(username: String, repository: String) -> Result<(), Error> {
+pub async fn register_update_server(
+    username: String,
+    repository: String,
+    platforms: Vec<Platforms>,
+) -> Result<(), Error> {
     let mut conn = POOL.get().await?;
     let now = select(diesel::dsl::now)
         .get_result::<NaiveDateTime>(&mut conn)
@@ -62,6 +66,7 @@ pub async fn register_update_server(username: String, repository: String) -> Res
     let repo = Repository {
         name: repository.clone(),
         created_at: now,
+        platforms: platforms,
     };
 
     diesel::insert_into(repositories::table)

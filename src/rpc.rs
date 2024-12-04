@@ -135,9 +135,10 @@ impl Lucle for LucleApi {
     ) -> Result<Response<Empty>, Status> {
         let inner = request.into_inner();
         let username = inner.username;
+        let platforms = inner.platforms;
         let path = inner.path;
         let reply = Empty {};
-        match user::register_update_server(username.clone(), path.clone()).await {
+        match user::register_update_server(username.clone(), path.clone(), platforms).await {
             Ok(()) => {
                 tracing::info!("User {} created {} repository", username, path);
                 return Ok(Response::new(reply));

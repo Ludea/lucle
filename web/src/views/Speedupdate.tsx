@@ -15,6 +15,8 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import IconButton from "@mui/material/IconButton";
 import { alpha } from "@mui/material/styles";
 import { DropzoneArea } from "mui2-file-dropzone";
@@ -113,6 +115,12 @@ function Speedupdate() {
   const [selectedBinaries, setSelectedBinaries] = useState<readonly number[]>(
     [],
   );
+  const [checked, setChecked] = useState<any>({
+    Win64: false,
+    Macos_x86_64: false,
+    Macos_arm64: false,
+    linux: false,
+  });
 
   const auth = useAuth();
   const lucleClient = useContext(LucleRPC);
@@ -332,15 +340,9 @@ function Speedupdate() {
           <TextField
             id="join-update-server"
             label="path"
-            // value={}
             onChange={(e: any) => setPath(e.currentTarget.value)}
           />
-          <Button
-            variant="contained"
-            // onClick={() => ()}
-          >
-            Join repository
-          </Button>
+          <Button variant="contained">Join repository</Button>
           <TextField
             id="outlined-required"
             label="path"
@@ -350,6 +352,68 @@ function Speedupdate() {
               localStorage.setItem("path", e.currentTarget.value);
             }}
           />
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="Win64"
+                  checked={checked.Win64}
+                  onChange={(event) =>
+                    setChecked((checked: any) => ({
+                      ...checked,
+                      [event.target.name]: event.target.checked,
+                    }))
+                  }
+                />
+              }
+              label="Win64"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="Macos_x86_64"
+                  checked={checked.Macos_x86_64}
+                  onChange={(event) =>
+                    setChecked((checked: any) => ({
+                      ...checked,
+                      [event.target.name]: event.target.checked,
+                    }))
+                  }
+                />
+              }
+              label="Macos x86_64"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="Macos_arm64"
+                  checked={checked.Macos_arm64}
+                  onChange={(event) =>
+                    setChecked((checked: any) => ({
+                      ...checked,
+                      [event.target.name]: event.target.checked,
+                    }))
+                  }
+                />
+              }
+              label="MacOS arm64"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="linux"
+                  checked={checked.linux}
+                  onChange={(event) =>
+                    setChecked((checked: any) => ({
+                      ...checked,
+                      [event.target.name]: event.target.checked,
+                    }))
+                  }
+                />
+              }
+              label="Linux"
+            />
+          </FormGroup>
           <Button
             variant="contained"
             onClick={() => {

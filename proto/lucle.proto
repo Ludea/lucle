@@ -37,6 +37,7 @@ message Database {
 message UpdateServer {
   string path = 1;
   string username = 2;
+  repeated string platforms = 3;
 }
 
 message Username {
