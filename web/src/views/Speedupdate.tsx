@@ -54,7 +54,8 @@ import { LucleRPC } from "context/Luclerpc";
 // import { uploadFile } from "utils/minio";
 
 const transport = createGrpcWebTransport({
-  baseUrl: "https://api-repo.marlin-atlas.ts.net",
+  //baseUrl: "https://api-repo.marlin-atlas.ts.net",
+  baseUrl: "http://127.0.0.1:3000",
 });
 const client = createClient(Repo, transport);
 
@@ -116,9 +117,9 @@ function Speedupdate() {
     [],
   );
   const [checked, setChecked] = useState<any>({
-    Win64: false,
-    Macos_x86_64: false,
-    Macos_arm64: false,
+    win64: false,
+    macos_x86_64: false,
+    macos_arm64: false,
     linux: false,
   });
 
@@ -356,7 +357,7 @@ function Speedupdate() {
             <FormControlLabel
               control={
                 <Checkbox
-                  name="Win64"
+                  name="win64"
                   checked={checked.Win64}
                   onChange={(event) =>
                     setChecked((checked: any) => ({
@@ -371,7 +372,7 @@ function Speedupdate() {
             <FormControlLabel
               control={
                 <Checkbox
-                  name="Macos_x86_64"
+                  name="macos_x86_64"
                   checked={checked.Macos_x86_64}
                   onChange={(event) =>
                     setChecked((checked: any) => ({
@@ -386,7 +387,7 @@ function Speedupdate() {
             <FormControlLabel
               control={
                 <Checkbox
-                  name="Macos_arm64"
+                  name="macos_arm64"
                   checked={checked.Macos_arm64}
                   onChange={(event) =>
                     setChecked((checked: any) => ({
@@ -418,7 +419,7 @@ function Speedupdate() {
             variant="contained"
             onClick={() => {
               setError("");
-              init(client, path)
+              init(client, path, checked)
                 .then(() =>
                   isInit(client, path)
                     .then(() =>

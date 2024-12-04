@@ -2,19 +2,25 @@ const token = localStorage.getItem("token");
 const headers = new Headers();
 headers.set("Authorization", `Bearer ${token}`);
 
-export const init = async (client: any, path: string) =>
+export const init = async (client: any, path: string, platforms: any) =>
   new Promise((resolve, reject) => {
-    client
-      .init(
-        {
-          path,
-        },
-        { headers },
-      )
-      .then(() => resolve())
-      .catch((error: any) => {
-        reject(error);
-      });
+    const repo_to_create = Object.keys(platforms).filter(
+      (key) => platforms[key] === true,
+    );
+    for (const key of repo_to_create) {
+      client
+        .init(
+          {
+            path: path.concat("/", key),
+          },
+          { headers },
+        )
+        .then(() => resolve())
+        .catch((error: any) => {
+          console.log("12 : ", error);
+          reject(error);
+        });
+    }
   });
 
 export const isInit = async (client: any, path: string) =>
