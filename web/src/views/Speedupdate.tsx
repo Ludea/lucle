@@ -54,7 +54,7 @@ import { LucleRPC } from "context/Luclerpc";
 // import { uploadFile } from "utils/minio";
 
 const transport = createGrpcWebTransport({
-  //baseUrl: "https://api-repo.marlin-atlas.ts.net",
+  // baseUrl: "https://api-repo.marlin-atlas.ts.net"
   baseUrl: "http://127.0.0.1:3000",
 });
 const client = createClient(Repo, transport);
@@ -66,10 +66,10 @@ const DisplaySizeUnit = (TotalSize: number) => {
   if (TotalSize < 1024 * 1024) {
     return "kB";
   }
-  if (TotalSize < 1024 * 1024 * 1024) {
+  if (TotalSize < (1024 * 1024 * 1024)) {
     return "MB";
   }
-  if (TotalSize < 1024 * 1024 * 1024 * 1024) {
+  if (TotalSize < (1024 * 1024 * 1024 * 1024)) {
     return "GB";
   }
   return "-";
@@ -146,10 +146,12 @@ function Speedupdate() {
       const call = client.status(
         {
           path: currentRepo,
+	  platforms: ["Win64"] 
         },
         { headers },
       );
       for await (const repo of call) {
+console.log("12: ", repo);
         setSize(repo.size);
         getCurrentVersion(repo.currentVersion);
         setListVersions(repo.versions);
