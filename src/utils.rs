@@ -7,12 +7,13 @@ use lettre::{
 use rcgen::{DnType, KeyPair, KeyUsagePurpose};
 use serde::{Deserialize, Serialize};
 use std::{
-    fs::{self, File},
-    io::{Result, Write},
+    fs::{self, File, OpenOptions},
+    io::{Result, Write, ErrorKind},
 };
 use tera::{Context, Tera};
 use time::{Duration, OffsetDateTime};
 use toml_edit::{value, DocumentMut};
+use toml::Value;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
@@ -171,4 +172,30 @@ pub fn set_config_key(val: String) {
     let content = fs::read_to_string(config_file).unwrap();
     let mut doc = content.parse::<DocumentMut>().expect("invalid doc");
     doc["database"]["database"] = value(val)
+}
+
+pub fn create_config_file() {
+    let default_config = r#"
+[database]
+database = ""
+"#;
+
+    let mut content = String::new();
+    match fs::File::open("config.toml") {
+        Ok(mut file) => {
+            file.read_to_string(&mut content)?;
+            if let Err(err) = content.parse::<Value>() {
+                tracing::error!("error on parsing file: {}", err);
+            }
+        }
+        Err(err) if err.kind() == ErrorKind::NotFound => {
+            tracing::info!("Creating config file");
+            let mut file = OpenOptions::new()
+                .write(true)
+                .create(true)
+                .open(file_path)?;
+            file.write_all(default_config.as_bytes())?;
+            tracing::info!("Config file created");
+        }
+    }
 }

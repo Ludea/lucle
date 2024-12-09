@@ -23,6 +23,10 @@ enum Platforms {
 
 message RepositoryPath {
   string path = 1;
+}
+
+message RepositoryStatus {
+  string path = 1;
   repeated Platforms platforms = 2;
 }
 

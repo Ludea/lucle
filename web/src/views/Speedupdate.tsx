@@ -33,7 +33,7 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 // RPC Connect
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import { createClient } from "@connectrpc/connect";
-import { Repo } from "gen/speedupdate_pb";
+import { Repo, Platforms } from "gen/speedupdate_pb";
 // api
 import {
   init,
@@ -66,10 +66,10 @@ const DisplaySizeUnit = (TotalSize: number) => {
   if (TotalSize < 1024 * 1024) {
     return "kB";
   }
-  if (TotalSize < (1024 * 1024 * 1024)) {
+  if (TotalSize < 1024 * 1024 * 1024) {
     return "MB";
   }
-  if (TotalSize < (1024 * 1024 * 1024 * 1024)) {
+  if (TotalSize < 1024 * 1024 * 1024 * 1024) {
     return "GB";
   }
   return "-";
@@ -138,6 +138,13 @@ function Speedupdate() {
     selectedBinaries.indexOf(id) !== -1;
   const numBinariesSelected = selectedBinaries.length;
 
+  getPlatmforms = () => {
+    let hosts = Object.keys(checked).filter((key) => checked[key] === true);
+    for (const key of hosts) {
+      console.log(key);
+    }
+  };
+
   useEffect(() => {
     const headers = new Headers();
     const { token } = auth;
@@ -146,12 +153,12 @@ function Speedupdate() {
       const call = client.status(
         {
           path: currentRepo,
-	  platforms: ["Win64"] 
+          platforms: [Platforms.WIN64],
         },
         { headers },
       );
       for await (const repo of call) {
-console.log("12: ", repo);
+        console.log("12: ", repo);
         setSize(repo.size);
         getCurrentVersion(repo.currentVersion);
         setListVersions(repo.versions);
@@ -422,18 +429,18 @@ console.log("12: ", repo);
             onClick={() => {
               setError("");
               init(client, path, checked)
-                .then(() =>
-                  isInit(client, path)
-                    .then(() =>
-                      registerUpdateServer(lucleClient, auth.username, path)
-                        .then(() => {
-                          setCurrentRepo(path);
-                          localStorage.setItem("current_repo", path);
-                        })
-                        .catch((err) => setError(err.rawMessage)),
-                    )
-                    .catch((err) => setError(err.rawMessage)),
-                )
+                .then(() => {
+                  //isInit(client, path)
+                  //  .then(() => {
+                  //registerUpdateServer(lucleClient, auth.username, path)
+                  //  .then(() => {
+                  setCurrentRepo(path);
+                  localStorage.setItem("current_repo", path);
+                })
+                //.catch((err) => setError(err.rawMessage)),
+                // )
+                // .catch((err) => setError(err.rawMessage)),
+                //)
                 .catch((err) => setError(err.rawMessage));
               listRepositories(lucleClient, auth.username).then((list) =>
                 setListRepo(list),

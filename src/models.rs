@@ -11,8 +11,8 @@ use diesel::{
     serialize::{self, IsNull, Output, ToSql},
     AsExpression,
 };
-use std::io::Write;
 use serde::{Deserialize, Serialize};
+use std::io::Write;
 
 #[derive(Debug, Queryable, Selectable)]
 #[diesel(table_name = users)]
