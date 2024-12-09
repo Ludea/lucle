@@ -43,6 +43,8 @@ async fn main() {
         )
         .init();
 
+    utils::create_config_file().unwrap();
+
     let db = match utils::get_config_key("database".to_string()).as_str() {
         "mysql" => DbType::Mysql(diesel::create_pool()),
         "surrealdb" => DbType::Surrealdb(surreal::create_database().await),
