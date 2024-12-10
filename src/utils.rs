@@ -187,6 +187,8 @@ database = ""
             if let Err(err) = content.parse::<Value>() {
                 tracing::error!("error on parsing file: {}", err);
                 return Err(io::Error::new(io::ErrorKind::Other, err.to_string()));
+            } else {
+                return Ok(());
             }
         }
         Err(err) if err.kind() == ErrorKind::NotFound => {
@@ -197,7 +199,8 @@ database = ""
                 .open("config.toml")?;
             file.write_all(default_config.as_bytes())?;
             tracing::info!("Config file created");
-            Ok(())
+            return Ok(());
         }
+        Err(err) => Err(io::Error::new(io::ErrorKind::Other, err.to_string())),
     }
 }

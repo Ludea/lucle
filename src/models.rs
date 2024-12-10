@@ -1,7 +1,5 @@
 use super::schema::{
-    repositories,
-    sql_types::UsersRepositoriesPermissionEnum,
-    users, users_repositories,
+    repositories, sql_types::UsersRepositoriesPermissionEnum, users, users_repositories,
 };
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
@@ -9,7 +7,8 @@ use diesel::FromSqlRow;
 use diesel::{
     deserialize::{self, FromSql},
     serialize::{self, IsNull, Output, ToSql},
-    AsExpression, sql_types::Json,
+    sql_types::Json,
+    AsExpression,
 };
 use serde::{Deserialize, Serialize};
 use std::io::Write;
