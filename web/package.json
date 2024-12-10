@@ -28,7 +28,7 @@
     "minio": "https://github.com/minio/minio-js",
     "mui2-file-dropzone": "^5.0.0",
     "prop-types": "^15.8.1",
-    "react": "^18.2.0",
+    "react": "^19.0.0",
     "react-chartjs-2": "^5.2.0",
     "react-countup": "^6.4.2",
     "react-dom": "^19.0.0",
