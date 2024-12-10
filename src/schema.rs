@@ -4,14 +4,10 @@ pub mod sql_types {
     #[derive(diesel::sql_types::SqlType)]
     #[diesel(mysql_type(name = "Enum"))]
     pub struct UsersRepositoriesPermissionEnum;
-    #[derive(diesel::sql_types::SqlType)]
-    #[diesel(mysql_type(name = "Enum"))]
-    pub struct RepositoriesPlatformsEnum;
 }
 
 diesel::table! {
     use diesel::sql_types::*;
-    use super::sql_types::RepositoriesPlatformsEnum;
     repositories (id) {
         id -> Integer,
         #[max_length = 255]

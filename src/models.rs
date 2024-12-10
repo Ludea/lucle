@@ -1,6 +1,6 @@
 use super::schema::{
     repositories,
-    sql_types::{RepositoriesPlatformsEnum, UsersRepositoriesPermissionEnum},
+    sql_types::UsersRepositoriesPermissionEnum,
     users, users_repositories,
 };
 use chrono::NaiveDateTime;
@@ -9,7 +9,7 @@ use diesel::FromSqlRow;
 use diesel::{
     deserialize::{self, FromSql},
     serialize::{self, IsNull, Output, ToSql},
-    AsExpression,
+    AsExpression, sql_types::Json,
 };
 use serde::{Deserialize, Serialize};
 use std::io::Write;
@@ -43,7 +43,7 @@ pub struct NewUser {
 pub struct Repository {
     pub name: String,
     pub created_at: NaiveDateTime,
-    pub platforms: Vec<Platforms>,
+    pub platforms: Platforms,
 }
 
 #[derive(Insertable, Selectable, Queryable, Debug, PartialEq)]
@@ -86,7 +86,7 @@ impl FromSql<UsersRepositoriesPermissionEnum, diesel::mysql::Mysql> for Permissi
 }
 
 #[derive(Debug, Serialize, Deserialize, FromSqlRow, AsExpression, PartialEq, Clone)]
-#[diesel(sql_type = RepositoriesPlatformsEnum)]
+#[diesel(sql_type = Json)]
 pub enum Platforms {
     Win64,
     Macosx8664,
@@ -94,7 +94,7 @@ pub enum Platforms {
     Linux,
 }
 
-impl ToSql<RepositoriesPlatformsEnum, diesel::mysql::Mysql> for Platforms {
+impl ToSql<Json, diesel::mysql::Mysql> for Platforms {
     fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::mysql::Mysql>) -> serialize::Result {
         match *self {
             Platforms::Win64 => out.write_all(b"win64")?,
@@ -106,7 +106,7 @@ impl ToSql<RepositoriesPlatformsEnum, diesel::mysql::Mysql> for Platforms {
     }
 }
 
-impl FromSql<RepositoriesPlatformsEnum, diesel::mysql::Mysql> for Platforms {
+impl FromSql<Json, diesel::mysql::Mysql> for Platforms {
     fn from_sql(bytes: diesel::mysql::MysqlValue) -> deserialize::Result<Self> {
         match bytes.as_bytes() {
             b"win64" => Ok(Platforms::Win64),
