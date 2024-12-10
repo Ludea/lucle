@@ -140,7 +140,7 @@ impl Lucle for LucleApi {
         let path = inner.path;
         let reply = Empty {};
 
-        let db_platforms = Vec::new();
+        let mut db_platforms = Vec::new();
         for host in platforms {
             match Platforms::try_from(host) {
                 Ok(Platforms::Win64) => db_platforms.push(DbPlatforms::Win64),
@@ -151,7 +151,7 @@ impl Lucle for LucleApi {
             }
         }
 
-        match user::register_update_server(username.clone(), path.clone(), test).await {
+        match user::register_update_server(username.clone(), path.clone(), db_platforms).await {
             Ok(()) => {
                 tracing::info!("User {} created {} repository", username, path);
                 return Ok(Response::new(reply));
