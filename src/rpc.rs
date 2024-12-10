@@ -2,12 +2,13 @@ use super::diesel;
 use super::surreal;
 use super::user;
 use super::utils;
+use crate::models::Platforms as DbPlatforms;
 use crate::DbType;
 use email_address_parser::EmailAddress;
 use luclerpc::{
     lucle_server::{Lucle, LucleServer},
-    Credentials, Database, DatabaseType, Empty, ListUpdateServer, Message, ResetPassword,
-    UpdateServer, User, UserCreation, Username,
+    Credentials, Database, DatabaseType, Empty, ListUpdateServer, Message, Platforms,
+    ResetPassword, UpdateServer, User, UserCreation, Username,
 };
 use std::pin::Pin;
 use std::{error::Error, fs::File, io::BufReader, io::ErrorKind};
@@ -138,7 +139,19 @@ impl Lucle for LucleApi {
         let platforms = inner.platforms;
         let path = inner.path;
         let reply = Empty {};
-        match user::register_update_server(username.clone(), path.clone(), platforms).await {
+
+        let db_platforms = Vec::new();
+        for host in platforms {
+            match Platforms::try_from(host) {
+                Ok(Platforms::Win64) => db_platforms.push(DbPlatforms::Win64),
+                Ok(Platforms::MacosX8664) => db_platforms.push(DbPlatforms::Macosx8664),
+                Ok(Platforms::MacosArm64) => db_platforms.push(DbPlatforms::Macosarm64),
+                Ok(Platforms::Linux) => db_platforms.push(DbPlatforms::Linux),
+                _ => {}
+            }
+        }
+
+        match user::register_update_server(username.clone(), path.clone(), test).await {
             Ok(()) => {
                 tracing::info!("User {} created {} repository", username, path);
                 return Ok(Response::new(reply));

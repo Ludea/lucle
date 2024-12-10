@@ -21,6 +21,13 @@ enum DatabaseType {
   SURREALDB = 3;
 }
 
+enum Platforms {
+  WIN64 = 0;
+  MACOS_X86_64 = 1;
+  MACOS_ARM64 = 2;
+  LINUX = 3;
+}
+
 message Database_Connection {
   string hostname = 3;
   string port = 4;
@@ -37,7 +44,7 @@ message Database {
 message UpdateServer {
   string path = 1;
   string username = 2;
-  repeated string platforms = 3;
+  repeated Platforms platforms = 3;
 }
 
 message Username {
