@@ -7,10 +7,8 @@ use diesel::FromSqlRow;
 use diesel::{
     deserialize::{self, FromSql},
     serialize::{self, IsNull, Output, ToSql},
-    sql_types::Json,
     AsExpression,
 };
-use serde::{Deserialize, Serialize};
 use std::io::Write;
 
 #[derive(Debug, Queryable, Selectable)]
@@ -42,7 +40,7 @@ pub struct NewUser {
 pub struct Repository {
     pub name: String,
     pub created_at: NaiveDateTime,
-    pub platforms: Platforms,
+    pub platforms: String,
 }
 
 #[derive(Insertable, Selectable, Queryable, Debug, PartialEq)]
@@ -79,39 +77,6 @@ impl FromSql<UsersRepositoriesPermissionEnum, diesel::mysql::Mysql> for Permissi
             b"read" => Ok(Permission::Read),
             b"write" => Ok(Permission::Write),
             b"pending" => Ok(Permission::Pending),
-            _ => Err("Unrecognized enum variant".into()),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, FromSqlRow, AsExpression, PartialEq, Clone)]
-#[diesel(sql_type = Json)]
-pub enum Platforms {
-    Win64,
-    Macosx8664,
-    Macosarm64,
-    Linux,
-}
-
-impl ToSql<Json, diesel::mysql::Mysql> for Platforms {
-    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::mysql::Mysql>) -> serialize::Result {
-        match *self {
-            Platforms::Win64 => out.write_all(b"win64")?,
-            Platforms::Macosx8664 => out.write_all(b"macos_x86_64")?,
-            Platforms::Macosarm64 => out.write_all(b"macos_arm64")?,
-            Platforms::Linux => out.write_all(b"linux")?,
-        }
-        Ok(IsNull::No)
-    }
-}
-
-impl FromSql<Json, diesel::mysql::Mysql> for Platforms {
-    fn from_sql(bytes: diesel::mysql::MysqlValue) -> deserialize::Result<Self> {
-        match bytes.as_bytes() {
-            b"win64" => Ok(Platforms::Win64),
-            b"macos_x86_64" => Ok(Platforms::Macosx8664),
-            b"macos_arm64" => Ok(Platforms::Macosarm64),
-            b"linux" => Ok(Platforms::Linux),
             _ => Err("Unrecognized enum variant".into()),
         }
     }

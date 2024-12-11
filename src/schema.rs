@@ -13,7 +13,7 @@ diesel::table! {
         #[max_length = 255]
         name -> Varchar,
         created_at -> Timestamp,
-        platforms -> Json,
+        platforms -> Text,
     }
 }
 

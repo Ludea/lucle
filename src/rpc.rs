@@ -2,7 +2,6 @@ use super::diesel;
 use super::surreal;
 use super::user;
 use super::utils;
-use crate::models::Platforms as DbPlatforms;
 use crate::DbType;
 use email_address_parser::EmailAddress;
 use luclerpc::{
@@ -10,6 +9,7 @@ use luclerpc::{
     Credentials, Database, DatabaseType, Empty, ListUpdateServer, Message, Platforms,
     ResetPassword, UpdateServer, User, UserCreation, Username,
 };
+use serde::{Deserialize, Serialize};
 use std::pin::Pin;
 use std::{error::Error, fs::File, io::BufReader, io::ErrorKind};
 use tokio::sync::mpsc;
@@ -22,6 +22,14 @@ use tower_http::cors::{Any, CorsLayer};
 
 pub mod luclerpc {
     tonic::include_proto!("luclerpc");
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum Hosts {
+    Win64,
+    Macosx8664,
+    Macosarm64,
+    Linux,
 }
 
 type ResponseStream = Pin<Box<dyn Stream<Item = Result<Message, Status>> + Send>>;
@@ -143,10 +151,10 @@ impl Lucle for LucleApi {
         let mut db_platforms = Vec::new();
         for host in platforms {
             match Platforms::try_from(host) {
-                Ok(Platforms::Win64) => db_platforms.push(DbPlatforms::Win64),
-                Ok(Platforms::MacosX8664) => db_platforms.push(DbPlatforms::Macosx8664),
-                Ok(Platforms::MacosArm64) => db_platforms.push(DbPlatforms::Macosarm64),
-                Ok(Platforms::Linux) => db_platforms.push(DbPlatforms::Linux),
+                Ok(Platforms::Win64) => db_platforms.push(Hosts::Win64),
+                Ok(Platforms::MacosX8664) => db_platforms.push(Hosts::Macosx8664),
+                Ok(Platforms::MacosArm64) => db_platforms.push(Hosts::Macosarm64),
+                Ok(Platforms::Linux) => db_platforms.push(Hosts::Linux),
                 _ => {}
             }
         }

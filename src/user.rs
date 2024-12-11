@@ -1,5 +1,6 @@
 use crate::errors::Error;
-use crate::models::{NewUser, Permission, Platforms, Repository, User, UsersRepositories};
+use crate::models::{NewUser, Permission, Repository, User, UsersRepositories};
+use crate::rpc::Hosts;
 use crate::schema::{repositories, users, users_repositories};
 use crate::utils;
 use argon2::{
@@ -56,17 +57,18 @@ pub async fn create_user(username: String, password: String, email: String) -> R
 pub async fn register_update_server(
     username: String,
     repository: String,
-    platforms: Vec<Platforms>,
+    platforms: Vec<Hosts>,
 ) -> Result<(), Error> {
     let mut conn = POOL.get().await?;
     let now = select(diesel::dsl::now)
         .get_result::<NaiveDateTime>(&mut conn)
         .await?;
 
+    let json_platforms = serde_json::to_string(&platforms).unwrap();
     let repo = Repository {
         name: repository.clone(),
         created_at: now,
-        platforms: platforms,
+        platforms: json_platforms,
     };
 
     diesel::insert_into(repositories::table)
