@@ -47,7 +47,7 @@
   "devDependencies": {
     "@bufbuild/protobuf": "^2.2.0",
     "@bufbuild/protoc-gen-es": "^2.2.0",
-    "@types/react": "^18.2.74",
+    "@types/react": "^19.0.1",
     "@types/react-dom": "^18.2.18",
     "@types/regenerator-runtime": "^0",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
