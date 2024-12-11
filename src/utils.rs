@@ -186,9 +186,9 @@ database = ""
             file.read_to_string(&mut content)?;
             if let Err(err) = content.parse::<Value>() {
                 tracing::error!("error on parsing file: {}", err);
-                return Err(io::Error::new(io::ErrorKind::Other, err.to_string()));
+                Err(io::Error::new(io::ErrorKind::Other, err.to_string()))
             } else {
-                return Ok(());
+                Ok(())
             }
         }
         Err(err) if err.kind() == ErrorKind::NotFound => {
@@ -196,10 +196,11 @@ database = ""
             let mut file = OpenOptions::new()
                 .write(true)
                 .create(true)
+                .truncate(true)
                 .open("config.toml")?;
             file.write_all(default_config.as_bytes())?;
             tracing::info!("Config file created");
-            return Ok(());
+            Ok(())
         }
         Err(err) => Err(io::Error::new(io::ErrorKind::Other, err.to_string())),
     }
