@@ -82,6 +82,7 @@ function Speedupdate() {
   const [currentVersion, getCurrentVersion] = useState<string>("");
   const [size, setSize] = useState<number>();
   const [version, setVersion] = useState<any>();
+  const [platforms, setPlatforms] = useState<string[]>([]);
   const [canBePublished, setCanBePublished] = useState<boolean[]>([]);
   const [listPackages, setListPackages] = useState<String[]>([]);
   const [availableBinaries, setAvailableBinaries] = useState<String[]>([]);
