@@ -76,16 +76,16 @@ const DisplaySizeUnit = (TotalSize: number) => {
 };
 
 function Speedupdate() {
-  const [currentRepo, setCurrentRepo] = useState<String>(
+  const [currentRepo, setCurrentRepo] = useState<string>(
     localStorage.getItem("current_repo"),
   );
   const [currentVersion, getCurrentVersion] = useState<string>("");
   const [size, setSize] = useState<number>();
   const [version, setVersion] = useState<any>();
-  const [platforms, setPlatforms] = useState<string[]>([]);
+  const [platforms, setPlatforms] = useState<Platforms[]>([]);
   const [canBePublished, setCanBePublished] = useState<boolean[]>([]);
-  const [listPackages, setListPackages] = useState<String[]>([]);
-  const [availableBinaries, setAvailableBinaries] = useState<String[]>([]);
+  const [listPackages, setListPackages] = useState<string[]>([]);
+  const [availableBinaries, setAvailableBinaries] = useState<string[]>([]);
   const [listVersions, setListVersions] = useState<any>();
   const [listRepo, setListRepo] = useState<string[]>([]);
   const [selectedVersionsValues, setSelectedVersionsValues] = useState<
@@ -103,8 +103,8 @@ function Speedupdate() {
   const [packagesPerPage, setPackagesPerPage] = useState(5);
   const [versionsPerPage, setVersionsPerPage] = useState(5);
   const [binariesPerPage, setBinariesPerPage] = useState(5);
-  const [error, setError] = useState<String>("");
-  const [description, setDescription] = useState<String>("");
+  const [error, setError] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   const [selectedVersions, setSelectedVersions] = useState<readonly number[]>(
     [],
   );
@@ -140,7 +140,16 @@ function Speedupdate() {
   const numBinariesSelected = selectedBinaries.length;
 
   const getPlatforms = () => {
-    return Object.keys(checked).filter((key) => checked[key] === true);
+    let selectedPlatforms: Platforms[] = [];
+    let hosts = Object.keys(checked).filter((key) => checked[key] === true);
+    for (const host in hosts) {
+      if (host === "win64") selectedPlatforms.push(Platforms.WIN64);
+      if (host === "macos_x86_64")
+        selectedPlatforms.push(Platforms.MACOS_X86_64);
+      if (host === "macos_arm64") selectedPlatforms.push(Platforms.MACOS_ARM64);
+      if (host === "linux") selectedPlatforms.push(Platforms.LINUX);
+    }
+    return selectedPlatforms;
   };
 
   useEffect(() => {
@@ -151,7 +160,7 @@ function Speedupdate() {
       const call = client.status(
         {
           path: currentRepo,
-          platforms: [Platforms.WIN64],
+          platforms: platforms,
         },
         { headers },
       );
@@ -436,7 +445,7 @@ function Speedupdate() {
                       setCurrentRepo(path);
                       setPlatforms(hosts);
                       localStorage.setItem("current_repo", path);
-                      localStorage.setItem("platforms", hosts);
+                      localStorage.setItem("platforms", JSON.stringify(hosts));
                     })
                     .catch((err) => setError(err.rawMessage));
                 })
