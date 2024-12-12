@@ -14,11 +14,13 @@ use diesel::select;
 use diesel_async::pooled_connection::{deadpool::Pool, AsyncDieselConnectionManager};
 use diesel_async::{AsyncMysqlConnection, RunQueryDsl};
 use once_cell::sync::Lazy;
+use std::collections::HashMap;
 
 pub struct LucleUser {
     pub username: String,
     pub token: String,
     pub repositories: Vec<String>,
+    pub repo_platforms: HashMap<String, Vec<String>>,
 }
 
 static POOL: Lazy<Pool<AsyncMysqlConnection>> = Lazy::new(|| {
@@ -174,12 +176,38 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
             {
                 Ok(Some(list_repo)) => {
                     let mut user_repo: Vec<String> = Vec::new();
+                    let mut platforms_repo: HashMap<String, Vec<String>> = HashMap::new();
+
                     for repo in list_repo {
                         user_repo.push(repo.repository_name);
+                        match repositories::table
+                            .filter(repositories::dsl::name.eq(repo.repository_name))
+                            .load(&mut conn)
+                            .await
+                            .optional()
+                        {
+                            Ok(Some(hosts)) => platforms_repo.insert(repo.repository_name, hosts),
+                            Ok(None) => {},
+                            Err(err) => Err(crate::errors::Error::Query(err)),
+                        }
                     }
-                    login_user(val.username, val.password, password, val.email, user_repo)
+                    login_user(
+                        val.username,
+                        val.password,
+                        password,
+                        val.email,
+                        user_repo,
+                        platforms_repo,
+                    )
                 }
-                Ok(None) => login_user(val.username, val.password, password, val.email, Vec::new()),
+                Ok(None) => login_user(
+                    val.username,
+                    val.password,
+                    password,
+                    val.email,
+                    Vec::new(),
+                    HashMap::new(),
+                ),
                 Err(err) => Err(crate::errors::Error::Query(err)),
             }
         }
@@ -204,11 +232,16 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                             for repo in list_repo {
                                 user_repo.push(repo.repository_name);
                             }
-                            login_user(val.username, val.password, password, val.email, user_repo)
+                            //login_user(val.username, val.password, password, val.email, user_repo)
                         }
-                        Ok(None) => {
-                            login_user(val.username, val.password, password, val.email, Vec::new())
-                        }
+                        Ok(None) => login_user(
+                            val.username,
+                            val.password,
+                            password,
+                            val.email,
+                            Vec::new(),
+                            HashMap::new(),
+                        ),
                         Err(err) => Err(crate::errors::Error::Query(err)),
                     }
                 }
@@ -268,6 +301,7 @@ fn login_user(
     password: String,
     email: String,
     repositories: Vec<String>,
+    repo_platforms: HashMap<String, Vec<String>>,
 ) -> Result<LucleUser, Error> {
     let parsed_hash = PasswordHash::new(&stored_password).unwrap();
     Argon2::default().verify_password(password.as_bytes(), &parsed_hash)?;
@@ -276,5 +310,6 @@ fn login_user(
         username,
         token,
         repositories,
+        repo_platforms,
     })
 }

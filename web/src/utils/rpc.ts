@@ -41,7 +41,7 @@ export const connection = async (
         usernameOrEmail: login,
         password: user_password,
       })
-      .then((token) => resolve(token))
+      .then((user) => resolve(user))
       .catch((err) => reject(err));
   });
 
