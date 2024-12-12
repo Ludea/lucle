@@ -11,10 +11,7 @@ export default styled(Avatar)(({ theme, ownerState }) => {
   const { size: fontSize, fontWeightRegular } = typography;
 
   // backgroundImage value
-  const backgroundValue =
-    bgColor === "transparent"
-      ? transparent.main
-      : linearGradient(gradients[bgColor].main, gradients[bgColor].state);
+  const backgroundValue = bgColor === "transparent" ? transparent.main : null; // linearGradient(gradients[bgColor].main, gradients[bgColor].state);
 
   // size value
   let sizeValue;
