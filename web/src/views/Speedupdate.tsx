@@ -139,10 +139,7 @@ function Speedupdate() {
   const numBinariesSelected = selectedBinaries.length;
 
   getPlatmforms = () => {
-    let hosts = Object.keys(checked).filter((key) => checked[key] === true);
-    for (const key of hosts) {
-      console.log(key);
-    }
+    return (Object.keys(checked).filter((key) => checked[key] === true));
   };
 
   useEffect(() => {
@@ -334,7 +331,7 @@ function Speedupdate() {
                 key={index}
                 variant="contained"
                 onClick={() => {
-                  isInit(client, repo_name)
+                  isInit(client, repo_name, checked)
                     .then(() => {
                       setCurrentRepo(repo_name);
                       localStorage.setItem("current_repo", repo_name);
@@ -430,15 +427,18 @@ function Speedupdate() {
               setError("");
               init(client, path, checked)
                 .then(() => {
-                  //isInit(client, path)
-                  //  .then(() => {
+                  isInit(client, path, checked)
+                  .then(() => {
                   //registerUpdateServer(lucleClient, auth.username, path)
-                  //  .then(() => {
+                  //  .then(() => 
+		  let hosts = getPlatforms();
                   setCurrentRepo(path);
+		  setPlatforms(hosts);
                   localStorage.setItem("current_repo", path);
+		  localStorage.setItem("platforms", hosts);  
                 })
-                //.catch((err) => setError(err.rawMessage)),
-                // )
+                .catch((err) => setError(err.rawMessage))
+                })
                 // .catch((err) => setError(err.rawMessage)),
                 //)
                 .catch((err) => setError(err.rawMessage));
@@ -470,6 +470,8 @@ function Speedupdate() {
               size="large"
               onClick={() => {
                 setCurrentRepo("");
+		setPlatforms([]);
+		localStorage.removeItem("platforms");
                 localStorage.removeItem("current_repo");
               }}
             >
