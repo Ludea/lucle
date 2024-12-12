@@ -138,7 +138,7 @@ function Speedupdate() {
     selectedBinaries.indexOf(id) !== -1;
   const numBinariesSelected = selectedBinaries.length;
 
-  getPlatmforms = () => {
+  const getPlatforms = () => {
     return (Object.keys(checked).filter((key) => checked[key] === true));
   };
 
