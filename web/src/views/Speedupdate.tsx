@@ -139,7 +139,7 @@ function Speedupdate() {
   const numBinariesSelected = selectedBinaries.length;
 
   const getPlatforms = () => {
-    return (Object.keys(checked).filter((key) => checked[key] === true));
+    return Object.keys(checked).filter((key) => checked[key] === true);
   };
 
   useEffect(() => {
@@ -428,16 +428,16 @@ function Speedupdate() {
               init(client, path, checked)
                 .then(() => {
                   isInit(client, path, checked)
-                  .then(() => {
-                  //registerUpdateServer(lucleClient, auth.username, path)
-                  //  .then(() => 
-		  let hosts = getPlatforms();
-                  setCurrentRepo(path);
-		  setPlatforms(hosts);
-                  localStorage.setItem("current_repo", path);
-		  localStorage.setItem("platforms", hosts);  
-                })
-                .catch((err) => setError(err.rawMessage))
+                    .then(() => {
+                      //registerUpdateServer(lucleClient, auth.username, path)
+                      //  .then(() =>
+                      let hosts = getPlatforms();
+                      setCurrentRepo(path);
+                      setPlatforms(hosts);
+                      localStorage.setItem("current_repo", path);
+                      localStorage.setItem("platforms", hosts);
+                    })
+                    .catch((err) => setError(err.rawMessage));
                 })
                 // .catch((err) => setError(err.rawMessage)),
                 //)
@@ -470,8 +470,8 @@ function Speedupdate() {
               size="large"
               onClick={() => {
                 setCurrentRepo("");
-		setPlatforms([]);
-		localStorage.removeItem("platforms");
+                setPlatforms([]);
+                localStorage.removeItem("platforms");
                 localStorage.removeItem("current_repo");
               }}
             >
