@@ -82,7 +82,12 @@ function Speedupdate() {
   const [currentVersion, getCurrentVersion] = useState<string>("");
   const [size, setSize] = useState<number>();
   const [version, setVersion] = useState<any>();
-  const [platforms, setPlatforms] = useState<Platforms[]>([]);
+  const [platforms, setPlatforms] = useState<string[]>(
+    JSON.parse(localStorage.getItem("platforms")),
+  );
+  const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
+    JSON.parse(localStorage.getItem("platformsEnum")),
+  );
   const [canBePublished, setCanBePublished] = useState<boolean[]>([]);
   const [listPackages, setListPackages] = useState<string[]>([]);
   const [availableBinaries, setAvailableBinaries] = useState<string[]>([]);
@@ -142,7 +147,7 @@ function Speedupdate() {
   const getPlatforms = () => {
     let selectedPlatforms: Platforms[] = [];
     let hosts = Object.keys(checked).filter((key) => checked[key] === true);
-    for (const host in hosts) {
+    for (let host of hosts) {
       if (host === "win64") selectedPlatforms.push(Platforms.WIN64);
       if (host === "macos_x86_64")
         selectedPlatforms.push(Platforms.MACOS_X86_64);
@@ -160,27 +165,29 @@ function Speedupdate() {
       const call = client.status(
         {
           path: currentRepo,
-          platforms: platforms,
+          platforms: platformsEnum,
         },
         { headers },
       );
       for await (const repo of call) {
-        console.log("12: ", repo);
-        setSize(repo.size);
-        getCurrentVersion(repo.currentVersion);
-        setListVersions(repo.versions);
+        //if (repo.status.every((state) => state !== repo.status[0])) {
+        console.log("13: ", repo.status);
+        let firstRepo = repo.status[0];
+        setSize(firstRepo.size);
+        getCurrentVersion(firstRepo.currentVersion);
+        setListVersions(firstRepo.versions);
         const fullListPackages = [];
-        repo.packages.map((row) => {
+        firstRepo.packages.map((row) => {
           fullListPackages.push({ name: row, published: true });
         });
-        repo.availablePackages.map((row) => {
+        firstRepo.availablePackages.map((row) => {
           fullListPackages.push({ name: row, published: false });
         });
         setListPackages(fullListPackages);
-        setAvailableBinaries(repo.availableBinaries);
+        setAvailableBinaries(firstRepo.availableBinaries);
 
         setVisibleVersions(
-          repo.versions.slice(
+          firstRepo.versions.slice(
             versionsPage * versionsPerPage,
             versionsPage * versionsPerPage + versionsPerPage,
           ),
@@ -194,11 +201,12 @@ function Speedupdate() {
         );
 
         setVisibleBinaries(
-          repo.availableBinaries.slice(
+          firstRepo.availableBinaries.slice(
             binariesPage * binariesPerPage,
             binariesPage * binariesPerPage + binariesPerPage,
           ),
         );
+        //}
       }
     }
 
@@ -223,7 +231,7 @@ function Speedupdate() {
   const RegisterPackages = () => {
     setError("");
     selectedPackagesValues.forEach((pack) => {
-      registerPackage(client, currentRepo, pack).catch((err) =>
+      registerPackage(client, currentRepo, pack, platforms).catch((err) =>
         setError(err.rawMessage),
       );
     });
@@ -235,7 +243,7 @@ function Speedupdate() {
   const UnregisterPackages = () => {
     setError("");
     selectedPackagesValues.forEach((pack) => {
-      unregisterPackage(client, currentRepo, pack).catch((err) =>
+      unregisterPackage(client, currentRepo, pack, platforms).catch((err) =>
         setError(err.rawMessage),
       );
     });
@@ -247,7 +255,7 @@ function Speedupdate() {
   const DeleteVersion = () => {
     setError("");
     selectedVersions.forEach((version) => {
-      unregisterVersion(client, currentRepo, version).catch((err) =>
+      unregisterVersion(client, currentRepo, version, platforms).catch((err) =>
         setError(err.rawMessage),
       );
     });
@@ -257,11 +265,14 @@ function Speedupdate() {
     setError("");
     selectedPackages.forEach((row) => {
       if (listPackages[row].published) {
-        unregisterPackage(client, currentRepo, listPackages[row].name).catch(
-          (err) => setError(err.rawMessage),
-        );
+        unregisterPackage(
+          client,
+          currentRepo,
+          listPackages[row].name,
+          platforms,
+        ).catch((err) => setError(err.rawMessage));
       }
-      fileToDelete(client, listPackages[row].name).catch((err) =>
+      fileToDelete(client, listPackages[row].name, platforms).catch((err) =>
         setError(err.rawMessage),
       );
       setSelectedPackages([]);
@@ -290,10 +301,12 @@ function Speedupdate() {
     if (newSelected.includes(id)) {
       setSelectedVersionsValues((previous_version) => [
         ...previous_version,
-        version,
+        version.revision,
       ]);
     } else {
-      const updatedVersions = selectedVersions.filter((ver) => ver !== version);
+      const updatedVersions = selectedVersions.filter(
+        (ver) => ver !== version.revision,
+      );
       setSelectedVersionsValues(updatedVersions);
     }
   };
@@ -341,7 +354,7 @@ function Speedupdate() {
                 key={index}
                 variant="contained"
                 onClick={() => {
-                  isInit(client, repo_name, checked)
+                  isInit(client, repo_name, platforms)
                     .then(() => {
                       setCurrentRepo(repo_name);
                       localStorage.setItem("current_repo", repo_name);
@@ -437,15 +450,23 @@ function Speedupdate() {
               setError("");
               init(client, path, checked)
                 .then(() => {
-                  isInit(client, path, checked)
+                  let hostsEnum = getPlatforms();
+                  let hosts = Object.keys(checked).filter(
+                    (key) => checked[key] === true,
+                  );
+                  setPlatforms(hosts);
+                  setCurrentRepo(path);
+                  setPlatformsEnum(hostsEnum);
+                  localStorage.setItem("current_repo", path);
+                  localStorage.setItem(
+                    "platformsEnum",
+                    JSON.stringify(hostsEnum),
+                  );
+                  localStorage.setItem("platforms", JSON.stringify(hosts));
+                  isInit(client, path, hosts)
                     .then(() => {
                       //registerUpdateServer(lucleClient, auth.username, path)
                       //  .then(() =>
-                      let hosts = getPlatforms();
-                      setCurrentRepo(path);
-                      setPlatforms(hosts);
-                      localStorage.setItem("current_repo", path);
-                      localStorage.setItem("platforms", JSON.stringify(hosts));
                     })
                     .catch((err) => setError(err.rawMessage));
                 })
@@ -479,8 +500,11 @@ function Speedupdate() {
             <IconButton
               size="large"
               onClick={() => {
+                setError("");
                 setCurrentRepo("");
+                setPlatformsEnum([]);
                 setPlatforms([]);
+                localStorage.removeItem("platformsEnum");
                 localStorage.removeItem("platforms");
                 localStorage.removeItem("current_repo");
               }}
@@ -532,8 +556,12 @@ function Speedupdate() {
                       client,
                       currentRepo,
                       selectedVersionsValues[0],
+                      platforms,
                     )
-                      .then(() => setSelectedVersions([]))
+                      .then(() => {
+                        setSelectedVersions([]);
+                        setSelectedVersionsValues([]);
+                      })
                       .catch((err) => setError(err.rawMessage));
                   }}
                 >
@@ -626,6 +654,7 @@ function Speedupdate() {
                               currentRepo,
                               version,
                               description,
+                              platforms,
                             ).catch((err) => setError(err.rawMessage));
                             setVersion("");
                             setDescription("");

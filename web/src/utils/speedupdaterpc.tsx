@@ -7,11 +7,11 @@ export const init = async (client: any, path: string, platforms: any) =>
     const subPath = Object.keys(platforms).filter(
       (key) => platforms[key] === true,
     );
-    for (const key of subPath) {
+    for (const folder of subPath) {
       client
         .init(
           {
-            path: path.concat("/", key),
+            path: path.concat("/", folder),
           },
           { headers },
         )
@@ -24,14 +24,11 @@ export const init = async (client: any, path: string, platforms: any) =>
 
 export const isInit = async (client: any, path: string, platforms: any) =>
   new Promise((resolve, reject) => {
-    const subPath = Object.keys(platforms).filter(
-      (key) => platforms[key] === true,
-    );
-    for (const key of subPath) {
+    for (const folder of platforms) {
       client
         .is_init(
           {
-            path: path.concat("/", key),
+            path: path.concat("/", folder),
           },
           { headers },
         )
@@ -51,14 +48,11 @@ export const setCurrentVersion = async (
   platforms: any,
 ) =>
   new Promise((resolve, reject) => {
-    const subPath = Object.keys(platforms).filter(
-      (key) => platforms[key] === true,
-    );
-    for (const key of subPath) {
+    for (const folder of platforms) {
       client
         .set_current_version(
           {
-            path: path.concat("/", key),
+            path: path.concat("/", folder),
             version,
           },
           { headers },
@@ -80,13 +74,10 @@ export const registerVersion = async (
   platforms: any,
 ) =>
   new Promise((resolve, reject) => {
-    const subPath = Object.keys(platforms).filter(
-      (key) => platforms[key] === true,
-    );
-    for (const key of subPath) {
+    for (const folder of platforms) {
       client
         .register_version({
-          path: path.concat("/", key),
+          path: path.concat("/", folder),
           version,
           description,
         })
@@ -102,14 +93,11 @@ export const unregisterVersion = async (
   platforms: any,
 ) =>
   new Promise((resolve, reject) => {
-    const subPath = Object.keys(platforms).filter(
-      (key) => platforms[key] === true,
-    );
-    for (const key of subPath) {
+    for (const folder of platforms) {
       client
         .unregister_version(
           {
-            path: path.concat("/", key),
+            path: path.concat("/", folder),
             version,
           },
           { headers },
@@ -126,14 +114,11 @@ export const registerPackage = async (
   platforms: any,
 ) =>
   new Promise((resolve, reject) => {
-    const subPath = Object.keys(platforms).filter(
-      (key) => platforms[key] === true,
-    );
-    for (const key of subPath) {
+    for (const folder of platforms) {
       client
         .register_package(
           {
-            path: path.concat("/", key),
+            path: path.concat("/", folder),
             name,
           },
           { headers },
@@ -150,14 +135,11 @@ export const unregisterPackage = async (
   platforms: any,
 ) =>
   new Promise((resolve, reject) => {
-    const subPath = Object.keys(platforms).filter(
-      (key) => platforms[key] === true,
-    );
-    for (const key of subPath) {
+    for (const folder of platforms) {
       client
         .unregister_package(
           {
-            path: path.concat("/", key),
+            path: path.concat("/", folder),
             name,
           },
           { headers },
@@ -169,12 +151,9 @@ export const unregisterPackage = async (
 
 export const fileToDelete = async (client: any, file: string, platforms: any) =>
   new Promise((resolve, reject) => {
-    const subPath = Object.keys(platforms).filter(
-      (key) => platforms[key] === true,
-    );
-    for (const key of subPath) {
+    for (const folder of platforms) {
       client
-        .delete_file({ file: key.concat("/", file) })
+        .delete_file({ file: folder.concat("/", file) })
         .then(() => resolve())
         .catch((error: string) => reject(error));
     }
