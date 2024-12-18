@@ -44,6 +44,7 @@ import {
   registerPackage,
   unregisterPackage,
   fileToDelete,
+  compareStatus,
 } from "utils/speedupdaterpc";
 import { registerUpdateServer, listRepositories } from "utils/rpc";
 
@@ -170,43 +171,45 @@ function Speedupdate() {
         { headers },
       );
       for await (const repo of call) {
-        //if (repo.status.every((state) => state !== repo.status[0])) {
-        console.log("13: ", repo.status);
-        let firstRepo = repo.status[0];
-        setSize(firstRepo.size);
-        getCurrentVersion(firstRepo.currentVersion);
-        setListVersions(firstRepo.versions);
-        const fullListPackages = [];
-        firstRepo.packages.map((row) => {
-          fullListPackages.push({ name: row, published: true });
-        });
-        firstRepo.availablePackages.map((row) => {
-          fullListPackages.push({ name: row, published: false });
-        });
-        setListPackages(fullListPackages);
-        setAvailableBinaries(firstRepo.availableBinaries);
+        if (
+          repo.status.every((state) => compareStatus(repo.status[0], state))
+        ) {
+          console.log("allo: ", test);
+          let firstRepo = repo.status[0];
+          setSize(firstRepo.size);
+          getCurrentVersion(firstRepo.currentVersion);
+          setListVersions(firstRepo.versions);
+          const fullListPackages = [];
+          firstRepo.packages.map((row) => {
+            fullListPackages.push({ name: row, published: true });
+          });
+          firstRepo.availablePackages.map((row) => {
+            fullListPackages.push({ name: row, published: false });
+          });
+          setListPackages(fullListPackages);
+          setAvailableBinaries(firstRepo.availableBinaries);
 
-        setVisibleVersions(
-          firstRepo.versions.slice(
-            versionsPage * versionsPerPage,
-            versionsPage * versionsPerPage + versionsPerPage,
-          ),
-        );
+          setVisibleVersions(
+            firstRepo.versions.slice(
+              versionsPage * versionsPerPage,
+              versionsPage * versionsPerPage + versionsPerPage,
+            ),
+          );
 
-        setVisiblePackages(
-          fullListPackages.slice(
-            packagesPage * packagesPerPage,
-            packagesPage * packagesPerPage + packagesPerPage,
-          ),
-        );
+          setVisiblePackages(
+            fullListPackages.slice(
+              packagesPage * packagesPerPage,
+              packagesPage * packagesPerPage + packagesPerPage,
+            ),
+          );
 
-        setVisibleBinaries(
-          firstRepo.availableBinaries.slice(
-            binariesPage * binariesPerPage,
-            binariesPage * binariesPerPage + binariesPerPage,
-          ),
-        );
-        //}
+          setVisibleBinaries(
+            firstRepo.availableBinaries.slice(
+              binariesPage * binariesPerPage,
+              binariesPage * binariesPerPage + binariesPerPage,
+            ),
+          );
+        }
       }
     }
 

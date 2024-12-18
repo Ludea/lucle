@@ -153,8 +153,21 @@ export const fileToDelete = async (client: any, file: string, platforms: any) =>
   new Promise((resolve, reject) => {
     for (const folder of platforms) {
       client
-        .delete_file({ file: folder.concat("/", file) })
+        .delete_ile({ file: folder.concat("/", file) })
         .then(() => resolve())
         .catch((error: string) => reject(error));
     }
   });
+
+export const compareStatus = (oldStatus: any, newStatus: any) => {
+  if (oldStatus.currentVersion !== newStatus.currentVersion) return false;
+  if (oldStatus.versions.revision !== newStatus.versions.revision) return false;
+  if (oldStatus.versions.description !== newStatus.versions.description)
+    return false;
+  if (oldStatus.packages.length !== newStatus.packages.length) return false;
+  if (oldStatus.availablePackages.length !== newStatus.availablePackages.length)
+    return false;
+  if (oldStatus.availableBinaries.length !== newStatus.availableBinaries.length)
+    return false;
+  return true;
+};
