@@ -47,7 +47,7 @@
     "@bufbuild/protobuf": "^2.2.0",
     "@bufbuild/protoc-gen-es": "^2.2.0",
     "@eslint/js": "^9.17.0",
-    "@types/react": "^18.2.74",
+    "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@types/regenerator-runtime": "^0",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
