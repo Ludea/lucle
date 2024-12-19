@@ -34,7 +34,7 @@ pub struct NewUser {
     pub modified_at: NaiveDateTime,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Selectable, Queryable, Debug, PartialEq)]
 #[diesel(table_name = repositories)]
 #[diesel(check_for_backend(diesel::mysql::Mysql))]
 pub struct Repository {

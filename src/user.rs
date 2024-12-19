@@ -176,18 +176,19 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
             {
                 Ok(Some(list_repo)) => {
                     let mut user_repo: Vec<String> = Vec::new();
-                    let mut platforms_repo: HashMap<String, Vec<String>> = HashMap::new();
+                    let mut platforms_repo: HashMap<String, Vec<Repository>> = HashMap::new();
 
                     for repo in list_repo {
                         user_repo.push(repo.repository_name);
                         match repositories::table
                             .filter(repositories::dsl::name.eq(repo.repository_name))
+                            .select(Repository::as_select())
                             .load(&mut conn)
                             .await
                             .optional()
                         {
                             Ok(Some(hosts)) => platforms_repo.insert(repo.repository_name, hosts),
-                            Ok(None) => {},
+                            Ok(None) => platforms_repo.insert(repo.repository_name, Vec::new()),
                             Err(err) => Err(crate::errors::Error::Query(err)),
                         }
                     }
@@ -232,7 +233,7 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                             for repo in list_repo {
                                 user_repo.push(repo.repository_name);
                             }
-                            //login_user(val.username, val.password, password, val.email, user_repo)
+                            login_user(val.username, val.password, password, val.email, user_repo)
                         }
                         Ok(None) => login_user(
                             val.username,
