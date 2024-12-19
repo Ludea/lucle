@@ -1,18 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import { useState, useEffect } from "react";
 
 // react-github-btn
@@ -72,7 +57,7 @@ function Configurator() {
   useEffect(() => {
     // A function that sets the disabled state of the buttons for the sidenav type.
     function handleDisabled() {
-      return window.innerWidth > 1200 ? setDisabled(false) : setDisabled(true);
+      window.innerWidth > 1200 ? setDisabled(false) : setDisabled(true);
     }
 
     // The event listener that's calling the handleDisabled function when resizing the window.
@@ -82,7 +67,9 @@ function Configurator() {
     handleDisabled();
 
     // Remove event listener on cleanup
-    return () => window.removeEventListener("resize", handleDisabled);
+    return () => {
+      window.removeEventListener("resize", handleDisabled);
+    };
   }, []);
 
   const handleCloseConfigurator = () => setOpenConfigurator(dispatch, false);

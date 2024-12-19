@@ -86,7 +86,9 @@ function Sidenav({ brand = "", brandName, routes, ...rest }) {
     handleMiniSidenav();
 
     // Remove event listener on cleanup
-    return () => window.removeEventListener("resize", handleMiniSidenav);
+    return () => {
+      window.removeEventListener("resize", handleMiniSidenav);
+    };
   }, [dispatch, location]);
 
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
@@ -198,7 +200,11 @@ function Sidenav({ brand = "", brandName, routes, ...rest }) {
         }
       />
       <List>
-        <ListItemButton onClick={() => setOpenLoginMenu(!openLoginMenu)}>
+        <ListItemButton
+          onClick={() => {
+            setOpenLoginMenu(!openLoginMenu);
+          }}
+        >
           <Avatar src={burceMars} alt="profile" size="md" shadow="md" />
           <ListItemText sx={{ color: "#f0f2f5" }} primary={auth.username} />
           {openLoginMenu ? <ExpandLess /> : <ExpandMore />}

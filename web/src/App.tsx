@@ -34,8 +34,12 @@ export default function App() {
 
   useEffect(() => {
     checkIfInstalled(client)
-      .then(() => setIsInstalled(true))
-      .catch(() => setIsInstalled(false));
+      .then(() => {
+        setIsInstalled(true);
+      })
+      .catch(() => {
+        setIsInstalled(false);
+      });
   }, []);
 
   return (

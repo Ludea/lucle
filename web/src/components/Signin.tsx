@@ -38,7 +38,9 @@ function Signin({ onSignin, error }: { onSignin: void; error: string }) {
           label="Username or Email"
           name="username"
           value={username}
-          onChange={(event) => setUsername(event.target.value)}
+          onChange={(event) => {
+            setUsername(event.target.value);
+          }}
         />
         <TextField
           error={emptyPassword}
@@ -51,7 +53,9 @@ function Signin({ onSignin, error }: { onSignin: void; error: string }) {
           type="password"
           id="password"
           value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          onChange={(event) => {
+            setPassword(event.target.value);
+          }}
         />
         <FormControlLabel
           control={
@@ -59,7 +63,9 @@ function Signin({ onSignin, error }: { onSignin: void; error: string }) {
               checked={remember}
               value="remember"
               color="primary"
-              onChange={() => setRemember(true)}
+              onChange={() => {
+                setRemember(true);
+              }}
             />
           }
           label="Remember me"

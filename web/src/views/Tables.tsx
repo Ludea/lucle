@@ -38,7 +38,9 @@ function Tables() {
       <Button
         color="primary"
         startIcon={<AddIcon />}
-        onClick={() => addRow(rows.length + 1)}
+        onClick={() => {
+          addRow(rows.length + 1);
+        }}
       >
         Add record
       </Button>

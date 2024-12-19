@@ -2,8 +2,12 @@ export const checkIfInstalled = async (client: any) =>
   new Promise((resolve, reject) => {
     client
       .is_database_created()
-      .then(() => resolve())
-      .catch((err) => reject(err));
+      .then(() => {
+        resolve();
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
 
 export const createDB = async (
@@ -19,8 +23,12 @@ export const createDB = async (
         dbName: infos_connection.dbName,
         dbConnection: infos_connection,
       })
-      .then(() => resolve())
-      .catch((err) => reject(err));
+      .then(() => {
+        resolve();
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
 
 export const forgotPassword = async (client: any, user_mail: string) => {
@@ -41,8 +49,12 @@ export const connection = async (
         usernameOrEmail: login,
         password: user_password,
       })
-      .then((user) => resolve(user))
-      .catch((err) => reject(err));
+      .then((user) => {
+        resolve(user);
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
 
 export const createUser = async (
@@ -74,8 +86,12 @@ export const registerUpdateServer = async (
         path: repo,
         username,
       })
-      .then(() => resolve())
-      .catch((err) => reject(err));
+      .then(() => {
+        resolve();
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
 
 export const listRepositories = async (client: any, username: string) =>
@@ -84,6 +100,10 @@ export const listRepositories = async (client: any, username: string) =>
       .list_update_server_by_user({
         username,
       })
-      .then((list) => resolve(list))
-      .catch((err) => reject(err));
+      .then((list) => {
+        resolve(list);
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });

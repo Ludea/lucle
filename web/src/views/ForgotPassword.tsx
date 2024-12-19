@@ -25,7 +25,9 @@ function ForgotPassword() {
         autoComplete="email"
         autoFocus
         value={email}
-        onChange={(event) => setEmail(event.target.value)}
+        onChange={(event) => {
+          setEmail(event.target.value);
+        }}
       />
       <Button
         type="submit"

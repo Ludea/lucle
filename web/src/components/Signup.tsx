@@ -47,7 +47,9 @@ function Signup({
             label="Username"
             name="username"
             value={username}
-            onChange={(event) => setUsername(event.target.value)}
+            onChange={(event) => {
+              setUsername(event.target.value);
+            }}
           />
           <TextField
             error={emptyEmail}
@@ -59,7 +61,9 @@ function Signup({
             label="Email"
             name="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) => {
+              setEmail(event.target.value);
+            }}
           />
           <TextField
             error={emptyPassword}
@@ -72,7 +76,9 @@ function Signup({
             type="password"
             id="password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(event) => {
+              setPassword(event.target.value);
+            }}
           />
           <PasswordStrengthBar
             password={password}
@@ -91,7 +97,9 @@ function Signup({
             type="password"
             id="confirm-password"
             value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
+            onChange={(event) => {
+              setConfirmPassword(event.target.value);
+            }}
           />
           <Button
             disabled={passwordStrengh < 3}

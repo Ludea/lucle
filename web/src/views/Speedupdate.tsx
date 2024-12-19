@@ -133,22 +133,19 @@ function Speedupdate() {
   const auth = useAuth();
   const lucleClient = useContext(LucleRPC);
 
-  const isVersionsSelected = (id: number) =>
-    selectedVersions.indexOf(id) !== -1;
+  const isVersionsSelected = (id: number) => selectedVersions.includes(id);
   const numVersionsSelected = selectedVersions.length;
 
-  const isPackagesSelected = (id: number) =>
-    selectedPackages.indexOf(id) !== -1;
+  const isPackagesSelected = (id: number) => selectedPackages.includes(id);
   const numPackagesSelected = selectedPackages.length;
 
-  const isBinariesSelected = (id: number) =>
-    selectedBinaries.indexOf(id) !== -1;
+  const isBinariesSelected = (id: number) => selectedBinaries.includes(id);
   const numBinariesSelected = selectedBinaries.length;
 
   const getPlatforms = () => {
-    let selectedPlatforms: Platforms[] = [];
-    let hosts = Object.keys(checked).filter((key) => checked[key] === true);
-    for (let host of hosts) {
+    const selectedPlatforms: Platforms[] = [];
+    const hosts = Object.keys(checked).filter((key) => checked[key] === true);
+    for (const host of hosts) {
       if (host === "win64") selectedPlatforms.push(Platforms.WIN64);
       if (host === "macos_x86_64")
         selectedPlatforms.push(Platforms.MACOS_X86_64);
@@ -171,11 +168,11 @@ function Speedupdate() {
         { headers },
       );
       for await (const repo of call) {
-        let compare_repo = repo.status.every((state) =>
+        const compare_repo = repo.status.every((state) =>
           compareStatus(repo.status[0], state),
         );
         if (compare_repo) {
-          let firstRepo = repo.status[0];
+          const firstRepo = repo.status[0];
           setSize(firstRepo.size);
           getCurrentVersion(firstRepo.currentVersion);
           setListVersions(firstRepo.versions);
@@ -220,7 +217,9 @@ function Speedupdate() {
     }
 
     if (currentRepo) {
-      Status().catch((err) => setError(err.rawMessage));
+      Status().catch((err) => {
+        setError(err.rawMessage);
+      });
     }
   }, [currentRepo]);
 
@@ -230,15 +229,17 @@ function Speedupdate() {
     fetch(`https://api.marlin-atlas.ts.net/file/${files[0].name}`, {
       method: "POST",
       body: formData,
-    }).catch((err) => setError(err));
+    }).catch((err) => {
+      setError(err);
+    });
   };
 
   const RegisterPackages = () => {
     setError("");
     selectedPackagesValues.forEach((pack) => {
-      registerPackage(client, currentRepo, pack, platforms).catch((err) =>
-        setError(err.rawMessage),
-      );
+      registerPackage(client, currentRepo, pack, platforms).catch((err) => {
+        setError(err.rawMessage);
+      });
     });
     setSelectedPackages([]);
     setSelectedPackagesValues([]);
@@ -248,9 +249,9 @@ function Speedupdate() {
   const UnregisterPackages = () => {
     setError("");
     selectedPackagesValues.forEach((pack) => {
-      unregisterPackage(client, currentRepo, pack, platforms).catch((err) =>
-        setError(err.rawMessage),
-      );
+      unregisterPackage(client, currentRepo, pack, platforms).catch((err) => {
+        setError(err.rawMessage);
+      });
     });
     setSelectedPackages([]);
     setSelectedPackagesValues([]);
@@ -260,8 +261,10 @@ function Speedupdate() {
   const DeleteVersion = () => {
     setError("");
     selectedVersions.forEach((version) => {
-      unregisterVersion(client, currentRepo, version, platforms).catch((err) =>
-        setError(err.rawMessage),
+      unregisterVersion(client, currentRepo, version, platforms).catch(
+        (err) => {
+          setError(err.rawMessage);
+        },
       );
     });
   };
@@ -275,11 +278,13 @@ function Speedupdate() {
           currentRepo,
           listPackages[row].name,
           platforms,
-        ).catch((err) => setError(err.rawMessage));
+        ).catch((err) => {
+          setError(err.rawMessage);
+        });
       }
-      fileToDelete(client, listPackages[row].name, platforms).catch((err) =>
-        setError(err.rawMessage),
-      );
+      fileToDelete(client, listPackages[row].name, platforms).catch((err) => {
+        setError(err.rawMessage);
+      });
       setSelectedPackages([]);
     });
   };
@@ -316,11 +321,11 @@ function Speedupdate() {
     }
   };
 
-  const packagesSelection = (id: number, pack: String, published: boolean) => {
+  const packagesSelection = (id: number, pack: string, published: boolean) => {
     const selectedIndex = selectedPackages.indexOf(id);
     let newSelected: readonly number[] = [];
     let newPublished: readonly boolean[] = [];
-    let packagesValues: readonly String[] = [];
+    let packagesValues: readonly string[] = [];
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selectedPackages, id);
@@ -364,7 +369,9 @@ function Speedupdate() {
                       setCurrentRepo(repo_name);
                       localStorage.setItem("current_repo", repo_name);
                     })
-                    .catch((err) => setError(err.rawMessage));
+                    .catch((err) => {
+                      setError(err.rawMessage);
+                    });
                 }}
               >
                 {repo_name}
@@ -375,7 +382,9 @@ function Speedupdate() {
           <TextField
             id="join-update-server"
             label="path"
-            onChange={(e: any) => setPath(e.currentTarget.value)}
+            onChange={(e: any) => {
+              setPath(e.currentTarget.value);
+            }}
           />
           <Button variant="contained">Join repository</Button>
           <TextField
@@ -393,12 +402,12 @@ function Speedupdate() {
                 <Checkbox
                   name="win64"
                   checked={checked.Win64}
-                  onChange={(event) =>
+                  onChange={(event) => {
                     setChecked((checked: any) => ({
                       ...checked,
                       [event.target.name]: event.target.checked,
-                    }))
-                  }
+                    }));
+                  }}
                 />
               }
               label="Win64"
@@ -408,12 +417,12 @@ function Speedupdate() {
                 <Checkbox
                   name="macos_x86_64"
                   checked={checked.Macos_x86_64}
-                  onChange={(event) =>
+                  onChange={(event) => {
                     setChecked((checked: any) => ({
                       ...checked,
                       [event.target.name]: event.target.checked,
-                    }))
-                  }
+                    }));
+                  }}
                 />
               }
               label="Macos x86_64"
@@ -423,12 +432,12 @@ function Speedupdate() {
                 <Checkbox
                   name="macos_arm64"
                   checked={checked.Macos_arm64}
-                  onChange={(event) =>
+                  onChange={(event) => {
                     setChecked((checked: any) => ({
                       ...checked,
                       [event.target.name]: event.target.checked,
-                    }))
-                  }
+                    }));
+                  }}
                 />
               }
               label="MacOS arm64"
@@ -438,12 +447,12 @@ function Speedupdate() {
                 <Checkbox
                   name="linux"
                   checked={checked.linux}
-                  onChange={(event) =>
+                  onChange={(event) => {
                     setChecked((checked: any) => ({
                       ...checked,
                       [event.target.name]: event.target.checked,
-                    }))
-                  }
+                    }));
+                  }}
                 />
               }
               label="Linux"
@@ -455,8 +464,8 @@ function Speedupdate() {
               setError("");
               init(client, path, checked)
                 .then(() => {
-                  let hostsEnum = getPlatforms();
-                  let hosts = Object.keys(checked).filter(
+                  const hostsEnum = getPlatforms();
+                  const hosts = Object.keys(checked).filter(
                     (key) => checked[key] === true,
                   );
                   setPlatforms(hosts);
@@ -473,14 +482,18 @@ function Speedupdate() {
                       //registerUpdateServer(lucleClient, auth.username, path)
                       //  .then(() =>
                     })
-                    .catch((err) => setError(err.rawMessage));
+                    .catch((err) => {
+                      setError(err.rawMessage);
+                    });
                 })
                 // .catch((err) => setError(err.rawMessage)),
                 //)
-                .catch((err) => setError(err.rawMessage));
-              listRepositories(lucleClient, auth.username).then((list) =>
-                setListRepo(list),
-              );
+                .catch((err) => {
+                  setError(err.rawMessage);
+                });
+              listRepositories(lucleClient, auth.username).then((list) => {
+                setListRepo(list);
+              });
             }}
           >
             Create new repository
@@ -567,7 +580,9 @@ function Speedupdate() {
                         setSelectedVersions([]);
                         setSelectedVersionsValues([]);
                       })
-                      .catch((err) => setError(err.rawMessage));
+                      .catch((err) => {
+                        setError(err.rawMessage);
+                      });
                   }}
                 >
                   <CheckIcon />
@@ -599,9 +614,9 @@ function Speedupdate() {
                       return (
                         <TableRow
                           hover
-                          onClick={() =>
-                            versionsSelection(index + 1, current_version)
-                          }
+                          onClick={() => {
+                            versionsSelection(index + 1, current_version);
+                          }}
                           role="checkbox"
                           aria-checked={isItemSelected}
                           tabIndex={-1}
@@ -633,9 +648,9 @@ function Speedupdate() {
                           id="input-with-icon-textfield"
                           label="New version"
                           value={version}
-                          onChange={(e: any) =>
-                            setVersion(e.currentTarget.value)
-                          }
+                          onChange={(e: any) => {
+                            setVersion(e.currentTarget.value);
+                          }}
                           variant="standard"
                         />
                       </Grid>
@@ -645,9 +660,9 @@ function Speedupdate() {
                           label="Description"
                           variant="standard"
                           value={description}
-                          onChange={(event) =>
-                            setDescription(event.currentTarget.value)
-                          }
+                          onChange={(event) => {
+                            setDescription(event.currentTarget.value);
+                          }}
                         />
                       </Grid>
                       <Grid item xs={1}>
@@ -660,7 +675,9 @@ function Speedupdate() {
                               version,
                               description,
                               platforms,
-                            ).catch((err) => setError(err.rawMessage));
+                            ).catch((err) => {
+                              setError(err.rawMessage);
+                            });
                             setVersion("");
                             setDescription("");
                           }}
@@ -682,7 +699,9 @@ function Speedupdate() {
               rowsPerPage={versionsPerPage}
               page={versionsPage}
               labelRowsPerPage="Versions per page"
-              onPageChange={(_, newPage) => setVersionsPage(newPage)}
+              onPageChange={(_, newPage) => {
+                setVersionsPage(newPage);
+              }}
               onRowsPerPageChange={(event) => {
                 setVersionsPerPage(parseInt(event.target.value, 10));
                 setVersionsPage(0);
@@ -726,14 +745,22 @@ function Speedupdate() {
               )}
               {numPackagesSelected > 0 && !canBePublished.includes(false) ? (
                 <Tooltip title="Unpublish">
-                  <IconButton onClick={() => UnregisterPackages()}>
+                  <IconButton
+                    onClick={() => {
+                      UnregisterPackages();
+                    }}
+                  >
                     <UnpublishedIcon />
                   </IconButton>
                 </Tooltip>
               ) : null}
               {numPackagesSelected > 0 && !canBePublished.includes(true) ? (
                 <Tooltip title="Publish">
-                  <IconButton onClick={() => RegisterPackages()}>
+                  <IconButton
+                    onClick={() => {
+                      RegisterPackages();
+                    }}
+                  >
                     <PublishIcon />
                   </IconButton>
                 </Tooltip>
@@ -763,13 +790,13 @@ function Speedupdate() {
                         return (
                           <TableRow
                             hover
-                            onClick={() =>
+                            onClick={() => {
                               packagesSelection(
                                 index,
                                 pack.name,
                                 pack.published,
-                              )
-                            }
+                              );
+                            }}
                             role="checkbox"
                             aria-checked={isItemSelected}
                             tabIndex={-1}
@@ -802,7 +829,9 @@ function Speedupdate() {
               rowsPerPage={packagesPerPage}
               page={packagesPage}
               labelRowsPerPage="Packages per page"
-              onPageChange={(event, newPage) => setPackagesPage(newPage)}
+              onPageChange={(event, newPage) => {
+                setPackagesPage(newPage);
+              }}
               onRowsPerPageChange={(event) => {
                 setPackagesPerPage(parseInt(event.target.value, 10));
                 setPackagesPage(0);
@@ -893,7 +922,9 @@ function Speedupdate() {
               count={availableBinaries.length}
               rowsPerPage={binariesPerPage}
               page={binariesPage}
-              onPageChange={(event, newPage) => setBinariesPage(newPage)}
+              onPageChange={(event, newPage) => {
+                setBinariesPage(newPage);
+              }}
               onRowsPerPageChange={(event) => {
                 setBinariesPerPage(parseInt(event.target.value, 10));
                 setBinariesPage(0);
@@ -904,7 +935,9 @@ function Speedupdate() {
         Upload Binaries
         <DropzoneArea
           fileObjects={fileObjects}
-          onChange={(files) => setFiles(files)}
+          onChange={(files) => {
+            setFiles(files);
+          }}
         />
         <Button
           color="primary"

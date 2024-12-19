@@ -15,7 +15,9 @@ export const init = async (client: any, path: string, platforms: any) =>
           },
           { headers },
         )
-        .then(() => resolve())
+        .then(() => {
+          resolve();
+        })
         .catch((error: any) => {
           reject(error);
         });
@@ -81,8 +83,12 @@ export const registerVersion = async (
           version,
           description,
         })
-        .then(() => resolve())
-        .catch((error: string) => reject(error));
+        .then(() => {
+          resolve();
+        })
+        .catch((error: string) => {
+          reject(error);
+        });
     }
   });
 
@@ -102,8 +108,12 @@ export const unregisterVersion = async (
           },
           { headers },
         )
-        .then(() => resolve())
-        .catch((error: string) => reject(error));
+        .then(() => {
+          resolve();
+        })
+        .catch((error: string) => {
+          reject(error);
+        });
     }
   });
 
@@ -123,8 +133,12 @@ export const registerPackage = async (
           },
           { headers },
         )
-        .then(() => resolve())
-        .catch((error: string) => reject(error));
+        .then(() => {
+          resolve();
+        })
+        .catch((error: string) => {
+          reject(error);
+        });
     }
   });
 
@@ -144,8 +158,12 @@ export const unregisterPackage = async (
           },
           { headers },
         )
-        .then(() => resolve())
-        .catch((error: string) => reject(error));
+        .then(() => {
+          resolve();
+        })
+        .catch((error: string) => {
+          reject(error);
+        });
     }
   });
 
@@ -154,8 +172,12 @@ export const fileToDelete = async (client: any, file: string, platforms: any) =>
     for (const folder of platforms) {
       client
         .delete_ile({ file: folder.concat("/", file) })
-        .then(() => resolve())
-        .catch((error: string) => reject(error));
+        .then(() => {
+          resolve();
+        })
+        .catch((error: string) => {
+          reject(error);
+        });
     }
   });
 

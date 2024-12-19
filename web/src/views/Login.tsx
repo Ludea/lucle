@@ -29,8 +29,12 @@ function Login() {
   const handleSignup = (username, password, email) => {
     setError("");
     createUser(client, username, password, email)
-      .then(() => setSuccessfullSignup(true))
-      .catch((err) => setError(err.rawMessage));
+      .then(() => {
+        setSuccessfullSignup(true);
+      })
+      .catch((err) => {
+        setError(err.rawMessage);
+      });
   };
 
   const handleSignin = (username, password, remember) => {
@@ -39,7 +43,9 @@ function Login() {
       localStorage.setItem("username", username);
       localStorage.setItem("password", password);
     }
-    auth.Login({ username, password }).catch((err) => setError(err.rawMessage));
+    auth.Login({ username, password }).catch((err) => {
+      setError(err.rawMessage);
+    });
   };
 
   return (
@@ -49,7 +55,9 @@ function Login() {
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabContext value={tab}>
             <TabList
-              onChange={(_, activeTab) => setTab(activeTab)}
+              onChange={(_, activeTab) => {
+                setTab(activeTab);
+              }}
               aria-label="signin-signup"
             >
               <Tab label="Sign In" value="1" />

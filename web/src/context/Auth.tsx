@@ -33,7 +33,9 @@ function AuthProvider({ children }: { children: ReactNode }) {
           );
           navigate("/admin/speedupdate");
         })
-        .catch((err) => reject(err));
+        .catch((err) => {
+          reject(err);
+        });
     });
 
   const Logout = () => {

@@ -36,7 +36,9 @@ function InstallStep(
       return (
         <CreateDB
           dbInfos={dbInfos}
-          setDBInfos={(infos) => setDBInfos(infos)}
+          setDBInfos={(infos) => {
+            setDBInfos(infos);
+          }}
           setSelectedDB={handleDBtype}
           selectedDB={selectedDB}
         />
@@ -123,9 +125,9 @@ export default function Install() {
             <Button
               color="inherit"
               disabled={activeStep === 0}
-              onClick={() =>
-                setActiveStep((prevActiveStep) => prevActiveStep - 1)
-              }
+              onClick={() => {
+                setActiveStep((prevActiveStep) => prevActiveStep - 1);
+              }}
               sx={{ mr: 1 }}
             >
               Back
@@ -138,10 +140,12 @@ export default function Install() {
                   case 0:
                     {
                       createDB(client, selectedDB, dbInfos.dbName, dbInfos)
-                        .then(() =>
-                          setActiveStep((prevActiveStep) => prevActiveStep + 1),
-                        )
-                        .catch((err) => setError(err.rawMessage));
+                        .then(() => {
+                          setActiveStep((prevActiveStep) => prevActiveStep + 1);
+                        })
+                        .catch((err) => {
+                          setError(err.rawMessage);
+                        });
                     }
                     break;
                   case 1:
@@ -152,7 +156,9 @@ export default function Install() {
                         password,
                         email,
                         "admin",
-                      ).catch((err) => setError(err.rawMessage));
+                      ).catch((err) => {
+                        setError(err.rawMessage);
+                      });
                       setTimeout(() => navigate("/"), 10000);
                       setActiveStep((prevActiveStep) => prevActiveStep + 1);
                     } else {
