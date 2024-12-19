@@ -209,10 +209,9 @@ function Speedupdate() {
               binariesPage * binariesPerPage + binariesPerPage,
             ),
           );
+        } else {
+          setError("Repository are not sync between platforms");
         }
-	else {
-	setError("Repository are not sync between platforms");
-}
       }
     }
 
