@@ -20,7 +20,7 @@ pub struct LucleUser {
     pub username: String,
     pub token: String,
     pub repositories: Vec<String>,
-    pub repo_platforms: HashMap<String, Vec<String>>,
+    pub repo_platforms: HashMap<String, Vec<Repository>>,
 }
 
 static POOL: Lazy<Pool<AsyncMysqlConnection>> = Lazy::new(|| {
