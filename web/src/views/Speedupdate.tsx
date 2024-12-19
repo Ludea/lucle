@@ -171,10 +171,10 @@ function Speedupdate() {
         { headers },
       );
       for await (const repo of call) {
-        if (
-          repo.status.every((state) => compareStatus(repo.status[0], state))
-        ) {
-          console.log("allo: ", test);
+        let compare_repo = repo.status.every((state) =>
+          compareStatus(repo.status[0], state),
+        );
+        if (compare_repo) {
           let firstRepo = repo.status[0];
           setSize(firstRepo.size);
           getCurrentVersion(firstRepo.currentVersion);
@@ -210,6 +210,9 @@ function Speedupdate() {
             ),
           );
         }
+	else {
+	setError("Repository are not sync between platforms");
+}
       }
     }
 
