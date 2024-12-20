@@ -143,9 +143,9 @@ impl Lucle for LucleApi {
         request: Request<UpdateServer>,
     ) -> Result<Response<Empty>, Status> {
         let inner = request.into_inner();
-        let username = inner.username;
         let platforms = inner.platforms;
         let path = inner.path;
+        let username = inner.username;
         let reply = Empty {};
 
         let mut db_platforms = Vec::new();
@@ -176,9 +176,10 @@ impl Lucle for LucleApi {
         request: Request<UpdateServer>,
     ) -> Result<Response<Empty>, Status> {
         let inner = request.into_inner();
-        let username = inner.username;
         let path = inner.path;
+        let username = inner.username;
         let reply = Empty {};
+
         match user::join_update_server(username.clone(), path.clone()).await {
             Ok(()) => {
                 tracing::info!("User {} ask to join {} repository", username, path);
@@ -214,14 +215,7 @@ impl Lucle for LucleApi {
         let username_or_email = inner.username_or_email;
         let password = inner.password;
         match user::login(username_or_email, password).await {
-            Ok(user) => {
-                let user = User {
-                    username: user.username,
-                    token: user.token,
-                    repositories: user.repositories,
-                };
-                Ok(Response::new(user))
-            }
+            Ok(user) => Ok(Response::new(user)),
             Err(err) => {
                 tracing::error!("{}", err);
                 return Err(Status::internal(err.to_string()));

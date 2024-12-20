@@ -69,7 +69,7 @@ message UserCreation {
 message User {
   string username = 1;
   string token = 2;
-  repeated string repositories = 3;
+  repeated UpdateServer repositories = 3;
 }
 
 message ResetPassword {

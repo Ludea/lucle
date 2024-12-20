@@ -1,6 +1,9 @@
 use crate::errors::Error;
 use crate::models::{NewUser, Permission, Repository, User, UsersRepositories};
-use crate::rpc::Hosts;
+use crate::rpc::{
+    luclerpc::{UpdateServer, User as LucleUser},
+    Hosts,
+};
 use crate::schema::{repositories, users, users_repositories};
 use crate::utils;
 use argon2::{
@@ -14,14 +17,6 @@ use diesel::select;
 use diesel_async::pooled_connection::{deadpool::Pool, AsyncDieselConnectionManager};
 use diesel_async::{AsyncMysqlConnection, RunQueryDsl};
 use once_cell::sync::Lazy;
-use std::collections::HashMap;
-
-pub struct LucleUser {
-    pub username: String,
-    pub token: String,
-    pub repositories: Vec<String>,
-    pub repo_platforms: HashMap<String, Vec<Repository>>,
-}
 
 static POOL: Lazy<Pool<AsyncMysqlConnection>> = Lazy::new(|| {
     let config = AsyncDieselConnectionManager::<diesel_async::AsyncMysqlConnection>::new(
@@ -175,40 +170,29 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                 .optional()
             {
                 Ok(Some(list_repo)) => {
-                    let mut user_repo: Vec<String> = Vec::new();
-                    let mut platforms_repo: HashMap<String, Vec<Repository>> = HashMap::new();
+                    let mut user_repo: Vec<UpdateServer> = Vec::new();
 
                     for repo in list_repo {
-                        user_repo.push(repo.repository_name);
+                        user_repo.push(repo.repository_name.clone());
                         match repositories::table
-                            .filter(repositories::dsl::name.eq(repo.repository_name))
+                            .filter(repositories::dsl::name.eq(repo.repository_name.clone()))
                             .select(Repository::as_select())
                             .load(&mut conn)
                             .await
                             .optional()
                         {
-                            Ok(Some(hosts)) => platforms_repo.insert(repo.repository_name, hosts),
-                            Ok(None) => platforms_repo.insert(repo.repository_name, Vec::new()),
-                            Err(err) => Err(crate::errors::Error::Query(err)),
+                            Ok(Some(hosts)) => {}
+                            Ok(None) => {
+                                platforms_repo.insert(repo.repository_name, Vec::new());
+                            }
+                            Err(err) => {
+                                return Err(crate::errors::Error::Query(err));
+                            }
                         }
                     }
-                    login_user(
-                        val.username,
-                        val.password,
-                        password,
-                        val.email,
-                        user_repo,
-                        platforms_repo,
-                    )
+                    login_user(val.username, val.password, password, val.email, user_repo)
                 }
-                Ok(None) => login_user(
-                    val.username,
-                    val.password,
-                    password,
-                    val.email,
-                    Vec::new(),
-                    HashMap::new(),
-                ),
+                Ok(None) => login_user(val.username, val.password, password, val.email, Vec::new()),
                 Err(err) => Err(crate::errors::Error::Query(err)),
             }
         }
@@ -230,19 +214,32 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                     {
                         Ok(Some(list_repo)) => {
                             let mut user_repo: Vec<String> = Vec::new();
+
                             for repo in list_repo {
-                                user_repo.push(repo.repository_name);
+                                user_repo.push(repo.repository_name.clone());
+                                match repositories::table
+                                    .filter(
+                                        repositories::dsl::name.eq(repo.repository_name.clone()),
+                                    )
+                                    .select(Repository::as_select())
+                                    .load(&mut conn)
+                                    .await
+                                    .optional()
+                                {
+                                    Ok(Some(hosts)) => {
+                                        platforms_repo.insert(repo.repository_name, hosts);
+                                    }
+                                    Ok(None) => {
+                                        platforms_repo.insert(repo.repository_name, Vec::new());
+                                    }
+                                    Err(err) => return Err(crate::errors::Error::Query(err)),
+                                }
                             }
                             login_user(val.username, val.password, password, val.email, user_repo)
                         }
-                        Ok(None) => login_user(
-                            val.username,
-                            val.password,
-                            password,
-                            val.email,
-                            Vec::new(),
-                            HashMap::new(),
-                        ),
+                        Ok(None) => {
+                            login_user(val.username, val.password, password, val.email, Vec::new())
+                        }
                         Err(err) => Err(crate::errors::Error::Query(err)),
                     }
                 }
@@ -301,8 +298,7 @@ fn login_user(
     stored_password: String,
     password: String,
     email: String,
-    repositories: Vec<String>,
-    repo_platforms: HashMap<String, Vec<Repository>>,
+    repositories: Vec<UpdateServer>,
 ) -> Result<LucleUser, Error> {
     let parsed_hash = PasswordHash::new(&stored_password).unwrap();
     Argon2::default().verify_password(password.as_bytes(), &parsed_hash)?;
@@ -311,6 +307,5 @@ fn login_user(
         username,
         token,
         repositories,
-        repo_platforms,
     })
 }
