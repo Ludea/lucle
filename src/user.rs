@@ -1,7 +1,7 @@
 use crate::errors::Error;
 use crate::models::{NewUser, Permission, Repository, User, UsersRepositories};
 use crate::rpc::{
-    luclerpc::{UpdateServer, User as LucleUser},
+    luclerpc::{Platforms, UpdateServer, User as LucleUser},
     Hosts,
 };
 use crate::schema::{repositories, users, users_repositories};
@@ -171,9 +171,9 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
             {
                 Ok(Some(list_repo)) => {
                     let mut user_repo: Vec<UpdateServer> = Vec::new();
+                    let mut repo_platforms: Vec<i32> = Vec::new();
 
                     for repo in list_repo {
-                        user_repo.push(repo.repository_name.clone());
                         match repositories::table
                             .filter(repositories::dsl::name.eq(repo.repository_name.clone()))
                             .select(Repository::as_select())
@@ -181,14 +181,33 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                             .await
                             .optional()
                         {
-                            Ok(Some(hosts)) => {}
-                            Ok(None) => {
-                                platforms_repo.insert(repo.repository_name, Vec::new());
+                            Ok(Some(repo)) => {
+                                for r in &repo {
+                                    println!("{:?}", r.platforms);
+                                    match r.platforms.as_str() {
+                                        "win64" => repo_platforms.push(Platforms::Win64.into()),
+                                        "macos_x86_64" => {
+                                            repo_platforms.push(Platforms::MacosX8664.into())
+                                        }
+                                        "macos_arm64" => {
+                                            repo_platforms.push(Platforms::MacosArm64.into())
+                                        }
+                                        "linux" => repo_platforms.push(Platforms::Linux.into()),
+                                        _ => {}
+                                    }
+                                }
                             }
+                            Ok(None) => {}
                             Err(err) => {
                                 return Err(crate::errors::Error::Query(err));
                             }
                         }
+                        let new_repo = UpdateServer {
+                            path: repo.repository_name,
+                            username: val.username.clone(),
+                            platforms: repo_platforms.clone(),
+                        };
+                        user_repo.push(new_repo);
                     }
                     login_user(val.username, val.password, password, val.email, user_repo)
                 }
@@ -213,10 +232,10 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                         .optional()
                     {
                         Ok(Some(list_repo)) => {
-                            let mut user_repo: Vec<String> = Vec::new();
+                            let mut user_repo: Vec<UpdateServer> = Vec::new();
 
                             for repo in list_repo {
-                                user_repo.push(repo.repository_name.clone());
+                                //user_repo.push(repo.repository_name.clone());
                                 match repositories::table
                                     .filter(
                                         repositories::dsl::name.eq(repo.repository_name.clone()),
@@ -226,12 +245,8 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                                     .await
                                     .optional()
                                 {
-                                    Ok(Some(hosts)) => {
-                                        platforms_repo.insert(repo.repository_name, hosts);
-                                    }
-                                    Ok(None) => {
-                                        platforms_repo.insert(repo.repository_name, Vec::new());
-                                    }
+                                    Ok(Some(hosts)) => {}
+                                    Ok(None) => {}
                                     Err(err) => return Err(crate::errors::Error::Query(err)),
                                 }
                             }
