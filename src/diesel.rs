@@ -171,7 +171,8 @@ fn path_from_sqlite_url(database_url: &str) -> Result<std::path::PathBuf, crate:
 pub fn create_pool() -> Lazy<Pool<AsyncMysqlConnection>> {
     Lazy::new(|| {
         let config = AsyncDieselConnectionManager::<diesel_async::AsyncMysqlConnection>::new(
-            "mysql://mariadb-min.mariadb.svc.cluster.local/lucle",
+            "mysql://127.0.0.1:3306/lucle",
+            //            "mysql://mariadb-min.mariadb.svc.cluster.local/lucle",
         );
         Pool::builder(config).build().unwrap()
     })

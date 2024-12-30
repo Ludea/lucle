@@ -22,6 +22,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     new Promise((resolve, reject) => {
       connection(client, credentials.username, credentials.password)
         .then((user) => {
+console.log("user: ", user);
           setUsername(user.username);
           setToken(user.token);
           localStorage.setItem("token", user.token);

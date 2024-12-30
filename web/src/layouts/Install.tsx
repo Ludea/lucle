@@ -144,6 +144,7 @@ export default function Install() {
                           setActiveStep((prevActiveStep) => prevActiveStep + 1);
                         })
                         .catch((err) => {
+                          console.log("15: ", err);
                           setError(err.rawMessage);
                         });
                     }

@@ -50,6 +50,7 @@ export const connection = async (
         password: user_password,
       })
       .then((user) => {
+console.log("12: " , user);
         resolve(user);
       })
       .catch((err) => {
@@ -79,12 +80,14 @@ export const registerUpdateServer = async (
   client: any,
   username: string,
   repo: string,
+  platforms: any,
 ) =>
   new Promise((resolve, reject) => {
     client
       .register_update_server({
         path: repo,
         username,
+	platforms,
       })
       .then(() => {
         resolve();

@@ -56,7 +56,7 @@ import { LucleRPC } from "context/Luclerpc";
 
 const transport = createGrpcWebTransport({
   // baseUrl: "https://api-repo.marlin-atlas.ts.net"
-  baseUrl: "http://127.0.0.1:3000",
+  baseUrl: "http://127.0.0.1:3001",
 });
 const client = createClient(Repo, transport);
 
@@ -156,6 +156,7 @@ function Speedupdate() {
   };
 
   useEffect(() => {
+console.log("13: ", platforms);
     const headers = new Headers();
     const { token } = auth;
     headers.set("Authorization", `Bearer ${token}`);
@@ -479,15 +480,20 @@ function Speedupdate() {
                   localStorage.setItem("platforms", JSON.stringify(hosts));
                   isInit(client, path, hosts)
                     .then(() => {
-                      //registerUpdateServer(lucleClient, auth.username, path)
-                      //  .then(() =>
+		      let hosts = getPlatforms();
+                      registerUpdateServer(
+                        lucleClient,
+                        auth.username,
+                        path,
+			hosts,
+                      ).catch((error) => {
+                        setError(err.rawMessage);
+                      });
                     })
                     .catch((err) => {
                       setError(err.rawMessage);
                     });
                 })
-                // .catch((err) => setError(err.rawMessage)),
-                //)
                 .catch((err) => {
                   setError(err.rawMessage);
                 });

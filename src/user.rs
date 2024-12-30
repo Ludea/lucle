@@ -17,10 +17,12 @@ use diesel::select;
 use diesel_async::pooled_connection::{deadpool::Pool, AsyncDieselConnectionManager};
 use diesel_async::{AsyncMysqlConnection, RunQueryDsl};
 use once_cell::sync::Lazy;
+use serde_json::Value;
 
 static POOL: Lazy<Pool<AsyncMysqlConnection>> = Lazy::new(|| {
     let config = AsyncDieselConnectionManager::<diesel_async::AsyncMysqlConnection>::new(
-        "mysql://root@mariadb-min.mariadb.svc.cluster.local/lucle",
+        "mysql://root@127.0.0.1:3306/lucle",
+        //        "mysql://root@mariadb-min.mariadb.svc.cluster.local/lucle",
     );
     Pool::builder(config).build().unwrap()
 });
@@ -183,17 +185,26 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                         {
                             Ok(Some(repo)) => {
                                 for r in &repo {
-                                    println!("{:?}", r.platforms);
-                                    match r.platforms.as_str() {
-                                        "win64" => repo_platforms.push(Platforms::Win64.into()),
-                                        "macos_x86_64" => {
-                                            repo_platforms.push(Platforms::MacosX8664.into())
+                                    let parsed_platforms: Value =
+                                        serde_json::from_str(&r.platforms).unwrap();
+                                    if let Some(list_platforms) = parsed_platforms.as_array() {
+                                        for platform in list_platforms {
+                                            if let Some(plat) = platform.as_str() {
+                                                match plat {
+                                                    "Win64" => {
+                                                        repo_platforms.push(Platforms::Win64.into())
+                                                    }
+                                                    "Macosx8664" => repo_platforms
+                                                        .push(Platforms::MacosX8664.into()),
+                                                    "Macosarm64" => repo_platforms
+                                                        .push(Platforms::MacosArm64.into()),
+                                                    "Linux" => {
+                                                        repo_platforms.push(Platforms::Linux.into())
+                                                    }
+                                                    _ => {}
+                                                }
+                                            }
                                         }
-                                        "macos_arm64" => {
-                                            repo_platforms.push(Platforms::MacosArm64.into())
-                                        }
-                                        "linux" => repo_platforms.push(Platforms::Linux.into()),
-                                        _ => {}
                                     }
                                 }
                             }
@@ -233,9 +244,9 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                     {
                         Ok(Some(list_repo)) => {
                             let mut user_repo: Vec<UpdateServer> = Vec::new();
+                            let mut repo_platforms: Vec<i32> = Vec::new();
 
                             for repo in list_repo {
-                                //user_repo.push(repo.repository_name.clone());
                                 match repositories::table
                                     .filter(
                                         repositories::dsl::name.eq(repo.repository_name.clone()),
@@ -245,10 +256,32 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                                     .await
                                     .optional()
                                 {
-                                    Ok(Some(hosts)) => {}
+                                    Ok(Some(repo)) => {
+                                        for r in &repo {
+                                            match r.platforms.as_str() {
+                                                "win64" => {
+                                                    repo_platforms.push(Platforms::Win64.into())
+                                                }
+                                                "macos_x86_64" => repo_platforms
+                                                    .push(Platforms::MacosX8664.into()),
+                                                "macos_arm64" => repo_platforms
+                                                    .push(Platforms::MacosArm64.into()),
+                                                "linux" => {
+                                                    repo_platforms.push(Platforms::Linux.into())
+                                                }
+                                                _ => {}
+                                            }
+                                        }
+                                    }
                                     Ok(None) => {}
                                     Err(err) => return Err(crate::errors::Error::Query(err)),
                                 }
+                                let new_repo = UpdateServer {
+                                    path: repo.repository_name,
+                                    username: val.username.clone(),
+                                    platforms: repo_platforms.clone(),
+                                };
+                                user_repo.push(new_repo);
                             }
                             login_user(val.username, val.password, password, val.email, user_repo)
                         }
