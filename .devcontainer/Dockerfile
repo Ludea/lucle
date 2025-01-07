@@ -3,10 +3,12 @@ FROM ghcr.io/lapce/lapdev-devcontainer-gnome
 RUN apt-get update && apt install -y --no-install-recommends \
     build-essential \
     wget \
+    mariadb-server \
     nodejs \
     npm \
     git
 
+RUN service mariadb start
 RUN npm install -g pnpm
 
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y

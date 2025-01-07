@@ -12,6 +12,7 @@
     "serve": "protobuf && vite preview"
   },
   "dependencies": {
+    "@bufbuild/buf": "^1.48.0",
     "@connectrpc/connect": "^2.0.0",
     "@connectrpc/connect-web": "^2.0.0",
     "@emotion/cache": "^11.11.0",
