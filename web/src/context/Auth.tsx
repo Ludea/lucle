@@ -12,9 +12,7 @@ const AuthContext = createContext();
 function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [username, setUsername] = useState(localStorage.getItem("username"));
-  const [repositories, setRepositories] = useState(
-    JSON.parse(localStorage.getItem("repositories")),
-  );
+  const [repositories, setRepositories] = useState();
   const navigate = useNavigate();
   const client = useContext(LucleRPC);
 
@@ -25,13 +23,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
           let single_repo = new Map<string, string[]>();
           let list_repo_with_platforms: single_repo[];
           let list_platforms: string[];
-          for (const repo of user.repositories) {
+          /*for (const repo of user.repositories) {
             for (const host of repo.platforms) {
               list_platforms.push(host);
             }
             single_repo.set(repo, list_platforms);
             list_repo_with_platforms.push(single_repo);
-          }
+          }*/
+          //console.log("test: ", list_repo_with_platforms);
           setUsername(user.username);
           setToken(user.token);
           localStorage.setItem("token", user.token);

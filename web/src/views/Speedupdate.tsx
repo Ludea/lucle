@@ -155,7 +155,6 @@ function Speedupdate() {
   };
 
   useEffect(() => {
-console.log(auth);
     const headers = new Headers();
     const { token } = auth;
     headers.set("Authorization", `Bearer ${token}`);
