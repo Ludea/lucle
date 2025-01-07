@@ -18,7 +18,6 @@ pub async fn serve_dir() {
     let serve_dir = ServeDir::new("web/dist").fallback(ServeFile::new("web/dist/index.html"));
 
     let app = Router::new()
-        .nest_service("/", serve_dir.clone())
         .route("/health", get(health_check))
         .fallback_service(serve_dir)
         .layer(TraceLayer::new_for_http());
