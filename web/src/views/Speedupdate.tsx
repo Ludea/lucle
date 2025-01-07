@@ -34,6 +34,7 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import { createClient } from "@connectrpc/connect";
 import { Repo, Platforms } from "gen/speedupdate_pb";
+
 // api
 import {
   init,
@@ -83,9 +84,7 @@ function Speedupdate() {
   const [currentVersion, getCurrentVersion] = useState<string>("");
   const [size, setSize] = useState<number>();
   const [version, setVersion] = useState<any>();
-  const [platforms, setPlatforms] = useState<string[]>(
-    JSON.parse(localStorage.getItem("platforms")),
-  );
+  const [platforms, setPlatforms] = useState<string[]>([]);
   const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
     JSON.parse(localStorage.getItem("platformsEnum")),
   );
@@ -156,7 +155,7 @@ function Speedupdate() {
   };
 
   useEffect(() => {
-console.log("13: ", platforms);
+console.log(auth);
     const headers = new Headers();
     const { token } = auth;
     headers.set("Authorization", `Bearer ${token}`);
@@ -477,15 +476,15 @@ console.log("13: ", platforms);
                     "platformsEnum",
                     JSON.stringify(hostsEnum),
                   );
-                  localStorage.setItem("platforms", JSON.stringify(hosts));
+                  //localStorage.setItem("platforms", JSON.stringify(hosts));
                   isInit(client, path, hosts)
                     .then(() => {
-		      let hosts = getPlatforms();
+                      let hosts = getPlatforms();
                       registerUpdateServer(
                         lucleClient,
                         auth.username,
                         path,
-			hosts,
+                        hosts,
                       ).catch((error) => {
                         setError(err.rawMessage);
                       });

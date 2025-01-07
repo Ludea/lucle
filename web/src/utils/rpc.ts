@@ -50,7 +50,6 @@ export const connection = async (
         password: user_password,
       })
       .then((user) => {
-console.log("12: " , user);
         resolve(user);
       })
       .catch((err) => {
@@ -87,7 +86,7 @@ export const registerUpdateServer = async (
       .register_update_server({
         path: repo,
         username,
-	platforms,
+        platforms,
       })
       .then(() => {
         resolve();

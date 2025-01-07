@@ -22,15 +22,24 @@ function AuthProvider({ children }: { children: ReactNode }) {
     new Promise((resolve, reject) => {
       connection(client, credentials.username, credentials.password)
         .then((user) => {
-console.log("user: ", user);
+          let single_repo = new Map<string, string[]>();
+          let list_repo_with_platforms: single_repo[];
+          let list_platforms: string[];
+          for (const repo of user.repositories) {
+            for (const host of repo.platforms) {
+              list_platforms.push(host);
+            }
+            single_repo.set(repo, list_platforms);
+            list_repo_with_platforms.push(single_repo);
+          }
           setUsername(user.username);
           setToken(user.token);
           localStorage.setItem("token", user.token);
           localStorage.setItem("username", user.username);
-          setRepositories(user.repositories);
+          setRepositories(list_repo_with_platforms);
           localStorage.setItem(
             "repositories",
-            JSON.stringify(user.repositories),
+            JSON.stringify(list_repo_with_platforms),
           );
           navigate("/admin/speedupdate");
         })
