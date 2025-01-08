@@ -64,7 +64,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const Logout = () => {
     setToken("");
     setUsername("");
-    setRepositories("");
+    setRepositories([]);
     localStorage.removeItem("token");
     localStorage.removeItem("repositories");
     localStorage.removeItem("username");

@@ -84,7 +84,6 @@ function Speedupdate() {
   const [currentVersion, getCurrentVersion] = useState<string>("");
   const [size, setSize] = useState<number>();
   const [version, setVersion] = useState<any>();
-  const [platforms, setPlatforms] = useState<string[]>([]);
   const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
     JSON.parse(localStorage.getItem("platformsEnum")),
   );
@@ -358,24 +357,30 @@ function Speedupdate() {
     speedupdatecomponent = (
       <div>
         {listRepo.length > 0
-          ? listRepo.map((repo_name, index) => (
-              <Button
-                key={index}
-                variant="contained"
-                onClick={() => {
-                  isInit(client, repo_name, platforms)
-                    .then(() => {
-                      setCurrentRepo(repo_name);
-                      localStorage.setItem("current_repo", repo_name);
-                    })
-                    .catch((err) => {
-                      setError(err.rawMessage);
-                    });
-                }}
-              >
-                {repo_name}
-              </Button>
-            ))
+          ? listRepo.map((repo, index) => {
+              const [repo_name] = repo.keys();
+              const platforms = repo.get(repo_name);
+              return (
+                <Button
+                  key={index}
+                  variant="contained"
+                  onClick={() => {
+                    isInit(client, repo_name, platforms)
+                      .then(() => {
+                        console.log("12: ", repo_name);
+                        setCurrentRepo(repo_name);
+                        localStorage.setItem("current_repo", repo_name);
+                      })
+                      .catch((err) => {
+                        console.log(err);
+                        setError(err.rawMessage);
+                      });
+                  }}
+                >
+                  {repo_name}
+                </Button>
+              );
+            })
           : null}
         <Grid item xs={1}>
           <TextField
