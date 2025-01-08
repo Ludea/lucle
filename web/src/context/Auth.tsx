@@ -31,6 +31,15 @@ function AuthProvider({ children }: { children: ReactNode }) {
                 case Platforms.WIN64:
                   list_platforms.push("win64");
                   break;
+                case Platforms.MACOS_X86_64:
+                  list_platforms.push("macos_x86_64");
+                  break;
+                case Platforms.MACOS_ARM64:
+                  list_platforms.push("macos_arm64");
+                  break;
+                case Platforms.LINUX:
+                  list_platforms.push("linux");
+                  break;
               }
             }
             single_repo.set(repo.path, list_platforms);
@@ -40,11 +49,11 @@ function AuthProvider({ children }: { children: ReactNode }) {
           setToken(user.token);
           localStorage.setItem("token", user.token);
           localStorage.setItem("username", user.username);
-          //          setRepositories(list_repo_with_platforms);
-          //          localStorage.setItem(
-          //            "repositories",
-          //            JSON.stringify(list_repo_with_platforms),
-          //          );
+          setRepositories(list_repo_with_platforms);
+          localStorage.setItem(
+            "repositories",
+            JSON.stringify(list_repo_with_platforms),
+          );
           navigate("/admin/speedupdate");
         })
         .catch((err) => {
