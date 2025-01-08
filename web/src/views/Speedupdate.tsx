@@ -367,12 +367,10 @@ function Speedupdate() {
                   onClick={() => {
                     isInit(client, repo_name, platforms)
                       .then(() => {
-                        alert("12: ", repo_name);
                         setCurrentRepo(repo_name);
                         localStorage.setItem("current_repo", repo_name);
                       })
                       .catch((err) => {
-                        alert(err);
                         setError(err.rawMessage);
                       });
                   }}
