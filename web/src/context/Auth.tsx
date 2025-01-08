@@ -7,6 +7,8 @@ import { LucleRPC } from "context/Luclerpc";
 // RPC
 import { connection } from "utils/rpc";
 
+import { Platforms } from "gen/speedupdate_pb";
+
 const AuthContext = createContext();
 
 function AuthProvider({ children }: { children: ReactNode }) {
@@ -21,25 +23,28 @@ function AuthProvider({ children }: { children: ReactNode }) {
       connection(client, credentials.username, credentials.password)
         .then((user) => {
           let single_repo = new Map<string, string[]>();
-          let list_repo_with_platforms: single_repo[];
-          let list_platforms: string[];
-          /*for (const repo of user.repositories) {
+          let list_repo_with_platforms: single_repo[] = [];
+          let list_platforms: string[] = [];
+          for (const repo of user.repositories) {
             for (const host of repo.platforms) {
-              list_platforms.push(host);
+              switch (host) {
+                case Platforms.WIN64:
+                  list_platforms.push("win64");
+                  break;
+              }
             }
-            single_repo.set(repo, list_platforms);
+            single_repo.set(repo.path, list_platforms);
             list_repo_with_platforms.push(single_repo);
-          }*/
-          //console.log("test: ", list_repo_with_platforms);
+          }
           setUsername(user.username);
           setToken(user.token);
           localStorage.setItem("token", user.token);
           localStorage.setItem("username", user.username);
-          setRepositories(list_repo_with_platforms);
-          localStorage.setItem(
-            "repositories",
-            JSON.stringify(list_repo_with_platforms),
-          );
+          //          setRepositories(list_repo_with_platforms);
+          //          localStorage.setItem(
+          //            "repositories",
+          //            JSON.stringify(list_repo_with_platforms),
+          //          );
           navigate("/admin/speedupdate");
         })
         .catch((err) => {
