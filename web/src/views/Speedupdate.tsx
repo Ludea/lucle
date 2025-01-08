@@ -367,12 +367,12 @@ function Speedupdate() {
                   onClick={() => {
                     isInit(client, repo_name, platforms)
                       .then(() => {
-                        console.log("12: ", repo_name);
+                        alert("12: ", repo_name);
                         setCurrentRepo(repo_name);
                         localStorage.setItem("current_repo", repo_name);
                       })
                       .catch((err) => {
-                        console.log(err);
+                        alert(err);
                         setError(err.rawMessage);
                       });
                   }}
@@ -472,7 +472,6 @@ function Speedupdate() {
                   const hosts = Object.keys(checked).filter(
                     (key) => checked[key] === true,
                   );
-                  setPlatforms(hosts);
                   setCurrentRepo(path);
                   setPlatformsEnum(hostsEnum);
                   localStorage.setItem("current_repo", path);
@@ -530,9 +529,7 @@ function Speedupdate() {
                 setError("");
                 setCurrentRepo("");
                 setPlatformsEnum([]);
-                setPlatforms([]);
                 localStorage.removeItem("platformsEnum");
-                localStorage.removeItem("platforms");
                 localStorage.removeItem("current_repo");
               }}
             >
