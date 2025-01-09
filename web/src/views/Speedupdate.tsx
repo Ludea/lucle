@@ -477,7 +477,6 @@ function Speedupdate() {
                     "platformsEnum",
                     JSON.stringify(hostsEnum),
                   );
-                  //localStorage.setItem("platforms", JSON.stringify(hosts));
                   isInit(client, path, hosts)
                     .then(() => {
                       let hosts = getPlatforms();
@@ -515,6 +514,8 @@ function Speedupdate() {
           <p>Current version: {currentVersion}</p>
           Total packages size : {size + DisplaySizeUnit(size)}
           <p>
+	  Options:
+	  <p> </p>
             {error !== "" ? (
               <div>
                 <WarningIcon />

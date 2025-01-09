@@ -14,7 +14,12 @@ const AuthContext = createContext();
 function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [username, setUsername] = useState(localStorage.getItem("username"));
-  const [repositories, setRepositories] = useState();
+  const [repositories, setRepositories] = useState(() => {
+    const savedRepo = localStorage.getItem("repositories");
+    return savedRepo
+      ? JSON.parse(savedRepo).map((entries) => new Map(entries))
+      : [];
+  });
   const navigate = useNavigate();
   const client = useContext(LucleRPC);
 
@@ -52,7 +57,11 @@ function AuthProvider({ children }: { children: ReactNode }) {
           setRepositories(list_repo_with_platforms);
           localStorage.setItem(
             "repositories",
-            JSON.stringify(list_repo_with_platforms),
+            JSON.stringify(
+              list_repo_with_platforms.map((entries) =>
+                Array.from(entries.entries()),
+              ),
+            ),
           );
           navigate("/admin/speedupdate");
         })
@@ -64,7 +73,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const Logout = () => {
     setToken("");
     setUsername("");
-    setRepositories([]);
+    setRepositories("");
     localStorage.removeItem("token");
     localStorage.removeItem("repositories");
     localStorage.removeItem("username");
