@@ -28,6 +28,7 @@ message RepositoryPath {
 message RepositoryStatus {
   string path = 1;
   repeated Platforms platforms = 2;
+  optional string build_path = 3;
 }
 
 message FileToDelete {

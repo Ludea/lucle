@@ -12,7 +12,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Checkbox from "@mui/material/Checkbox";
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
 import FormGroup from "@mui/material/FormGroup";
@@ -78,8 +78,8 @@ const DisplaySizeUnit = (TotalSize: number) => {
 };
 
 function Speedupdate() {
-  const [currentRepo, setCurrentRepo] = useState<string>(
-    localStorage.getItem("current_repo"),
+  const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(
+    localStorage.getItem < "current_repo",
   );
   const [currentVersion, getCurrentVersion] = useState<string>("");
   const [size, setSize] = useState<number>();
@@ -102,6 +102,7 @@ function Speedupdate() {
   const [visiblePackages, setVisiblePackages] = useState<string[]>([]);
   const [visibleBinaries, setVisibleBinaries] = useState<string[]>([]);
   const [path, setPath] = useState<string>(localStorage.getItem("path") || "");
+  const [buildPath, setBuildPath] = useState<string>("");
   const [fileObjects, setFileObjects] = useState();
   const [files, setFiles] = useState<any>();
   const [packagesPerPage, setPackagesPerPage] = useState(5);
@@ -162,6 +163,7 @@ function Speedupdate() {
         {
           path: currentRepo,
           platforms: platformsEnum,
+          buildPath: buildPath,
         },
         { headers },
       );
@@ -367,8 +369,13 @@ function Speedupdate() {
                   onClick={() => {
                     isInit(client, repo_name, platforms)
                       .then(() => {
-                        setCurrentRepo(repo_name);
-                        localStorage.setItem("current_repo", repo_name);
+                        let current = new Map<string, string[]>(currentRepo);
+                        current.set(repo_name, platforms);
+                        setCurrentRepo(current);
+                        localStorage.setItem(
+                          "current_repo",
+                          JSON.stringify({ repo_name, platforms }),
+                        );
                       })
                       .catch((err) => {
                         setError(err.rawMessage);
@@ -380,7 +387,7 @@ function Speedupdate() {
               );
             })
           : null}
-        <Grid item xs={1}>
+        <Grid size={1}>
           <TextField
             id="join-update-server"
             label="path"
@@ -514,8 +521,18 @@ function Speedupdate() {
           <p>Current version: {currentVersion}</p>
           Total packages size : {size + DisplaySizeUnit(size)}
           <p>
-	  Options:
-	  <p> </p>
+            Options:
+            <p>
+              {" "}
+              Build Path:{" "}
+              <TextField
+                value={buildPath}
+                id="build-path"
+                label=""
+                variant="standard"
+                onChange={(event) => setBuildPath(event.target.value)}
+              />{" "}
+            </p>
             {error !== "" ? (
               <div>
                 <WarningIcon />
@@ -647,7 +664,7 @@ function Speedupdate() {
                 <TableRow>
                   <TableCell colSpan={3}>
                     <Grid container spacing={0}>
-                      <Grid item xs={4}>
+                      <Grid size={4}>
                         <TextField
                           required
                           id="input-with-icon-textfield"
@@ -659,7 +676,7 @@ function Speedupdate() {
                           variant="standard"
                         />
                       </Grid>
-                      <Grid item xs={7}>
+                      <Grid size={7}>
                         <TextField
                           id="description"
                           label="Description"
@@ -670,7 +687,7 @@ function Speedupdate() {
                           }}
                         />
                       </Grid>
-                      <Grid item xs={1}>
+                      <Grid size={1}>
                         <IconButton
                           onClick={() => {
                             setError("");
