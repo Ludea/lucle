@@ -74,12 +74,11 @@ const DisplaySizeUnit = (TotalSize: number) => {
   if (TotalSize < 1024 * 1024 * 1024 * 1024) {
     return "GB";
   }
-  return "-";
 };
 
 function Speedupdate() {
   const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(
-    //new Map(),
+    new Map(),
   );
   const [currentVersion, getCurrentVersion] = useState<string>("");
   const [size, setSize] = useState<number>();
@@ -159,25 +158,26 @@ function Speedupdate() {
     if (savedCurrentRepo) {
       const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
       const mapCurrentRepo = new Map();
-mapCurrentRepo.set(parsedCurrentRepo.repo_name, parsedCurrentRepo.platforms);
+      mapCurrentRepo.set(
+        parsedCurrentRepo.repo_name,
+        parsedCurrentRepo.platforms,
+      );
       setCurrentRepo(mapCurrentRepo);
-console.log("21: ", mapCurrentRepo);
     }
     const headers = new Headers();
     const { token } = auth;
     headers.set("Authorization", `Bearer ${token}`);
     async function Status() {
-console.log("allo: ", currentRepo.keys().next().value)
       const call = client.status(
         {
-          path: currentRepo.keys().next().done,
+          path: currentRepo.keys().next().value,
           platforms: platformsEnum,
           buildPath: buildPath,
         },
         { headers },
       );
       for await (const repo of call) {
-console.log("test: ", repo);
+        console.log("test: ", repo);
         const compare_repo = repo.status.every((state) =>
           compareStatus(repo.status[0], state),
         );
@@ -226,13 +226,15 @@ console.log("test: ", repo);
       setListRepo(auth.repositories);
     }
 
-    if (currentRepo && currentRepo.size === 0) {
-console.log("34: ", currentRepo)
-      Status().then((value) => console.log("12: ", value)).catch((err) => {
-        setError(err.rawMessage);
-      });
+    if (currentRepo.size > 0) {
+      console.log("34: ", currentRepo);
+      Status()
+        .then((value) => console.log("12: ", value))
+        .catch((err) => {
+          setError(err.rawMessage);
+        });
     }
-console.log("14: ", currentRepo);
+    console.log("14: ", currentRepo);
   }, []);
 
   const uploadFile = () => {
@@ -367,7 +369,8 @@ console.log("14: ", currentRepo);
 
   let speedupdatecomponent;
 
-  if (!currentRepo || currentRepo.size === 0) {//.keys().next().done) {
+  if (currentRepo.size === 0) {
+    //.keys().next().done) {
     speedupdatecomponent = (
       <div>
         {listRepo.length > 0
@@ -526,14 +529,14 @@ console.log("14: ", currentRepo);
         {error}
       </div>
     );
-  } else if (currentRepo) {
+  } else if (currentRepo.size > 0) {
     speedupdatecomponent = (
       <Box sx={{ width: "100%" }}>
         <Paper sx={{ width: "100%", mb: 2 }}>
           <Grid container>
-            <Grid size={12}>Current version: {currentVersion}</Grid>
+            <Grid size={12}>Current version: {currentVersion ? currentVersion : "-" }</Grid>
             <Grid size={12}>
-              Total packages size : {size + DisplaySizeUnit(size)}
+              Total packages size: {size ? size + DisplaySizeUnit(size): "-"}
             </Grid>
             Options:
             <Grid size={12}>
@@ -595,7 +598,6 @@ console.log("14: ", currentRepo);
               <Typography
                 sx={{ flex: "1 1 100%" }}
                 variant="h6"
-                a
                 id="tableTitle"
                 component="div"
               >
@@ -682,13 +684,14 @@ console.log("14: ", currentRepo);
                       <Grid size={4}>
                         <TextField
                           required
-                          id="input-with-icon-textfield"
+                          id="register-version"
                           label="New version"
-                          value={version}
-                          onChange={(e: any) => {
-                            setVersion(e.currentTarget.value);
-                          }}
                           variant="standard"
+                          //value={version}
+                          onChange={(event) => {
+                            setVersion(event.target.value);
+                          }}
+
                         />
                       </Grid>
                       <Grid size={7}>
@@ -698,7 +701,7 @@ console.log("14: ", currentRepo);
                           variant="standard"
                           value={description}
                           onChange={(event) => {
-                            setDescription(event.currentTarget.value);
+                            setDescription(event.target.value);
                           }}
                         />
                       </Grid>
