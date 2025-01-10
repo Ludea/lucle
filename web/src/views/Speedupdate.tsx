@@ -79,7 +79,7 @@ const DisplaySizeUnit = (TotalSize: number) => {
 
 function Speedupdate() {
   const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(
-    localStorage.getItem < "current_repo",
+    //new Map(),
   );
   const [currentVersion, getCurrentVersion] = useState<string>("");
   const [size, setSize] = useState<number>();
@@ -108,7 +108,7 @@ function Speedupdate() {
   const [packagesPerPage, setPackagesPerPage] = useState(5);
   const [versionsPerPage, setVersionsPerPage] = useState(5);
   const [binariesPerPage, setBinariesPerPage] = useState(5);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
   const [description, setDescription] = useState<string>("");
   const [selectedVersions, setSelectedVersions] = useState<readonly number[]>(
     [],
@@ -155,19 +155,29 @@ function Speedupdate() {
   };
 
   useEffect(() => {
+    const savedCurrentRepo = localStorage.getItem("current_repo");
+    if (savedCurrentRepo) {
+      const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
+      const mapCurrentRepo = new Map();
+mapCurrentRepo.set(parsedCurrentRepo.repo_name, parsedCurrentRepo.platforms);
+      setCurrentRepo(mapCurrentRepo);
+console.log("21: ", mapCurrentRepo);
+    }
     const headers = new Headers();
     const { token } = auth;
     headers.set("Authorization", `Bearer ${token}`);
     async function Status() {
+console.log("allo: ", currentRepo.keys().next().value)
       const call = client.status(
         {
-          path: currentRepo,
+          path: currentRepo.keys().next().done,
           platforms: platformsEnum,
           buildPath: buildPath,
         },
         { headers },
       );
       for await (const repo of call) {
+console.log("test: ", repo);
         const compare_repo = repo.status.every((state) =>
           compareStatus(repo.status[0], state),
         );
@@ -216,12 +226,14 @@ function Speedupdate() {
       setListRepo(auth.repositories);
     }
 
-    if (currentRepo) {
-      Status().catch((err) => {
+    if (currentRepo && currentRepo.size === 0) {
+console.log("34: ", currentRepo)
+      Status().then((value) => console.log("12: ", value)).catch((err) => {
         setError(err.rawMessage);
       });
     }
-  }, [currentRepo]);
+console.log("14: ", currentRepo);
+  }, []);
 
   const uploadFile = () => {
     const formData = new FormData();
@@ -235,7 +247,7 @@ function Speedupdate() {
   };
 
   const RegisterPackages = () => {
-    setError("");
+    setError(null);
     selectedPackagesValues.forEach((pack) => {
       registerPackage(client, currentRepo, pack, platforms).catch((err) => {
         setError(err.rawMessage);
@@ -247,7 +259,7 @@ function Speedupdate() {
   };
 
   const UnregisterPackages = () => {
-    setError("");
+    setError(null);
     selectedPackagesValues.forEach((pack) => {
       unregisterPackage(client, currentRepo, pack, platforms).catch((err) => {
         setError(err.rawMessage);
@@ -259,7 +271,7 @@ function Speedupdate() {
   };
 
   const DeleteVersion = () => {
-    setError("");
+    setError(null);
     selectedVersions.forEach((version) => {
       unregisterVersion(client, currentRepo, version, platforms).catch(
         (err) => {
@@ -270,7 +282,7 @@ function Speedupdate() {
   };
 
   const DeletePackages = () => {
-    setError("");
+    setError(null);
     selectedPackages.forEach((row) => {
       if (listPackages[row].published) {
         unregisterPackage(
@@ -355,7 +367,7 @@ function Speedupdate() {
 
   let speedupdatecomponent;
 
-  if (!currentRepo) {
+  if (!currentRepo || currentRepo.size === 0) {//.keys().next().done) {
     speedupdatecomponent = (
       <div>
         {listRepo.length > 0
@@ -369,7 +381,7 @@ function Speedupdate() {
                   onClick={() => {
                     isInit(client, repo_name, platforms)
                       .then(() => {
-                        let current = new Map<string, string[]>(currentRepo);
+                        let current = new Map<string, string[]>();
                         current.set(repo_name, platforms);
                         setCurrentRepo(current);
                         localStorage.setItem(
@@ -378,7 +390,7 @@ function Speedupdate() {
                         );
                       })
                       .catch((err) => {
-                        setError(err.rawMessage);
+                        console.log(err);
                       });
                   }}
                 >
@@ -470,7 +482,7 @@ function Speedupdate() {
           <Button
             variant="contained"
             onClick={() => {
-              setError("");
+              setError(null);
               init(client, path, checked)
                 .then(() => {
                   const hostsEnum = getPlatforms();
@@ -511,19 +523,20 @@ function Speedupdate() {
             Create new repository
           </Button>
         </Grid>
-        <p>{error}</p>
+        {error}
       </div>
     );
   } else if (currentRepo) {
     speedupdatecomponent = (
       <Box sx={{ width: "100%" }}>
         <Paper sx={{ width: "100%", mb: 2 }}>
-          <p>Current version: {currentVersion}</p>
-          Total packages size : {size + DisplaySizeUnit(size)}
-          <p>
+          <Grid container>
+            <Grid size={12}>Current version: {currentVersion}</Grid>
+            <Grid size={12}>
+              Total packages size : {size + DisplaySizeUnit(size)}
+            </Grid>
             Options:
-            <p>
-              {" "}
+            <Grid size={12}>
               Build Path:{" "}
               <TextField
                 value={buildPath}
@@ -531,19 +544,21 @@ function Speedupdate() {
                 label=""
                 variant="standard"
                 onChange={(event) => setBuildPath(event.target.value)}
-              />{" "}
-            </p>
-            {error !== "" ? (
-              <div>
-                <WarningIcon />
-                {error}
-              </div>
-            ) : null}
+              />
+            </Grid>
+            <Grid size={12}>
+              {error !== null ? (
+                <div>
+                  <WarningIcon />
+                  {error}
+                </div>
+              ) : null}
+            </Grid>
             <IconButton
               size="large"
               onClick={() => {
-                setError("");
-                setCurrentRepo("");
+                setError(null);
+                setCurrentRepo(new Map());
                 setPlatformsEnum([]);
                 localStorage.removeItem("platformsEnum");
                 localStorage.removeItem("current_repo");
@@ -551,7 +566,7 @@ function Speedupdate() {
             >
               <ExitToAppIcon />
             </IconButton>
-          </p>
+          </Grid>
         </Paper>
         <Paper sx={{ width: "100%", mb: 2 }}>
           <Toolbar
@@ -591,7 +606,7 @@ function Speedupdate() {
               <Tooltip title="SetVersion">
                 <IconButton
                   onClick={() => {
-                    setError("");
+                    setError(null);
                     setCurrentVersion(
                       client,
                       currentRepo,
@@ -690,10 +705,12 @@ function Speedupdate() {
                       <Grid size={1}>
                         <IconButton
                           onClick={() => {
-                            setError("");
+                            const [repo_name] = currentRepo.keys();
+                            const platforms = currentRepo.get(repo_name);
+                            setError(null);
                             registerVersion(
                               client,
-                              currentRepo,
+                              repo_name,
                               version,
                               description,
                               platforms,
