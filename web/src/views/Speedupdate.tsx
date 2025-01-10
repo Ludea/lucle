@@ -687,7 +687,7 @@ function Speedupdate() {
                           id="register-version"
                           label="New version"
                           variant="standard"
-                          //value={version}
+                          value={version}
                           onChange={(event) => {
                             setVersion(event.target.value);
                           }}
