@@ -33,7 +33,7 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 // RPC Connect
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import { createClient } from "@connectrpc/connect";
-import { Repo, Platforms } from "gen/speedupdate_pb";
+import { Repo, Platforms, Options } from "gen/speedupdate_pb";
 
 // api
 import {
@@ -86,11 +86,12 @@ function Speedupdate() {
   const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
     JSON.parse(localStorage.getItem("platformsEnum")),
   );
+  const [options, setOptions] = useState<Options[]>([]);
   const [canBePublished, setCanBePublished] = useState<boolean[]>([]);
   const [listPackages, setListPackages] = useState<string[]>([]);
   const [availableBinaries, setAvailableBinaries] = useState<string[]>([]);
   const [listVersions, setListVersions] = useState<any>();
-  const [listRepo, setListRepo] = useState<string[]>([]);
+  const [listRepo, setListRepo] = useState();
   const [selectedVersionsValues, setSelectedVersionsValues] = useState<
     string[]
   >([]);
@@ -172,7 +173,7 @@ function Speedupdate() {
         {
           path: currentRepo.keys().next().value,
           platforms: platformsEnum,
-          buildPath: ".",
+          options: [],
         },
         { headers },
       );
@@ -368,7 +369,7 @@ function Speedupdate() {
     speedupdatecomponent = (
       <div>
         {listRepo //.length > 0
-          ? listRepo.keys().map((repo_name, index) => {
+          ? listRepo.keys().map((repo_name: string, index: number) => {
               return (
                 <Button
                   key={index}

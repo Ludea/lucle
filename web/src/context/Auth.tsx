@@ -66,9 +66,10 @@ function AuthProvider({ children }: { children: ReactNode }) {
     });
 
   const Logout = () => {
+    const emptyMap = new Map();
     setToken("");
     setUsername("");
-    setRepositories("");
+    setRepositories(emptyMap);
     localStorage.removeItem("token");
     localStorage.removeItem("repositories");
     localStorage.removeItem("username");
