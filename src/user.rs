@@ -174,7 +174,11 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                 Ok(Some(list_repo)) => {
                     let mut user_repo: Vec<UpdateServer> = Vec::new();
                     let mut repo_platforms: Vec<i32> = Vec::new();
-
+                    let mut new_repo = UpdateServer {
+                        path: "".to_string(),
+                        username: "".to_string(),
+                        platforms: Vec::new(),
+                    };
                     for repo in list_repo {
                         match repositories::table
                             .filter(repositories::dsl::name.eq(repo.repository_name.clone()))
@@ -205,6 +209,12 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                                                 }
                                             }
                                         }
+                                        new_repo = UpdateServer {
+                                            path: r.name.clone(),
+                                            username: val.username.clone(),
+                                            platforms: repo_platforms.clone(),
+                                        };
+                                        repo_platforms.clear();
                                     }
                                 }
                             }
@@ -213,12 +223,7 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                                 return Err(crate::errors::Error::Query(err));
                             }
                         }
-                        let new_repo = UpdateServer {
-                            path: repo.repository_name,
-                            username: val.username.clone(),
-                            platforms: repo_platforms.clone(),
-                        };
-                        user_repo.push(new_repo);
+                        user_repo.push(new_repo.clone());
                     }
                     login_user(val.username, val.password, password, val.email, user_repo)
                 }

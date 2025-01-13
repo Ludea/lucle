@@ -17,8 +17,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const [repositories, setRepositories] = useState(() => {
     const savedRepo = localStorage.getItem("repositories");
     return savedRepo
-      ? JSON.parse(savedRepo).map((entries) => new Map(entries))
-      : [];
+      ? new Map(Object.entries(JSON.parse(savedRepo)))
+      : new Map();
   });
   const navigate = useNavigate();
   const client = useContext(LucleRPC);
@@ -27,8 +27,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     new Promise((resolve, reject) => {
       connection(client, credentials.username, credentials.password)
         .then((user) => {
-          let single_repo = new Map<string, string[]>();
-          let list_repo_with_platforms: single_repo[] = [];
+          let list_repo = new Map<string, string[]>();
           let list_platforms: string[] = [];
           for (const repo of user.repositories) {
             for (const host of repo.platforms) {
@@ -47,21 +46,17 @@ function AuthProvider({ children }: { children: ReactNode }) {
                   break;
               }
             }
-            single_repo.set(repo.path, list_platforms);
-            list_repo_with_platforms.push(single_repo);
+            list_repo.set(repo.path, list_platforms);
+            list_platforms = [];
           }
           setUsername(user.username);
           setToken(user.token);
           localStorage.setItem("token", user.token);
           localStorage.setItem("username", user.username);
-          setRepositories(list_repo_with_platforms);
+          setRepositories(list_repo);
           localStorage.setItem(
             "repositories",
-            JSON.stringify(
-              list_repo_with_platforms.map((entries) =>
-                Array.from(entries.entries()),
-              ),
-            ),
+            JSON.stringify(Object.fromEntries(list_repo)),
           );
           navigate("/admin/speedupdate");
         })

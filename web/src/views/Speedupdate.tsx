@@ -172,12 +172,11 @@ function Speedupdate() {
         {
           path: currentRepo.keys().next().value,
           platforms: platformsEnum,
-          buildPath: buildPath,
+          buildPath: ".",
         },
         { headers },
       );
       for await (const repo of call) {
-        console.log("test: ", repo);
         const compare_repo = repo.status.every((state) =>
           compareStatus(repo.status[0], state),
         );
@@ -227,14 +226,10 @@ function Speedupdate() {
     }
 
     if (currentRepo.size > 0) {
-      console.log("34: ", currentRepo);
-      Status()
-        .then((value) => console.log("12: ", value))
-        .catch((err) => {
-          setError(err.rawMessage);
-        });
+      Status().catch((err) => {
+        setError(err.rawMessage);
+      });
     }
-    console.log("14: ", currentRepo);
   }, []);
 
   const uploadFile = () => {
@@ -370,23 +365,33 @@ function Speedupdate() {
   let speedupdatecomponent;
 
   if (currentRepo.size === 0) {
-    //.keys().next().done) {
     speedupdatecomponent = (
       <div>
-        {listRepo.length > 0
-          ? listRepo.map((repo, index) => {
-              const [repo_name] = repo.keys();
-              const platforms = repo.get(repo_name);
+        {listRepo //.length > 0
+          ? listRepo.keys().map((repo_name, index) => {
               return (
                 <Button
                   key={index}
                   variant="contained"
                   onClick={() => {
+                    const platforms = listRepo.get(repo_name);
                     isInit(client, repo_name, platforms)
                       .then(() => {
                         let current = new Map<string, string[]>();
+                        let platformInt: Platforms[] = [];
+                        for (const host of platforms) {
+                          if (host === "win64")
+                            platformInt.push(Platforms.WIN64);
+                          if (host === "macos_x86_64")
+                            platformInt.push(Platforms.MACOS_X86_64);
+                          if (host === "macos_arm64")
+                            platformInt.push(Platforms.MACOS_ARM64);
+                          if (host === "linux")
+                            platformInt.push(Platforms.LINUX);
+                        }
                         current.set(repo_name, platforms);
                         setCurrentRepo(current);
+                        setPlatformsEnum(platformInt);
                         localStorage.setItem(
                           "current_repo",
                           JSON.stringify({ repo_name, platforms }),
@@ -534,9 +539,11 @@ function Speedupdate() {
       <Box sx={{ width: "100%" }}>
         <Paper sx={{ width: "100%", mb: 2 }}>
           <Grid container>
-            <Grid size={12}>Current version: {currentVersion ? currentVersion : "-" }</Grid>
             <Grid size={12}>
-              Total packages size: {size ? size + DisplaySizeUnit(size): "-"}
+              Current version: {currentVersion ? currentVersion : "-"}
+            </Grid>
+            <Grid size={12}>
+              Total packages size: {size ? size + DisplaySizeUnit(size) : "-"}
             </Grid>
             Options:
             <Grid size={12}>
@@ -691,7 +698,6 @@ function Speedupdate() {
                           onChange={(event) => {
                             setVersion(event.target.value);
                           }}
-
                         />
                       </Grid>
                       <Grid size={7}>
