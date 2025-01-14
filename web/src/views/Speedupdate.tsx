@@ -91,7 +91,7 @@ function Speedupdate() {
   const [listPackages, setListPackages] = useState<string[]>([]);
   const [availableBinaries, setAvailableBinaries] = useState<string[]>([]);
   const [listVersions, setListVersions] = useState<any>();
-  const [listRepo, setListRepo] = useState();
+  const [listRepo, setListRepo] = useState<Map<string, string[]>>(new Map());
   const [selectedVersionsValues, setSelectedVersionsValues] = useState<
     string[]
   >([]);
@@ -103,6 +103,7 @@ function Speedupdate() {
   const [visibleBinaries, setVisibleBinaries] = useState<string[]>([]);
   const [path, setPath] = useState<string>(localStorage.getItem("path") || "");
   const [buildPath, setBuildPath] = useState<string>("");
+  const [uploadPath, setUploadPath] = useState<string>("");
   const [fileObjects, setFileObjects] = useState();
   const [files, setFiles] = useState<any>();
   const [packagesPerPage, setPackagesPerPage] = useState(5);
@@ -155,6 +156,10 @@ function Speedupdate() {
   };
 
   useEffect(() => {
+    let opt: Options = {
+      buildPath: ".",
+      uploadPath: ".",
+    }
     const savedCurrentRepo = localStorage.getItem("current_repo");
     if (savedCurrentRepo) {
       const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
@@ -173,7 +178,7 @@ function Speedupdate() {
         {
           path: currentRepo.keys().next().value,
           platforms: platformsEnum,
-          options: [],
+          options: opt, 
         },
         { headers },
       );
@@ -380,6 +385,7 @@ function Speedupdate() {
                       .then(() => {
                         let current = new Map<string, string[]>();
                         let platformInt: Platforms[] = [];
+                        console.log("15: ", platforms);
                         for (const host of platforms) {
                           if (host === "win64")
                             platformInt.push(Platforms.WIN64);
@@ -548,13 +554,23 @@ function Speedupdate() {
             </Grid>
             Options:
             <Grid size={12}>
-              Build Path:{" "}
+              Build path:{" "}
               <TextField
                 value={buildPath}
                 id="build-path"
                 label=""
                 variant="standard"
                 onChange={(event) => setBuildPath(event.target.value)}
+              />
+            </Grid>
+            <Grid size={12}>
+              Upload path:{" "}
+              <TextField
+                value={buildPath}
+                id="upload-path"
+                label=""
+                variant="standard"
+                onChange={(event) => setUploadPath(event.target.value)}
               />
             </Grid>
             <Grid size={12}>
