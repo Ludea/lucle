@@ -159,7 +159,7 @@ function Speedupdate() {
     let opt: Options = {
       buildPath: ".",
       uploadPath: ".",
-    }
+    };
     const savedCurrentRepo = localStorage.getItem("current_repo");
     if (savedCurrentRepo) {
       const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
@@ -178,7 +178,7 @@ function Speedupdate() {
         {
           path: currentRepo.keys().next().value,
           platforms: platformsEnum,
-          options: opt, 
+          options: opt,
         },
         { headers },
       );
@@ -429,7 +429,6 @@ function Speedupdate() {
             value={path}
             onChange={(e: any) => {
               setPath(e.currentTarget.value);
-              localStorage.setItem("path", e.currentTarget.value);
             }}
           />
           <FormGroup>
@@ -504,9 +503,14 @@ function Speedupdate() {
                   const hosts = Object.keys(checked).filter(
                     (key) => checked[key] === true,
                   );
-                  setCurrentRepo(path);
+                  let current = new Map<string, string[]>();
+                  current.set(path, hosts);
+                  setCurrentRepo(current);
                   setPlatformsEnum(hostsEnum);
-                  localStorage.setItem("current_repo", path);
+                  localStorage.setItem(
+                    "current_repo",
+                    JSON.stringify({ path, hosts }),
+                  );
                   localStorage.setItem(
                     "platformsEnum",
                     JSON.stringify(hostsEnum),
@@ -519,7 +523,7 @@ function Speedupdate() {
                         auth.username,
                         path,
                         hosts,
-                      ).catch((error) => {
+                      ).catch((err) => {
                         setError(err.rawMessage);
                       });
                     })

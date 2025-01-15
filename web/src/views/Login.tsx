@@ -26,7 +26,7 @@ function Login() {
   const auth = useAuth();
   const client = useContext(LucleRPC);
 
-  const handleSignup = (username, password, email) => {
+  const handleSignup = (username: string, password: string, email: string) => {
     setError("");
     createUser(client, username, password, email)
       .then(() => {
@@ -37,7 +37,11 @@ function Login() {
       });
   };
 
-  const handleSignin = (username, password, remember) => {
+  const handleSignin = (
+    username: string,
+    password: string,
+    remember: boolean,
+  ) => {
     setError("");
     if (remember) {
       localStorage.setItem("username", username);

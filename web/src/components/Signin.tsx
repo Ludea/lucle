@@ -20,6 +20,11 @@ function Signin({ onSignin, error }: { onSignin: void; error: string }) {
 
   return (
     <Box
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          onSignin(username, password, remember);
+        }
+      }}
       sx={{
         marginTop: 8,
         display: "flex",
