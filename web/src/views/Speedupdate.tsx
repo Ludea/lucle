@@ -47,7 +47,7 @@ import {
   fileToDelete,
   compareStatus,
 } from "utils/speedupdaterpc";
-import { registerUpdateServer, listRepositories } from "utils/rpc";
+import { registerUpdateServer } from "utils/rpc";
 
 // Context
 import { useAuth } from "context/Auth";
@@ -374,45 +374,41 @@ function Speedupdate() {
   if (currentRepo.size === 0) {
     speedupdatecomponent = (
       <div>
-        {listRepo //.length > 0
-          ? listRepo.keys().map((repo_name: string, index: number) => {
-              return (
-                <Button
-                  key={index}
-                  variant="contained"
-                  onClick={() => {
-                    const platforms = listRepo.get(repo_name);
-                    isInit(client, repo_name, platforms)
-                      .then(() => {
-                        let current = new Map<string, string[]>();
-                        let platformInt: Platforms[] = [];
-                        for (const host of platforms) {
-                          if (host === "win64")
-                            platformInt.push(Platforms.WIN64);
-                          if (host === "macos_x86_64")
-                            platformInt.push(Platforms.MACOS_X86_64);
-                          if (host === "macos_arm64")
-                            platformInt.push(Platforms.MACOS_ARM64);
-                          if (host === "linux")
-                            platformInt.push(Platforms.LINUX);
-                        }
-                        current.set(repo_name, platforms);
-                        setCurrentRepo(current);
-                        setPlatformsEnum(platformInt);
-                        localStorage.setItem(
-                          "current_repo",
-                          JSON.stringify({ repo_name, platforms }),
-                        );
-                      })
-                      .catch((err) => {
-                        console.log(err);
-                      });
-                  }}
-                >
-                  {repo_name}
-                </Button>
-              );
-            })
+        {listRepo.size > 0
+          ? listRepo.keys().map((repo_name: string, index: number) => (
+              <Button
+                key={index}
+                variant="contained"
+                onClick={() => {
+                  const platforms = listRepo.get(repo_name);
+                  isInit(client, repo_name, platforms)
+                    .then(() => {
+                      let current = new Map<string, string[]>();
+                      let platformInt: Platforms[] = [];
+                      for (const host of platforms) {
+                        if (host === "win64") platformInt.push(Platforms.WIN64);
+                        if (host === "macos_x86_64")
+                          platformInt.push(Platforms.MACOS_X86_64);
+                        if (host === "macos_arm64")
+                          platformInt.push(Platforms.MACOS_ARM64);
+                        if (host === "linux") platformInt.push(Platforms.LINUX);
+                      }
+                      current.set(repo_name, platforms);
+                      setCurrentRepo(current);
+                      setPlatformsEnum(platformInt);
+                      localStorage.setItem(
+                        "current_repo",
+                        JSON.stringify({ repo_name, platforms }),
+                      );
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
+                }}
+              >
+                {repo_name}
+              </Button>
+            ))
           : null}
         <Grid size={1}>
           <TextField
@@ -503,14 +499,13 @@ function Speedupdate() {
                   const hosts = Object.keys(checked).filter(
                     (key) => checked[key] === true,
                   );
-                  let list = new Map<String, string[]>();
+                  let list = new Map<string, string[]>();
+                  list = listRepo;
                   let current = new Map<string, string[]>();
-                  list.set(repoList);
-                  list.set(current);
                   current.set(path, hosts);
+                  list.set(path, hosts);
                   setCurrentRepo(current);
                   setListRepo(list);
-                  console.log("13: ", list);
                   setPlatformsEnum(hostsEnum);
                   localStorage.setItem(
                     "current_repo",
@@ -522,7 +517,7 @@ function Speedupdate() {
                   );
                   localStorage.setItem(
                     "repositories",
-                    JSON.stringify(Object.fromEntries(listRepo)),
+                    JSON.stringify(Object.fromEntries(list)),
                   );
                   isInit(client, path, hosts)
                     .then(() => {
@@ -543,9 +538,6 @@ function Speedupdate() {
                 .catch((err) => {
                   setError(err.rawMessage);
                 });
-              listRepositories(lucleClient, auth.username).then((list) => {
-                setListRepo(list);
-              });
             }}
           >
             Create new repository
