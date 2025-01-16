@@ -132,6 +132,7 @@ function Speedupdate() {
 
   const auth = useAuth();
   const lucleClient = useContext(LucleRPC);
+  const controller = new AbortController();
 
   const isVersionsSelected = (id: number) => selectedVersions.includes(id);
   const numVersionsSelected = selectedVersions.length;
@@ -180,7 +181,7 @@ function Speedupdate() {
           platforms: platformsEnum,
           options: opt,
         },
-        { headers },
+        { headers, signal: controller.signal },
       );
       for await (const repo of call) {
         const compare_repo = repo.status.every((state) =>
@@ -385,7 +386,6 @@ function Speedupdate() {
                       .then(() => {
                         let current = new Map<string, string[]>();
                         let platformInt: Platforms[] = [];
-                        console.log("15: ", platforms);
                         for (const host of platforms) {
                           if (host === "win64")
                             platformInt.push(Platforms.WIN64);
@@ -503,9 +503,14 @@ function Speedupdate() {
                   const hosts = Object.keys(checked).filter(
                     (key) => checked[key] === true,
                   );
+                  let list = new Map<String, string[]>();
                   let current = new Map<string, string[]>();
+                  list.set(repoList);
+                  list.set(current);
                   current.set(path, hosts);
                   setCurrentRepo(current);
+                  setListRepo(list);
+                  console.log("13: ", list);
                   setPlatformsEnum(hostsEnum);
                   localStorage.setItem(
                     "current_repo",
@@ -514,6 +519,10 @@ function Speedupdate() {
                   localStorage.setItem(
                     "platformsEnum",
                     JSON.stringify(hostsEnum),
+                  );
+                  localStorage.setItem(
+                    "repositories",
+                    JSON.stringify(Object.fromEntries(listRepo)),
                   );
                   isInit(client, path, hosts)
                     .then(() => {
@@ -588,6 +597,7 @@ function Speedupdate() {
             <IconButton
               size="large"
               onClick={() => {
+                controller.abort();
                 setError(null);
                 setCurrentRepo(new Map());
                 setPlatformsEnum([]);
