@@ -44,6 +44,7 @@ import {
   setCurrentVersion,
   registerPackage,
   unregisterPackage,
+  repoToDelete,
   fileToDelete,
   compareStatus,
 } from "utils/speedupdaterpc";
@@ -375,40 +376,44 @@ function Speedupdate() {
     speedupdatecomponent = (
       <div>
         {listRepo.size > 0
-          ? listRepo.keys().map((repo_name: string, index: number) => (
-              <Button
-                key={index}
-                variant="contained"
-                onClick={() => {
-                  const platforms = listRepo.get(repo_name);
-                  isInit(client, repo_name, platforms)
-                    .then(() => {
-                      let current = new Map<string, string[]>();
-                      let platformInt: Platforms[] = [];
-                      for (const host of platforms) {
-                        if (host === "win64") platformInt.push(Platforms.WIN64);
-                        if (host === "macos_x86_64")
-                          platformInt.push(Platforms.MACOS_X86_64);
-                        if (host === "macos_arm64")
-                          platformInt.push(Platforms.MACOS_ARM64);
-                        if (host === "linux") platformInt.push(Platforms.LINUX);
-                      }
-                      current.set(repo_name, platforms);
-                      setCurrentRepo(current);
-                      setPlatformsEnum(platformInt);
-                      localStorage.setItem(
-                        "current_repo",
-                        JSON.stringify({ repo_name, platforms }),
-                      );
-                    })
-                    .catch((err) => {
-                      setError(err);
-                    });
-                }}
-              >
-                {repo_name}
-              </Button>
-            ))
+          ? Array.from(listRepo.keys()).map(
+              (repo_name: string, index: number) => (
+                <Button
+                  key={index}
+                  variant="contained"
+                  onClick={() => {
+                    const platforms = listRepo.get(repo_name);
+                    isInit(client, repo_name, platforms)
+                      .then(() => {
+                        let current = new Map<string, string[]>();
+                        let platformInt: Platforms[] = [];
+                        for (const host of platforms) {
+                          if (host === "win64")
+                            platformInt.push(Platforms.WIN64);
+                          if (host === "macos_x86_64")
+                            platformInt.push(Platforms.MACOS_X86_64);
+                          if (host === "macos_arm64")
+                            platformInt.push(Platforms.MACOS_ARM64);
+                          if (host === "linux")
+                            platformInt.push(Platforms.LINUX);
+                        }
+                        current.set(repo_name, platforms);
+                        setCurrentRepo(current);
+                        setPlatformsEnum(platformInt);
+                        localStorage.setItem(
+                          "current_repo",
+                          JSON.stringify({ repo_name, platforms }),
+                        );
+                      })
+                      .catch((err) => {
+                        setError(err);
+                      });
+                  }}
+                >
+                  {repo_name}
+                </Button>
+              ),
+            )
           : null}
         <Grid size={1}>
           <TextField
@@ -598,6 +603,32 @@ function Speedupdate() {
               }}
             >
               <ExitToAppIcon />
+            </IconButton>
+            <IconButton
+              size="large"
+              onClick={() => {
+                let path = currentRepo.keys().next().value;
+                repoToDelete(client, path)
+                  .then(() => {
+                    setError(null);
+                    setCurrentRepo(new Map());
+                    let list = listRepo;
+                    list.delete(path);
+                    setListRepo(list);
+                    setPlatformsEnum([]);
+                    localStorage.setItem(
+                      "repositories",
+                      JSON.stringify(Object.fromEntries(list)),
+                    );
+                    localStorage.removeItem("platformsEnum");
+                    localStorage.removeItem("current_repo");
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              }}
+            >
+              <DeleteIcon />
             </IconButton>
           </Grid>
         </Paper>

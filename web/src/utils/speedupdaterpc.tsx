@@ -167,11 +167,24 @@ export const unregisterPackage = async (
     }
   });
 
+export const repoToDelete = async (client: any, path: string) => {
+  new Promise((resolve, reject) => {
+    client
+      .delete_repo({ path: path })
+      .then(() => {
+        resolve();
+      })
+      .catch((error: string) => {
+        reject(error);
+      });
+  });
+};
+
 export const fileToDelete = async (client: any, file: string, platforms: any) =>
   new Promise((resolve, reject) => {
     for (const folder of platforms) {
       client
-        .delete_ile({ file: folder.concat("/", file) })
+        .delete_file({ file: folder.concat("/", file) })
         .then(() => {
           resolve();
         })

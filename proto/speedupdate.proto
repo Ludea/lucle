@@ -11,6 +11,7 @@ service Repo {
   rpc Unregister_version (Version) returns (Empty);
   rpc Register_package (Package) returns (Empty);
   rpc Unregister_package (Package) returns (Empty);
+  rpc Delete_repo (RepositoryPath) returns (Empty);
   rpc Delete_file (FileToDelete) returns (Empty);
 }
 
