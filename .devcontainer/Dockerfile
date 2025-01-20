@@ -15,7 +15,7 @@ RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 RUN git clone https://github.com/Ludea/speedupdate-rs /workspaces/speedupdate-rs
-RUN cd ../ && cd && speedupdate-rs && cargo build
+RUN cd ../ && cd speedupdate-rs && cargo build
 
 RUN git clone https://github.com/Ludea/Sparus /workspaces/Sparus
 RUN cd ../ && && cd Sparus && pnpm install 
