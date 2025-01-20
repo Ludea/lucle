@@ -14,9 +14,15 @@ RUN npm install -g pnpm
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
+// lucle
+RUN cd /workspaces/lucle && cargo build
+RUN cd /workspaces/lucle/web && pnpm install
+
+// speedupdate
 RUN git clone https://github.com/Ludea/speedupdate-rs /workspaces/speedupdate-rs
 RUN cd /workspaces/speedupdate-rs && cargo build
 
+// Sparus
 RUN git clone https://github.com/Ludea/Sparus /workspaces/Sparus
 RUN cd /workspaces/Sparus && pnpm install 
 
