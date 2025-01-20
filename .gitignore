@@ -15,3 +15,5 @@ web/src/gen/lucle_pb.ts
 plugins/
 *.db
 .keep
+.devcontainer/lapdev-guest-agent
+.devcontainer/install_guest_agent.sh
