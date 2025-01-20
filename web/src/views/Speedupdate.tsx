@@ -102,7 +102,7 @@ function Speedupdate() {
   const [visibleVersions, setVisibleVersions] = useState<string[]>([]);
   const [visiblePackages, setVisiblePackages] = useState<string[]>([]);
   const [visibleBinaries, setVisibleBinaries] = useState<string[]>([]);
-  const [path, setPath] = useState<string>(localStorage.getItem("path") || "");
+  const [path, setPath] = useState<string>("");
   const [buildPath, setBuildPath] = useState<string>("");
   const [uploadPath, setUploadPath] = useState<string>("");
   const [fileObjects, setFileObjects] = useState();
@@ -381,10 +381,10 @@ function Speedupdate() {
                 <Button
                   key={index}
                   variant="contained"
-                  onClick={() => {
+                  onClick={() => {  
                     const platforms = listRepo.get(repo_name);
                     isInit(client, repo_name, platforms)
-                      .then(() => {
+                      .then(() => { 
                         let current = new Map<string, string[]>();
                         let platformInt: Platforms[] = [];
                         for (const host of platforms) {
@@ -500,6 +500,7 @@ function Speedupdate() {
               setError(null);
               init(client, path, checked)
                 .then(() => {
+                  setPath("");
                   const hostsEnum = getPlatforms();
                   const hosts = Object.keys(checked).filter(
                     (key) => checked[key] === true,
