@@ -237,6 +237,24 @@ impl Lucle for LucleApi {
         }
     }
 
+    async fn delete_repo(&self, request: Request<UpdateServer>) -> Result<Response<Empty>, Status> {
+        let reply = Empty {};
+        let inner = request.into_inner();
+        let username = inner.username;
+        let path = inner.path;
+
+        match user::delete_repo(path.clone()).await {
+            Ok(()) => {
+                tracing::info!("Repo {} deleted", path);
+                Ok(Response::new(reply))
+            }
+            Err(err) => {
+                tracing::error!("{}", err);
+                Err(Status::internal(err.to_string()))
+            }
+        }
+    }
+
     async fn forgot_password(
         &self,
         request: Request<ResetPassword>,

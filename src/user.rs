@@ -154,6 +154,20 @@ pub async fn join_update_server(username: String, repository: String) -> Result<
     }
 }
 
+pub async fn delete_repo(path: String) -> Result<(), Error> {
+    let mut conn = POOL.get().await?;
+    diesel::delete(repositories::table.filter(repositories::dsl::name.eq(path.clone())))
+        .execute(&mut conn)
+        .await?;
+
+    diesel::delete(
+        users_repositories::table.filter(users_repositories::dsl::repository_name.eq(path)),
+    )
+    .execute(&mut conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn login(username_or_email: String, password: String) -> Result<LucleUser, Error> {
     let mut conn = POOL.get().await?;
     match users::table

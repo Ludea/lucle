@@ -48,7 +48,7 @@ import {
   fileToDelete,
   compareStatus,
 } from "utils/speedupdaterpc";
-import { registerUpdateServer } from "utils/rpc";
+import { registerUpdateServer, deleteRepo } from "utils/rpc";
 
 // Context
 import { useAuth } from "context/Auth";
@@ -406,7 +406,7 @@ function Speedupdate() {
                         );
                       })
                       .catch((err) => {
-                        setError(err);
+                        setError(err.rawMessage);
                       });
                   }}
                 >
@@ -610,21 +610,27 @@ function Speedupdate() {
                 let path = currentRepo.keys().next().value;
                 repoToDelete(client, path)
                   .then(() => {
-                    setError(null);
-                    setCurrentRepo(new Map());
-                    let list = listRepo;
-                    list.delete(path);
-                    setListRepo(list);
-                    setPlatformsEnum([]);
-                    localStorage.setItem(
-                      "repositories",
-                      JSON.stringify(Object.fromEntries(list)),
-                    );
-                    localStorage.removeItem("platformsEnum");
-                    localStorage.removeItem("current_repo");
+                    deleteRepo(lucleClient, path)
+                      .then(() => {
+                        setError(null);
+                        setCurrentRepo(new Map());
+                        let list = listRepo;
+                        list.delete(path);
+                        setListRepo(list);
+                        setPlatformsEnum([]);
+                        localStorage.setItem(
+                          "repositories",
+                          JSON.stringify(Object.fromEntries(list)),
+                        );
+                        localStorage.removeItem("platformsEnum");
+                        localStorage.removeItem("current_repo");
+                      })
+                      .catch((err) => {
+                        setError(err.rawMessage);
+                      });
                   })
                   .catch((err) => {
-                    console.log(err);
+                    setError(err.rawMessage);
                   });
               }}
             >

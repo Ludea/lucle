@@ -109,3 +109,17 @@ export const listRepositories = async (client: any, username: string) =>
         reject(err);
       });
   });
+
+export const deleteRepo = async (client: any, path: string) =>
+  new Promise((resolve, reject) => {
+    client
+      .delete_repo({
+        path,
+      })
+      .then(() => {
+        resolve();
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
