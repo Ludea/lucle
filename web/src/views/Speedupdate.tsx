@@ -157,21 +157,23 @@ function Speedupdate() {
     return selectedPlatforms;
   };
 
+  const savedCurrentRepo = localStorage.getItem("current_repo");
+  if (savedCurrentRepo) {
+    const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
+    const mapCurrentRepo = new Map();
+    mapCurrentRepo.set(
+      parsedCurrentRepo.repo_name,
+      parsedCurrentRepo.platforms,
+    );
+   // setCurrentRepo(mapCurrentRepo);
+  }
+
   useEffect(() => {
     let opt: Options = {
       buildPath: ".",
       uploadPath: ".",
     };
-    const savedCurrentRepo = localStorage.getItem("current_repo");
-    if (savedCurrentRepo) {
-      const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
-      const mapCurrentRepo = new Map();
-      mapCurrentRepo.set(
-        parsedCurrentRepo.repo_name,
-        parsedCurrentRepo.platforms,
-      );
-      setCurrentRepo(mapCurrentRepo);
-    }
+
     const headers = new Headers();
     const { token } = auth;
     headers.set("Authorization", `Bearer ${token}`);
@@ -184,11 +186,11 @@ function Speedupdate() {
         },
         { headers, signal: controller.signal },
       );
-      for await (const repo of call) {
+      for await (const repo of call) {  
         const compare_repo = repo.status.every((state) =>
           compareStatus(repo.status[0], state),
         );
-        if (compare_repo) {
+        if (compare_repo) { 
           const firstRepo = repo.status[0];
           setSize(firstRepo.size);
           getCurrentVersion(firstRepo.currentVersion);
@@ -238,7 +240,7 @@ function Speedupdate() {
         setError(err.rawMessage);
       });
     }
-  }, []);
+  }, [currentRepo]);
 
   const uploadFile = () => {
     const formData = new FormData();
@@ -375,7 +377,7 @@ function Speedupdate() {
   if (currentRepo.size === 0) {
     speedupdatecomponent = (
       <div>
-        {listRepo.size > 0
+        {listRepo.size > 0  
           ? Array.from(listRepo.keys()).map(
               (repo_name: string, index: number) => (
                 <Button
@@ -676,10 +678,12 @@ function Speedupdate() {
               <Tooltip title="SetVersion">
                 <IconButton
                   onClick={() => {
+                    let repo_name = currentRepo.keys().next().value;
+                    let platforms = currentRepo.get(repo_name);
                     setError(null);
                     setCurrentVersion(
                       client,
-                      currentRepo,
+                      repo_name,
                       selectedVersionsValues[0],
                       platforms,
                     )
