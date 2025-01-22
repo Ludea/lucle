@@ -87,7 +87,6 @@ function Speedupdate() {
   const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
     JSON.parse(localStorage.getItem("platformsEnum")),
   );
-  const [options, setOptions] = useState<Options[]>([]);
   const [canBePublished, setCanBePublished] = useState<boolean[]>([]);
   const [listPackages, setListPackages] = useState<string[]>([]);
   const [availableBinaries, setAvailableBinaries] = useState<string[]>([]);
@@ -157,18 +156,17 @@ function Speedupdate() {
     return selectedPlatforms;
   };
 
-  const savedCurrentRepo = localStorage.getItem("current_repo");
-  if (savedCurrentRepo) {
-    const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
-    const mapCurrentRepo = new Map();
-    mapCurrentRepo.set(
-      parsedCurrentRepo.repo_name,
-      parsedCurrentRepo.platforms,
-    );
-   // setCurrentRepo(mapCurrentRepo);
-  }
-
   useEffect(() => {
+    const savedCurrentRepo = localStorage.getItem("current_repo");
+    if (savedCurrentRepo) {
+      const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
+      const mapCurrentRepo = new Map();
+      mapCurrentRepo.set(
+        parsedCurrentRepo.repo_name,
+        parsedCurrentRepo.platforms,
+      );
+      if (currentRepo.size === 0) setCurrentRepo(mapCurrentRepo);
+    }
     let opt: Options = {
       buildPath: ".",
       uploadPath: ".",
@@ -186,11 +184,11 @@ function Speedupdate() {
         },
         { headers, signal: controller.signal },
       );
-      for await (const repo of call) {  
+      for await (const repo of call) {
         const compare_repo = repo.status.every((state) =>
           compareStatus(repo.status[0], state),
         );
-        if (compare_repo) { 
+        if (compare_repo) {
           const firstRepo = repo.status[0];
           setSize(firstRepo.size);
           getCurrentVersion(firstRepo.currentVersion);
@@ -279,12 +277,17 @@ function Speedupdate() {
 
   const DeleteVersion = () => {
     setError(null);
-    selectedVersions.forEach((version) => {
-      unregisterVersion(client, currentRepo, version, platforms).catch(
-        (err) => {
-          setError(err.rawMessage);
-        },
-      );
+    let repo_name = currentRepo.keys().next().value;
+    let platforms = currentRepo.get(repo_name);
+    selectedVersionsValues.forEach((version) => {
+      unregisterVersion(client, repo_name, version, platforms)
+      .then(() => {
+        setSelectedVersions([]);
+        setSelectedVersionsValues([]);
+      })
+      .catch((err) => {
+        setError(err);
+      });
     });
   };
 
@@ -328,6 +331,7 @@ function Speedupdate() {
     setSelectedVersions(newSelected);
 
     if (newSelected.includes(id)) {
+      console.log("ver: ", version.revision)
       setSelectedVersionsValues((previous_version) => [
         ...previous_version,
         version.revision,
@@ -336,7 +340,8 @@ function Speedupdate() {
       const updatedVersions = selectedVersions.filter(
         (ver) => ver !== version.revision,
       );
-      setSelectedVersionsValues(updatedVersions);
+      //console.log("updatever: ", updatedVersions)
+      //setSelectedVersionsValues(updatedVersions);
     }
   };
 
@@ -377,16 +382,16 @@ function Speedupdate() {
   if (currentRepo.size === 0) {
     speedupdatecomponent = (
       <div>
-        {listRepo.size > 0  
+        {listRepo.size > 0
           ? Array.from(listRepo.keys()).map(
               (repo_name: string, index: number) => (
                 <Button
                   key={index}
                   variant="contained"
-                  onClick={() => {  
+                  onClick={() => {
                     const platforms = listRepo.get(repo_name);
                     isInit(client, repo_name, platforms)
-                      .then(() => { 
+                      .then(() => {
                         let current = new Map<string, string[]>();
                         let platformInt: Platforms[] = [];
                         for (const host of platforms) {
@@ -601,6 +606,8 @@ function Speedupdate() {
                 setError(null);
                 setCurrentRepo(new Map());
                 setPlatformsEnum([]);
+                setSelectedVersions([]);
+                setSelectedVersionsValues([]);
                 localStorage.removeItem("platformsEnum");
                 localStorage.removeItem("current_repo");
               }}
@@ -680,6 +687,7 @@ function Speedupdate() {
                   onClick={() => {
                     let repo_name = currentRepo.keys().next().value;
                     let platforms = currentRepo.get(repo_name);
+                    console.log("13: ", selectedVersionsValues);
                     setError(null);
                     setCurrentVersion(
                       client,
