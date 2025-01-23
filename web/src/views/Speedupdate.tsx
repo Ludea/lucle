@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import TableRow from "@mui/material/TableRow";
@@ -33,7 +33,7 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 // RPC Connect
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import { createClient } from "@connectrpc/connect";
-import { Repo, Platforms, Options } from "gen/speedupdate_pb";
+import { Repo, Platforms, Options, Versions } from "gen/speedupdate_pb";
 
 // api
 import {
@@ -98,7 +98,7 @@ function Speedupdate() {
   const [binariesPage, setBinariesPage] = useState(0);
   const [packagesPage, setPackagesPage] = useState(0);
   const [versionsPage, setVersionsPage] = useState(0);
-  const [visibleVersions, setVisibleVersions] = useState<string[]>([]);
+  const [visibleVersions, setVisibleVersions] = useState<Versions[]>([]);
   const [visiblePackages, setVisiblePackages] = useState<string[]>([]);
   const [visibleBinaries, setVisibleBinaries] = useState<string[]>([]);
   const [path, setPath] = useState<string>("");
@@ -156,6 +156,14 @@ function Speedupdate() {
     return selectedPlatforms;
   };
 
+  let versionMemo = useMemo( () => listVersions ?
+       listVersions
+  .slice(
+    versionsPage * versionsPerPage,
+    versionsPage * versionsPerPage + versionsPerPage,
+  ): null, [versionsPage, versionsPerPage]
+);
+
   useEffect(() => {
     const savedCurrentRepo = localStorage.getItem("current_repo");
     if (savedCurrentRepo) {
@@ -203,12 +211,7 @@ function Speedupdate() {
           setListPackages(fullListPackages);
           setAvailableBinaries(firstRepo.availableBinaries);
 
-          setVisibleVersions(
-            firstRepo.versions.slice(
-              versionsPage * versionsPerPage,
-              versionsPage * versionsPerPage + versionsPerPage,
-            ),
-          );
+          setVisibleVersions(versionMemo);
 
           setVisiblePackages(
             fullListPackages.slice(
@@ -238,7 +241,7 @@ function Speedupdate() {
         setError(err.rawMessage);
       });
     }
-  }, [currentRepo]);
+  }, [currentRepo, versionMemo]);
 
   const uploadFile = () => {
     const formData = new FormData();
@@ -331,7 +334,6 @@ function Speedupdate() {
     setSelectedVersions(newSelected);
 
     if (newSelected.includes(id)) {
-      console.log("ver: ", version.revision)
       setSelectedVersionsValues((previous_version) => [
         ...previous_version,
         version.revision,
@@ -687,7 +689,6 @@ function Speedupdate() {
                   onClick={() => {
                     let repo_name = currentRepo.keys().next().value;
                     let platforms = currentRepo.get(repo_name);
-                    console.log("13: ", selectedVersionsValues);
                     setError(null);
                     setCurrentVersion(
                       client,
