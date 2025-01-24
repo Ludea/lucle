@@ -53,6 +53,7 @@ import { registerUpdateServer, deleteRepo } from "utils/rpc";
 // Context
 import { useAuth } from "context/Auth";
 import { LucleRPC } from "context/Luclerpc";
+import { Version } from "sass";
 
 // import { uploadFile } from "utils/minio";
 
@@ -156,13 +157,16 @@ function Speedupdate() {
     return selectedPlatforms;
   };
 
-  let versionMemo = useMemo( () => listVersions ?
-       listVersions
-  .slice(
-    versionsPage * versionsPerPage,
-    versionsPage * versionsPerPage + versionsPerPage,
-  ): null, [versionsPage, versionsPerPage]
-);
+  let versionMemo = useMemo(
+    () =>
+      listVersions
+        ? listVersions.slice(
+            versionsPage * versionsPerPage,
+            versionsPage * versionsPerPage + versionsPerPage,
+          )
+        : null,
+    [versionsPage, versionsPerPage],
+  );
 
   useEffect(() => {
     const savedCurrentRepo = localStorage.getItem("current_repo");
@@ -284,13 +288,13 @@ function Speedupdate() {
     let platforms = currentRepo.get(repo_name);
     selectedVersionsValues.forEach((version) => {
       unregisterVersion(client, repo_name, version, platforms)
-      .then(() => {
-        setSelectedVersions([]);
-        setSelectedVersionsValues([]);
-      })
-      .catch((err) => {
-        setError(err);
-      });
+        .then(() => {
+          setSelectedVersions([]);
+          setSelectedVersionsValues([]);
+        })
+        .catch((err) => {
+          setError(err);
+        });
     });
   };
 
@@ -314,7 +318,7 @@ function Speedupdate() {
     });
   };
 
-  const versionsSelection = (id: number, version: string) => {
+  const versionsSelection = (id: number, version: Versions) => {
     const selectedIndex = selectedVersions.indexOf(id);
     let newSelected: readonly number[] = [];
 
@@ -332,18 +336,15 @@ function Speedupdate() {
     }
 
     setSelectedVersions(newSelected);
-
     if (newSelected.includes(id)) {
       setSelectedVersionsValues((previous_version) => [
         ...previous_version,
         version.revision,
       ]);
     } else {
-      const updatedVersions = selectedVersions.filter(
-        (ver) => ver !== version.revision,
+      setSelectedVersionsValues((previous_version) =>
+        previous_version.filter((ver) => ver !== version.revision),
       );
-      //console.log("updatever: ", updatedVersions)
-      //setSelectedVersionsValues(updatedVersions);
     }
   };
 
