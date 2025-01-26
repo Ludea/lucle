@@ -396,6 +396,7 @@ function Speedupdate() {
                   key={index}
                   variant="contained"
                   onClick={() => {
+                    setError(null);
                     const platforms = listRepo.get(repo_name);
                     isInit(client, repo_name, platforms)
                       .then(() => {
