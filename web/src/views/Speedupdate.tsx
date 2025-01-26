@@ -261,8 +261,10 @@ function Speedupdate() {
   const RegisterPackages = () => {
     setError(null);
     selectedPackagesValues.forEach((pack) => {
-      registerPackage(client, currentRepo, pack, platforms).catch((err) => {
-        setError(err.rawMessage);
+      let repo_name = currentRepo.keys().next().value;
+      let platforms = currentRepo.get(repo_name);
+      registerPackage(client, repo_name, pack, platforms).catch((err) => {
+        setError(err);
       });
     });
     setSelectedPackages([]);
@@ -273,7 +275,9 @@ function Speedupdate() {
   const UnregisterPackages = () => {
     setError(null);
     selectedPackagesValues.forEach((pack) => {
-      unregisterPackage(client, currentRepo, pack, platforms).catch((err) => {
+      let repo_name = currentRepo.keys().next().value;
+      let platforms = currentRepo.get(repo_name);
+      unregisterPackage(client, repo_name, pack, platforms).catch((err) => {
         setError(err.rawMessage);
       });
     });
