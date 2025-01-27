@@ -64,7 +64,7 @@ message RepoStatusOutput {
 message Version {
   string path = 1;
   string version = 2;
-  optional string description =3;
+  optional string description = 3;
 }
 
 message Package {

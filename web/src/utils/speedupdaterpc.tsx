@@ -82,7 +82,9 @@ export const registerVersion = async (
           path: path.concat("/", folder),
           version,
           description,
-        })
+        },
+        { headers },
+      )
         .then(() => {
           resolve();
         })
@@ -173,7 +175,9 @@ export const repoToDelete = async (client: any, path: string) => {
       .delete_repo({ path: path })
       .then(() => {
         resolve();
-      })
+      }, 
+      { headers },
+    )
       .catch((error: string) => {
         reject(error);
       });
@@ -187,7 +191,9 @@ export const fileToDelete = async (client: any, file: string, platforms: any) =>
         .delete_file({ file: folder.concat("/", file) })
         .then(() => {
           resolve();
-        })
+        }, 
+        { headers },
+      )
         .catch((error: string) => {
           reject(error);
         });

@@ -781,6 +781,23 @@ function Speedupdate() {
                           onChange={(event) => {
                             setVersion(event.target.value);
                           }}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              const [repo_name] = currentRepo.keys();
+                              const platforms = currentRepo.get(repo_name);
+                              setError(null);
+                              registerVersion(
+                                client,
+                                repo_name,
+                                version,
+                                description,
+                                platforms,
+                              ).catch((err) => {
+                                setError(err.rawMessage);
+                              });
+                              setVersion("");
+                            }
+                          }}
                         />
                       </Grid>
                       <Grid size={7}>
@@ -791,6 +808,24 @@ function Speedupdate() {
                           value={description}
                           onChange={(event) => {
                             setDescription(event.target.value);
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              const [repo_name] = currentRepo.keys();
+                              const platforms = currentRepo.get(repo_name);
+                              setError(null);
+                              registerVersion(
+                                client,
+                                repo_name,
+                                version,
+                                description,
+                                platforms,
+                              ).catch((err) => {
+                                setError(err.rawMessage);
+                              });
+                              setVersion("");
+                              setDescription("");
+                            }
                           }}
                         />
                       </Grid>
