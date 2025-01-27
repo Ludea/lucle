@@ -99,9 +99,6 @@ function Speedupdate() {
   const [binariesPage, setBinariesPage] = useState(0);
   const [packagesPage, setPackagesPage] = useState(0);
   const [versionsPage, setVersionsPage] = useState(0);
-  const [visibleVersions, setVisibleVersions] = useState<Versions[]>([]);
-  const [visiblePackages, setVisiblePackages] = useState<string[]>([]);
-  const [visibleBinaries, setVisibleBinaries] = useState<string[]>([]);
   const [path, setPath] = useState<string>("");
   const [buildPath, setBuildPath] = useState<string>("");
   const [uploadPath, setUploadPath] = useState<string>("");
@@ -157,7 +154,7 @@ function Speedupdate() {
     return selectedPlatforms;
   };
 
-  let versionMemo = useMemo(
+  let visibleVersions = useMemo(
     () =>
       listVersions
         ? listVersions.slice(
@@ -165,7 +162,29 @@ function Speedupdate() {
             versionsPage * versionsPerPage + versionsPerPage,
           )
         : null,
-    [versionsPage, versionsPerPage],
+    [listVersions, versionsPage, versionsPerPage],
+  );
+
+  let visiblePackages = useMemo(
+    () =>
+      listPackages
+        ? listPackages.slice(
+            packagesPage * packagesPerPage,
+            packagesPage * packagesPerPage + packagesPerPage,
+          )
+        : null,
+    [listPackages, packagesPage, packagesPerPage],
+  );
+
+  let visibleBinaries = useMemo(
+    () =>
+      availableBinaries
+        ? availableBinaries.slice(
+            binariesPage * binariesPerPage,
+            binariesPage * binariesPerPage + binariesPerPage,
+          )
+        : null,
+    [availableBinaries, binariesPage, binariesPerPage],
   );
 
   useEffect(() => {
@@ -214,22 +233,6 @@ function Speedupdate() {
           });
           setListPackages(fullListPackages);
           setAvailableBinaries(firstRepo.availableBinaries);
-
-          setVisibleVersions(versionMemo);
-
-          setVisiblePackages(
-            fullListPackages.slice(
-              packagesPage * packagesPerPage,
-              packagesPage * packagesPerPage + packagesPerPage,
-            ),
-          );
-
-          setVisibleBinaries(
-            firstRepo.availableBinaries.slice(
-              binariesPage * binariesPerPage,
-              binariesPage * binariesPerPage + binariesPerPage,
-            ),
-          );
         } else {
           setError("Repository are not sync between platforms");
         }
@@ -245,7 +248,7 @@ function Speedupdate() {
         setError(err.rawMessage);
       });
     }
-  }, [currentRepo, versionMemo]);
+  }, [currentRepo, visibleVersions]);
 
   const uploadFile = () => {
     const formData = new FormData();
