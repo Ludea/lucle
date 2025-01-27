@@ -263,9 +263,9 @@ function Speedupdate() {
 
   const RegisterPackages = () => {
     setError(null);
+    let repo_name = currentRepo.keys().next().value;
+    let platforms = currentRepo.get(repo_name);
     selectedPackagesValues.forEach((pack) => {
-      let repo_name = currentRepo.keys().next().value;
-      let platforms = currentRepo.get(repo_name);
       registerPackage(client, repo_name, pack, platforms).catch((err) => {
         setError(err);
       });
@@ -277,9 +277,9 @@ function Speedupdate() {
 
   const UnregisterPackages = () => {
     setError(null);
+    let repo_name = currentRepo.keys().next().value;
+    let platforms = currentRepo.get(repo_name);
     selectedPackagesValues.forEach((pack) => {
-      let repo_name = currentRepo.keys().next().value;
-      let platforms = currentRepo.get(repo_name);
       unregisterPackage(client, repo_name, pack, platforms).catch((err) => {
         setError(err.rawMessage);
       });
@@ -307,11 +307,13 @@ function Speedupdate() {
 
   const DeletePackages = () => {
     setError(null);
+    let repo_name = currentRepo.keys().next().value;
+    let platforms = currentRepo.get(repo_name);
     selectedPackages.forEach((row) => {
       if (listPackages[row].published) {
         unregisterPackage(
           client,
-          currentRepo,
+          repo_name,
           listPackages[row].name,
           platforms,
         ).catch((err) => {
