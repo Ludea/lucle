@@ -188,15 +188,6 @@ function Speedupdate() {
   );
 
   useEffect(() => {
-    const eventSource = new EventSource(
-      "http://127.0.0.1:8080/allo1/progression",
-    );
-    //+ currentRepo.keys().next.value + "/progression" );
-    eventSource.onmessage = (event) => {
-      setUploadProgression(event.data);
-    };
-    eventSource.onerror = (error) => setError(error);
-
     const savedCurrentRepo = localStorage.getItem("current_repo");
     if (savedCurrentRepo) {
       const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
@@ -209,7 +200,7 @@ function Speedupdate() {
     }
     let opt: Options = {
       buildPath: ".",
-      uploadPath: ".",
+      uploadPath: "/progression",
     };
 
     const headers = new Headers();
@@ -253,6 +244,18 @@ function Speedupdate() {
     }
 
     if (currentRepo.size > 0) {
+      const current = currentRepo.keys().next().value;
+      const eventSource = new EventSource(
+        "http://127.0.0.1:8080/" + current + opt.uploadPath,
+      );
+      eventSource.onmessage = (event) => {
+        setUploadProgression(event.data);
+        if (event.data === "100") {
+          setUploadProgression(null);
+          setFiles(null);
+        }
+      };
+      eventSource.onerror = (error) => setError(error);
       //      Status().catch((err) => {
       //      setError(err.rawMessage);
       //  });
@@ -260,10 +263,11 @@ function Speedupdate() {
   }, [currentRepo, visibleVersions, listVersions]);
 
   const uploadFile = () => {
+    const current_repo = currentRepo.keys().next().value;
     const formData = new FormData();
     formData.append("file", files[0]);
-    fetch(`http://127.0.0.1:8080/allo2/binaries`, {
-      //`https://api.marlin-atlas.ts.net/file/${files[0].name}`, {
+    fetch("http://127.0.0.1:8080/" + current_repo + "/binaries", {
+      //`https://api.marlin-atlas.ts.net/}`, {
       method: "POST",
       body: formData,
     }).catch((err) => {
@@ -749,36 +753,38 @@ function Speedupdate() {
               </TableHead>
               <TableBody>
                 {visibleVersions
-                  ? visibleVersions.map((current_version: Versions, index: number) => {
-                      const isItemSelected = isVersionsSelected(index + 1);
-                      const labelId = `enhanced-table-checkbox-${index}`;
-                      return (
-                        <TableRow
-                          hover
-                          onClick={() => {
-                            versionsSelection(index + 1, current_version);
-                          }}
-                          role="checkbox"
-                          aria-checked={isItemSelected}
-                          tabIndex={-1}
-                          key={index + 1}
-                          selected={isItemSelected}
-                          sx={{ cursor: "pointer" }}
-                        >
-                          <TableCell padding="checkbox">
-                            <Checkbox
-                              color="primary"
-                              checked={isItemSelected}
-                              inputProps={{
-                                "aria-labelledby": labelId,
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell>{current_version.revision}</TableCell>
-                          <TableCell>{current_version.description}</TableCell>
-                        </TableRow>
-                      );
-                    })
+                  ? visibleVersions.map(
+                      (current_version: Versions, index: number) => {
+                        const isItemSelected = isVersionsSelected(index + 1);
+                        const labelId = `enhanced-table-checkbox-${index}`;
+                        return (
+                          <TableRow
+                            hover
+                            onClick={() => {
+                              versionsSelection(index + 1, current_version);
+                            }}
+                            role="checkbox"
+                            aria-checked={isItemSelected}
+                            tabIndex={-1}
+                            key={index + 1}
+                            selected={isItemSelected}
+                            sx={{ cursor: "pointer" }}
+                          >
+                            <TableCell padding="checkbox">
+                              <Checkbox
+                                color="primary"
+                                checked={isItemSelected}
+                                inputProps={{
+                                  "aria-labelledby": labelId,
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell>{current_version.revision}</TableCell>
+                            <TableCell>{current_version.description}</TableCell>
+                          </TableRow>
+                        );
+                      },
+                    )
                   : null}
                 <TableRow>
                   <TableCell colSpan={3}>
@@ -1100,7 +1106,7 @@ function Speedupdate() {
               count={availableBinaries.length}
               rowsPerPage={binariesPerPage}
               page={binariesPage}
-              onPageChange={(event, newPage) => {
+              onPageChange={(_, newPage) => {
                 setBinariesPage(newPage);
               }}
               onRowsPerPageChange={(event) => {
@@ -1124,12 +1130,12 @@ function Speedupdate() {
           }}
         >
           <Grid size={9}>
-            {uploadProgression || uploadProgression !== 100 ? (
+            {uploadProgression ? (
               <LinearProgress variant="determinate" value={uploadProgression} />
             ) : null}
           </Grid>
           <Grid size={1}>
-            {!uploadProgression || uploadProgression === 100 ? (
+            {!uploadProgression ? (
               <Button color="primary" onClick={uploadFile}>
                 Submit
               </Button>
