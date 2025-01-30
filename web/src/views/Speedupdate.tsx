@@ -206,7 +206,7 @@ function Speedupdate() {
     const headers = new Headers();
     const { token } = auth;
     headers.set("Authorization", `Bearer ${token}`);
-    /*async function Status() {
+    async function Status() {
       const call = client.status(
         {
           path: currentRepo.keys().next().value,
@@ -237,7 +237,7 @@ function Speedupdate() {
           setError("Repository are not sync between platforms");
         }
       }
-    }*/
+    }
 
     if (auth.repositories) {
       setListRepo(auth.repositories);
@@ -256,9 +256,9 @@ function Speedupdate() {
         }
       };
       eventSource.onerror = (error) => setError(error);
-      //      Status().catch((err) => {
-      //      setError(err.rawMessage);
-      //  });
+            Status().catch((err) => {
+            setError(err.rawMessage);
+        });
     }
   }, [currentRepo, visibleVersions, listVersions]);
 
