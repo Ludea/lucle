@@ -53,7 +53,6 @@ import { registerUpdateServer, deleteRepo } from "utils/rpc";
 // Context
 import { useAuth } from "context/Auth";
 import { LucleRPC } from "context/Luclerpc";
-import { Version } from "sass";
 
 // import { uploadFile } from "utils/minio";
 
@@ -258,14 +257,13 @@ function Speedupdate() {
       //      setError(err.rawMessage);
       //  });
     }
-  }, [currentRepo, visibleVersions]);
+  }, [currentRepo, visibleVersions, listVersions]);
 
   const uploadFile = () => {
     const formData = new FormData();
     formData.append("file", files[0]);
-    const current_repo = currentRepo.keys().next().value;
-    fetch("http://127.0.0.1:8080/" + current_repo + "/binaries", {
-      // https://api.marlin-atlas.ts.net/file/${files[0].name}`, {
+    fetch(`http://127.0.0.1:8080/allo2/binaries`, {
+      //`https://api.marlin-atlas.ts.net/file/${files[0].name}`, {
       method: "POST",
       body: formData,
     }).catch((err) => {
@@ -751,7 +749,7 @@ function Speedupdate() {
               </TableHead>
               <TableBody>
                 {visibleVersions
-                  ? visibleVersions.map((current_version: any, index) => {
+                  ? visibleVersions.map((current_version: Versions, index: number) => {
                       const isItemSelected = isVersionsSelected(index + 1);
                       const labelId = `enhanced-table-checkbox-${index}`;
                       return (
