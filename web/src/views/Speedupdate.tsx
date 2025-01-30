@@ -12,6 +12,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Checkbox from "@mui/material/Checkbox";
 import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
 import Grid from "@mui/material/Grid2";
 import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
@@ -20,7 +21,6 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import IconButton from "@mui/material/IconButton";
 import { alpha } from "@mui/material/styles";
 import { DropzoneArea } from "mui2-file-dropzone";
-
 // Icons
 import WarningIcon from "@mui/icons-material/Warning";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -79,6 +79,7 @@ const DisplaySizeUnit = (TotalSize: number) => {
 };
 
 function Speedupdate() {
+  const [uploadProgression, setUploadProgression] = useState();
   const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(
     new Map(),
   );
@@ -188,6 +189,15 @@ function Speedupdate() {
   );
 
   useEffect(() => {
+    const eventSource = new EventSource(
+      "http://127.0.0.1:8080/allo1/progression",
+    );
+    //+ currentRepo.keys().next.value + "/progression" );
+    eventSource.onmessage = (event) => {
+      setUploadProgression(event.data);
+    };
+    eventSource.onerror = (error) => setError(error);
+
     const savedCurrentRepo = localStorage.getItem("current_repo");
     if (savedCurrentRepo) {
       const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
@@ -206,7 +216,7 @@ function Speedupdate() {
     const headers = new Headers();
     const { token } = auth;
     headers.set("Authorization", `Bearer ${token}`);
-    async function Status() {
+    /*async function Status() {
       const call = client.status(
         {
           path: currentRepo.keys().next().value,
@@ -237,27 +247,29 @@ function Speedupdate() {
           setError("Repository are not sync between platforms");
         }
       }
-    }
+    }*/
 
     if (auth.repositories) {
       setListRepo(auth.repositories);
     }
 
     if (currentRepo.size > 0) {
-      Status().catch((err) => {
-        setError(err.rawMessage);
-      });
+      //      Status().catch((err) => {
+      //      setError(err.rawMessage);
+      //  });
     }
   }, [currentRepo, visibleVersions]);
 
   const uploadFile = () => {
     const formData = new FormData();
     formData.append("file", files[0]);
-    fetch(`https://api.marlin-atlas.ts.net/file/${files[0].name}`, {
+    const current_repo = currentRepo.keys().next().value;
+    fetch("http://127.0.0.1:8080/" + current_repo + "/binaries", {
+      // https://api.marlin-atlas.ts.net/file/${files[0].name}`, {
       method: "POST",
       body: formData,
     }).catch((err) => {
-      setError(err);
+      console.log(err);
     });
   };
 
@@ -1107,16 +1119,25 @@ function Speedupdate() {
             setFiles(files);
           }}
         />
-        <Button
-          color="primary"
+        <Grid
+          container
           sx={{
-            position: "absolute",
-            right: "0",
+            alignItems: "center",
           }}
-          onClick={uploadFile}
         >
-          Submit
-        </Button>
+          <Grid size={9}>
+            {uploadProgression || uploadProgression !== 100 ? (
+              <LinearProgress variant="determinate" value={uploadProgression} />
+            ) : null}
+          </Grid>
+          <Grid size={1}>
+            {!uploadProgression || uploadProgression === 100 ? (
+              <Button color="primary" onClick={uploadFile}>
+                Submit
+              </Button>
+            ) : null}
+          </Grid>
+        </Grid>
       </Box>
     );
   }

@@ -78,13 +78,14 @@ export const registerVersion = async (
   new Promise((resolve, reject) => {
     for (const folder of platforms) {
       client
-        .register_version({
-          path: path.concat("/", folder),
-          version,
-          description,
-        },
-        { headers },
-      )
+        .register_version(
+          {
+            path: path.concat("/", folder),
+            version,
+            description,
+          },
+          { headers },
+        )
         .then(() => {
           resolve();
         })
@@ -173,11 +174,12 @@ export const repoToDelete = async (client: any, path: string) => {
   new Promise((resolve, reject) => {
     client
       .delete_repo({ path: path })
-      .then(() => {
-        resolve();
-      }, 
-      { headers },
-    )
+      .then(
+        () => {
+          resolve();
+        },
+        { headers },
+      )
       .catch((error: string) => {
         reject(error);
       });
@@ -189,11 +191,12 @@ export const fileToDelete = async (client: any, file: string, platforms: any) =>
     for (const folder of platforms) {
       client
         .delete_file({ file: folder.concat("/", file) })
-        .then(() => {
-          resolve();
-        }, 
-        { headers },
-      )
+        .then(
+          () => {
+            resolve();
+          },
+          { headers },
+        )
         .catch((error: string) => {
           reject(error);
         });
