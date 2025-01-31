@@ -200,13 +200,13 @@ function Speedupdate() {
     }
     let opt: Options = {
       buildPath: ".",
-      uploadPath: "/progression",
+      uploadPath: ".",
     };
 
     const headers = new Headers();
     const { token } = auth;
     headers.set("Authorization", `Bearer ${token}`);
-    async function Status() {
+    /* async function Status() {
       const call = client.status(
         {
           path: currentRepo.keys().next().value,
@@ -237,7 +237,7 @@ function Speedupdate() {
           setError("Repository are not sync between platforms");
         }
       }
-    }
+    }*/
 
     if (auth.repositories) {
       setListRepo(auth.repositories);
@@ -246,7 +246,7 @@ function Speedupdate() {
     if (currentRepo.size > 0) {
       const current = currentRepo.keys().next().value;
       const eventSource = new EventSource(
-        "http://127.0.0.1:8080/" + current + opt.uploadPath,
+        "http://127.0.0.1:8080/" + current + "/progression",
       );
       eventSource.onmessage = (event) => {
         setUploadProgression(event.data);
@@ -256,16 +256,18 @@ function Speedupdate() {
         }
       };
       eventSource.onerror = (error) => setError(error);
-            Status().catch((err) => {
-            setError(err.rawMessage);
-        });
+      //Status().catch((err) => {
+      //  setError(err.rawMessage);
+      //});
     }
-  }, [currentRepo, visibleVersions, listVersions]);
+  }, [visibleVersions]);
 
   const uploadFile = () => {
     const current_repo = currentRepo.keys().next().value;
     const formData = new FormData();
-    formData.append("file", files[0]);
+    for (i = 0; i < files.length; i++) {
+      formData.append("files[]", files[i]);
+    }
     fetch("http://127.0.0.1:8080/" + current_repo + "/binaries", {
       //`https://api.marlin-atlas.ts.net/}`, {
       method: "POST",
