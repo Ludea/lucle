@@ -215,3 +215,40 @@ export const compareStatus = (oldStatus: any, newStatus: any) => {
     return false;
   return true;
 };
+
+export async function status(client: any) {
+  return new ReadableStream({
+    async start(controller) {
+      const call = client.status(
+        {
+          path: "allo2",
+          platforms: [0, 1, 2, 3],
+        },
+        { headers },
+      );
+      for await (const repo of call) {
+        const compare_repo = repo.status.every((state: any) =>
+          compareStatus(repo.status[0], state),
+        );
+        if (compare_repo) {
+          const firstRepo = repo.status[0];
+          //setSize(firstRepo.size);
+          //getCurrentVersion(firstRepo.currentVersion);
+          //setListVersions(firstRepo.versions);
+          const fullListPackages = [];
+          firstRepo.packages.map((row: any) => {
+            fullListPackages.push({ name: row, published: true });
+          });
+          firstRepo.availablePackages.map((row: any) => {
+            fullListPackages.push({ name: row, published: false });
+          });
+          //setListPackages(fullListPackages);
+          //setAvailableBinaries(firstRepo.availableBinaries);
+          controller.enqueue(firstRepo.versions);
+        } else {
+          console.log("Repository are not sync between platforms");
+        }
+      }
+    },
+  });
+}

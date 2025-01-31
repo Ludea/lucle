@@ -46,6 +46,7 @@ import {
   unregisterPackage,
   repoToDelete,
   fileToDelete,
+  status,
   compareStatus,
 } from "utils/speedupdaterpc";
 import { registerUpdateServer, deleteRepo } from "utils/rpc";
@@ -244,6 +245,20 @@ function Speedupdate() {
     }
 
     if (currentRepo.size > 0) {
+     
+    status(client).then((value) => {
+      let reader = value.getReader();
+
+    async function readStream() {
+      let result;
+      while (!(result = await reader.read()).done) {
+        setListVersions(result.value);
+        console.log("stream: ", result.value);
+      }
+    }
+
+    readStream();
+  })
       const current = currentRepo.keys().next().value;
       const eventSource = new EventSource(
         "http://127.0.0.1:8080/" + current + "/progression",
@@ -260,12 +275,12 @@ function Speedupdate() {
       //  setError(err.rawMessage);
       //});
     }
-  }, [visibleVersions]);
+  }, [visibleVersions, visibleBinaries, visiblePackages]);
 
   const uploadFile = () => {
     const current_repo = currentRepo.keys().next().value;
     const formData = new FormData();
-    for (i = 0; i < files.length; i++) {
+    for (const i = 0; i < files.length; i++) {
       formData.append("files[]", files[i]);
     }
     fetch("http://127.0.0.1:8080/" + current_repo + "/binaries", {
