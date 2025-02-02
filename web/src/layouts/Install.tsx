@@ -136,6 +136,7 @@ export default function Install() {
             <Button
               disabled={activeStep === 2 && passwordStrengh < 3}
               onClick={() => {
+                setError(null);
                 switch (activeStep) {
                   case 0:
                     {
@@ -144,7 +145,6 @@ export default function Install() {
                           setActiveStep((prevActiveStep) => prevActiveStep + 1);
                         })
                         .catch((err) => {
-                          console.log("15: ", err);
                           setError(err.rawMessage);
                         });
                     }
