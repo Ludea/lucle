@@ -216,13 +216,19 @@ export const compareStatus = (oldStatus: any, newStatus: any) => {
   return true;
 };
 
-export async function status(client: any) {
+export async function status(
+  client: any,
+  path: string,
+  platforms: any,
+  opt: any,
+) {
   return new ReadableStream({
     async start(controller) {
       const call = client.status(
         {
-          path: "allo2",
-          platforms: [0, 1, 2, 3],
+          path: path,
+          platforms: platforms,
+          options: opt,
         },
         { headers },
       );
@@ -232,9 +238,6 @@ export async function status(client: any) {
         );
         if (compare_repo) {
           const firstRepo = repo.status[0];
-          //setSize(firstRepo.size);
-          //getCurrentVersion(firstRepo.currentVersion);
-          //setListVersions(firstRepo.versions);
           const fullListPackages = [];
           firstRepo.packages.map((row: any) => {
             fullListPackages.push({ name: row, published: true });
@@ -242,9 +245,16 @@ export async function status(client: any) {
           firstRepo.availablePackages.map((row: any) => {
             fullListPackages.push({ name: row, published: false });
           });
-          //setListPackages(fullListPackages);
-          //setAvailableBinaries(firstRepo.availableBinaries);
-          controller.enqueue(firstRepo.versions);
+
+          let repo_state = {
+            versions: firstRepo.versions,
+            packages: fullListPackages,
+            binaries: firstRepo.availableBinaries,
+            size: firstRepo.size,
+            currentVersion: firstRepo.currentVersion,
+          };
+
+          controller.enqueue(repo_state);
         } else {
           console.log("Repository are not sync between platforms");
         }

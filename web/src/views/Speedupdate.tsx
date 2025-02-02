@@ -79,11 +79,12 @@ const DisplaySizeUnit = (TotalSize: number) => {
 };
 
 function Speedupdate() {
+  const [statusAlreadyStarted, setStatusAlreadyStarted] = useState(false);
   const [uploadProgression, setUploadProgression] = useState();
   const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(
     new Map(),
   );
-  const [currentVersion, getCurrentVersion] = useState<string>("");
+  const [currentVersion, setCurrentVersion] = useState<string>("");
   const [size, setSize] = useState<number>();
   const [version, setVersion] = useState<any>();
   const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
@@ -199,88 +200,55 @@ function Speedupdate() {
       );
       if (currentRepo.size === 0) setCurrentRepo(mapCurrentRepo);
     }
+
     let opt: Options = {
       buildPath: ".",
       uploadPath: ".",
     };
-
-    const headers = new Headers();
-    const { token } = auth;
-    headers.set("Authorization", `Bearer ${token}`);
-    /* async function Status() {
-      const call = client.status(
-        {
-          path: currentRepo.keys().next().value,
-          platforms: platformsEnum,
-          options: opt,
-        },
-        { headers, signal: controller.signal },
-      );
-      for await (const repo of call) {
-        const compare_repo = repo.status.every((state) =>
-          compareStatus(repo.status[0], state),
-        );
-        if (compare_repo) {
-          const firstRepo = repo.status[0];
-          setSize(firstRepo.size);
-          getCurrentVersion(firstRepo.currentVersion);
-          setListVersions(firstRepo.versions);
-          const fullListPackages = [];
-          firstRepo.packages.map((row) => {
-            fullListPackages.push({ name: row, published: true });
-          });
-          firstRepo.availablePackages.map((row) => {
-            fullListPackages.push({ name: row, published: false });
-          });
-          setListPackages(fullListPackages);
-          setAvailableBinaries(firstRepo.availableBinaries);
-        } else {
-          setError("Repository are not sync between platforms");
-        }
-      }
-    }*/
 
     if (auth.repositories) {
       setListRepo(auth.repositories);
     }
 
     if (currentRepo.size > 0) {
-     
-    status(client).then((value) => {
-      let reader = value.getReader();
+      const current = currentRepo.keys().next().value;
+      if (!statusAlreadyStarted) {
+        console.log("12");
+        status(client, current, platformsEnum, opt).then((value) => {
+          let reader = value.getReader();
+          setStatusAlreadyStarted(true);
+          async function readStream() {
+            let result;
+            while (!(result = await reader.read()).done) {
+              setListVersions(result.value.versions);
+              setListPackages(result.value.packages);
+              setAvailableBinaries(result.value.binaries);
+              setSize(result.value.size);
+              setCurrentVersion(result.value.currentVersion);
+            }
+          }
+          readStream();
+        });
 
-    async function readStream() {
-      let result;
-      while (!(result = await reader.read()).done) {
-        setListVersions(result.value);
-        console.log("stream: ", result.value);
+        const eventSource = new EventSource(
+          "http://127.0.0.1:8080/" + current + "/progression",
+        );
+        eventSource.onmessage = (event) => {
+          setUploadProgression(event.data);
+          if (event.data === "100") {
+            setUploadProgression(null);
+            setFiles(null);
+          }
+        };
+        eventSource.onerror = (error) => setError(error);
       }
     }
-
-    readStream();
-  })
-      const current = currentRepo.keys().next().value;
-      const eventSource = new EventSource(
-        "http://127.0.0.1:8080/" + current + "/progression",
-      );
-      eventSource.onmessage = (event) => {
-        setUploadProgression(event.data);
-        if (event.data === "100") {
-          setUploadProgression(null);
-          setFiles(null);
-        }
-      };
-      eventSource.onerror = (error) => setError(error);
-      //Status().catch((err) => {
-      //  setError(err.rawMessage);
-      //});
-    }
-  }, [visibleVersions, visibleBinaries, visiblePackages]);
+  }, [currentRepo]);
 
   const uploadFile = () => {
     const current_repo = currentRepo.keys().next().value;
     const formData = new FormData();
-    for (const i = 0; i < files.length; i++) {
+    for (let i = 0; i < files.length; i++) {
       formData.append("files[]", files[i]);
     }
     fetch("http://127.0.0.1:8080/" + current_repo + "/binaries", {

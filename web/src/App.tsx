@@ -29,7 +29,7 @@ import { LucleRPC } from "context/Luclerpc";
 export default function App() {
   const [isInstalled, setIsInstalled] = useState<boolean>();
   const client = useContext(LucleRPC);
-  const [controller, dispatch] = useMaterialUIController();
+  const [controller] = useMaterialUIController();
   const { darkMode } = controller;
 
   useEffect(() => {
@@ -54,8 +54,7 @@ export default function App() {
   );
 }
 
-function LucleRoutes(props) {
-  const { isInstalled } = props;
+function LucleRoutes(isInstalled) {
   const content = useRoutes(routes(isInstalled));
   return <div>{content}</div>;
 }
