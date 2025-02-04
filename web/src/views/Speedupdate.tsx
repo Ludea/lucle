@@ -213,7 +213,6 @@ function Speedupdate() {
     if (currentRepo.size > 0) {
       const current = currentRepo.keys().next().value;
       if (!statusAlreadyStarted) {
-        console.log("12");
         status(client, current, platformsEnum, opt).then((value) => {
           let reader = value.getReader();
           setStatusAlreadyStarted(true);
@@ -243,7 +242,7 @@ function Speedupdate() {
         eventSource.onerror = (error) => setError(error);
       }
     }
-  }, [currentRepo]);
+  }, [currentRepo, visibleVersions]);
 
   const uploadFile = () => {
     const current_repo = currentRepo.keys().next().value;
