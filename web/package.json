@@ -12,7 +12,6 @@
     "serve": "protobuf && vite preview"
   },
   "dependencies": {
-    "@bufbuild/buf": "^1.48.0",
     "@connectrpc/connect": "^2.0.0",
     "@connectrpc/connect-web": "^2.0.0",
     "@emotion/cache": "^11.11.0",
@@ -26,7 +25,7 @@
     "chart.js": "^4.4.1",
     "chroma-js": "^3.1.1",
     "minio": "https://github.com/minio/minio-js",
-    "mui2-file-dropzone": "^6.2.0",
+    "mui2-file-dropzone": "6.3.0",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.2.0",
@@ -63,6 +62,5 @@
     "typescript": "^5.3.3",
     "typescript-eslint": "^8.18.1",
     "vite": "^6.0.1"
-  },
-  "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b"
+  }
 }

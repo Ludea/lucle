@@ -18,9 +18,14 @@ import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import IconButton from "@mui/material/IconButton";
 import { alpha } from "@mui/material/styles";
 import { DropzoneArea } from "mui2-file-dropzone";
+
 // Icons
 import WarningIcon from "@mui/icons-material/Warning";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -79,8 +84,10 @@ const DisplaySizeUnit = (TotalSize: number) => {
 };
 
 function Speedupdate() {
+  const [key, setKey] = useState();
   const [statusAlreadyStarted, setStatusAlreadyStarted] = useState(false);
   const [uploadProgression, setUploadProgression] = useState();
+  const [uploadBinariesHost, setUploadBinariesHost] = useState<string>("");
   const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(
     new Map(),
   );
@@ -105,7 +112,7 @@ function Speedupdate() {
   const [buildPath, setBuildPath] = useState<string>("");
   const [uploadPath, setUploadPath] = useState<string>("");
   const [fileObjects, setFileObjects] = useState();
-  const [files, setFiles] = useState<any>();
+  const [files, setFiles] = useState();
   const [packagesPerPage, setPackagesPerPage] = useState(5);
   const [versionsPerPage, setVersionsPerPage] = useState(5);
   const [binariesPerPage, setBinariesPerPage] = useState(5);
@@ -245,18 +252,42 @@ function Speedupdate() {
   }, [currentRepo, visibleVersions]);
 
   const uploadFile = () => {
+    let platform;
+    switch (uploadBinariesHost) {
+      case 0:
+        platform = "win64";
+        break;
+      case 1:
+        platform = "macos_x64_86";
+        break;
+      case 2:
+        platform = "macos_arm64";
+        break;
+      case 3:
+        platform = "linux";
+        break;
+    }
     const current_repo = currentRepo.keys().next().value;
     const formData = new FormData();
     for (let i = 0; i < files.length; i++) {
       formData.append("files[]", files[i]);
     }
-    fetch("http://127.0.0.1:8080/" + current_repo + "/binaries", {
-      //`https://api.marlin-atlas.ts.net/}`, {
-      method: "POST",
-      body: formData,
-    }).catch((err) => {
-      console.log(err);
-    });
+    fetch(
+      "http://127.0.0.1:8080/" + current_repo + "/binaries" + "/" + platform,
+      {
+        //`https://api.marlin-atlas.ts.net/}`, {
+        method: "POST",
+        body: formData,
+      },
+    )
+      .then(() => {
+        setFiles([]);
+        setKey((prev) => prev + 1);
+      })
+      .catch((err) => {
+        setFiles([]);
+        setError(JSON.stringify(err));
+      });
   };
 
   const RegisterPackages = () => {
@@ -1101,10 +1132,26 @@ function Speedupdate() {
           </Paper>
         </Box>
         Upload Binaries
+        <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+          <InputLabel id="hosts">Hosts</InputLabel>
+          <Select
+            labelId="demo-simple-select-standard-label"
+            id="demo-simple-select-standard"
+            value={uploadBinariesHost}
+            onChange={(event) => setUploadBinariesHost(event.target.value)}
+            label="Hosts"
+          >
+            <MenuItem value={0}>Win64</MenuItem>
+            <MenuItem value={1}>Macos x86_64</MenuItem>
+            <MenuItem value={2}>Macos aarch64</MenuItem>
+            <MenuItem value={3}>Linux</MenuItem>
+          </Select>
+        </FormControl>
         <DropzoneArea
-          fileObjects={fileObjects}
-          onChange={(files) => {
-            setFiles(files);
+          key={key}
+          fileObjects={files}
+          onChange={(newFile) => {
+            setFiles(newFile);
           }}
         />
         <Grid
