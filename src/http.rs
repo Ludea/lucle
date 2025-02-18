@@ -10,7 +10,7 @@ async fn health_check() -> &'static str {
 }
 
 pub async fn serve_dir() {
-    let addr = SocketAddr::from(([0, 0, 0, 0], 8000));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     let local_addr = listener.local_addr().unwrap();
     tracing::info!("HTTP listening on {local_addr}");
