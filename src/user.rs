@@ -21,8 +21,8 @@ use serde_json::Value;
 
 static POOL: Lazy<Pool<AsyncMysqlConnection>> = Lazy::new(|| {
     let config = AsyncDieselConnectionManager::<diesel_async::AsyncMysqlConnection>::new(
-        "mysql://root@127.0.0.1:3306/lucle",
-        //        "mysql://root@mariadb-min.mariadb.svc.cluster.local/lucle",
+     //   "mysql://root@127.0.0.1:3306/lucle",
+        "mysql://root@mariadb-min.mariadb.svc.cluster.local/lucle",
     );
     Pool::builder(config).build().unwrap()
 });
