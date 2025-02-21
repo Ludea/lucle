@@ -236,7 +236,7 @@ function Speedupdate() {
         });
 
         const eventSource = new EventSource(
-          "http://127.0.0.1:8080/" + current + "/progression",
+          "https://repo.marlin-atlas.ts.net/" + current + "/progression",
         );
         eventSource.onmessage = (event) => {
           setUploadProgression(event.data);
