@@ -91,7 +91,7 @@ function Speedupdate() {
   const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(
     new Map(),
   );
-  const [currentVersion, setCurrentVersion] = useState<string>("");
+  const [currentVer, setCurrentVer] = useState<string>("");
   const [size, setSize] = useState<number>();
   const [version, setVersion] = useState<any>();
   const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
@@ -229,7 +229,7 @@ function Speedupdate() {
               setListPackages(result.value.packages);
               setAvailableBinaries(result.value.binaries);
               setSize(result.value.size);
-              setCurrentVersion(result.value.currentVersion);
+              setCurrentVer(result.value.currentVersion);
             }
           }
           readStream();
@@ -605,7 +605,7 @@ function Speedupdate() {
         <Paper sx={{ width: "100%", mb: 2 }}>
           <Grid container>
             <Grid size={12}>
-              Current version: {currentVersion ? currentVersion : "-"}
+              Current version: {currentVer ? currentVer : "-"}
             </Grid>
             <Grid size={12}>
               Total packages size: {size ? size + DisplaySizeUnit(size) : "-"}
