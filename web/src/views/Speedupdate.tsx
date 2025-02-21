@@ -111,7 +111,6 @@ function Speedupdate() {
   const [path, setPath] = useState<string>("");
   const [buildPath, setBuildPath] = useState<string>("");
   const [uploadPath, setUploadPath] = useState<string>("");
-  const [fileObjects, setFileObjects] = useState();
   const [files, setFiles] = useState();
   const [packagesPerPage, setPackagesPerPage] = useState(5);
   const [versionsPerPage, setVersionsPerPage] = useState(5);
@@ -273,9 +272,8 @@ function Speedupdate() {
       formData.append("files[]", files[i]);
     }
     fetch(
-      "http://127.0.0.1:8080/" + current_repo + "/binaries" + "/" + platform,
+      "http://repo.marlin-atlas.ts.net" + current_repo + "/binaries" + "/" + platform,
       {
-        //`https://api.marlin-atlas.ts.net/}`, {
         method: "POST",
         body: formData,
       },
