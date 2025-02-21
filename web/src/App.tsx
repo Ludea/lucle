@@ -54,7 +54,7 @@ export default function App() {
   );
 }
 
-function LucleRoutes(isInstalled) {
+function LucleRoutes({isInstalled} : {isInstalled: boolean}) {
   const content = useRoutes(routes(isInstalled));
   return <div>{content}</div>;
 }
