@@ -272,7 +272,7 @@ function Speedupdate() {
       formData.append("files[]", files[i]);
     }
     fetch(
-      "https://repo.marlin-atlas.ts.net" + current_repo + "/binaries" + "/" + platform,
+      "https://repo.marlin-atlas.ts.net/" + current_repo + "/binaries" + "/" + platform,
       {
         method: "POST",
         body: formData,
