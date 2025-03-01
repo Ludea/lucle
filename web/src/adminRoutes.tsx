@@ -1,5 +1,6 @@
 import Icon from "@mui/material/Icon";
 import Speedupdate from "views/Speedupdate";
+import Launcher from "views/Launcher";
 
 const adminroutes = [
   {
@@ -15,6 +16,14 @@ const adminroutes = [
     icon: <Icon fontSize="small">dashboard</Icon>,
     route: "speedupdate",
     component: <Speedupdate />,
+  },
+  {
+    type: "collapse",
+    name: "Launcher",
+    key: "launcher",
+    icon: <Icon fontSize="small">dashboard</Icon>,
+    route: "launcher",
+    component: <Launcher />,
   },
 ];
 

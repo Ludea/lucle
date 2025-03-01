@@ -21,7 +21,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Select from "@mui/material/Select";
 import IconButton from "@mui/material/IconButton";
 import { alpha } from "@mui/material/styles";
 import { DropzoneArea } from "mui2-file-dropzone";
@@ -52,7 +52,6 @@ import {
   repoToDelete,
   fileToDelete,
   status,
-  compareStatus,
 } from "utils/speedupdaterpc";
 import { registerUpdateServer, deleteRepo } from "utils/rpc";
 
@@ -63,8 +62,8 @@ import { LucleRPC } from "context/Luclerpc";
 // import { uploadFile } from "utils/minio";
 
 const transport = createGrpcWebTransport({
-  baseUrl: "https://api-repo.marlin-atlas.ts.net"
-//  baseUrl: "http://127.0.0.1:3001",
+  //  baseUrl: "https://api-repo.marlin-atlas.ts.net"
+  baseUrl: "http://127.0.0.1:3001",
 });
 const client = createClient(Repo, transport);
 
@@ -87,13 +86,13 @@ function Speedupdate() {
   const [key, setKey] = useState();
   const [statusAlreadyStarted, setStatusAlreadyStarted] = useState(false);
   const [uploadProgression, setUploadProgression] = useState();
-  const [uploadBinariesHost, setUploadBinariesHost] = useState<string>("");
+  const [uploadBinariesHost, setUploadBinariesHost] = useState<number>(0);
   const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(
     new Map(),
   );
   const [currentVer, setCurrentVer] = useState<string>("");
   const [size, setSize] = useState<number>();
-  const [version, setVersion] = useState<any>();
+  const [version, setVersion] = useState<string>();
   const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
     JSON.parse(localStorage.getItem("platformsEnum")),
   );
@@ -162,7 +161,7 @@ function Speedupdate() {
     return selectedPlatforms;
   };
 
-  let visibleVersions = useMemo(
+  const visibleVersions = useMemo(
     () =>
       listVersions
         ? listVersions.slice(
@@ -173,7 +172,7 @@ function Speedupdate() {
     [listVersions, versionsPage, versionsPerPage],
   );
 
-  let visiblePackages = useMemo(
+  const visiblePackages = useMemo(
     () =>
       listPackages
         ? listPackages.slice(
@@ -184,7 +183,7 @@ function Speedupdate() {
     [listPackages, packagesPage, packagesPerPage],
   );
 
-  let visibleBinaries = useMemo(
+  const visibleBinaries = useMemo(
     () =>
       availableBinaries
         ? availableBinaries.slice(
@@ -207,7 +206,7 @@ function Speedupdate() {
       if (currentRepo.size === 0) setCurrentRepo(mapCurrentRepo);
     }
 
-    let opt: Options = {
+    const opt: Options = {
       buildPath: ".",
       uploadPath: ".",
     };
@@ -220,7 +219,7 @@ function Speedupdate() {
       const current = currentRepo.keys().next().value;
       if (!statusAlreadyStarted) {
         status(client, current, platformsEnum, opt).then((value) => {
-          let reader = value.getReader();
+          const reader = value.getReader();
           setStatusAlreadyStarted(true);
           async function readStream() {
             let result;
@@ -245,7 +244,9 @@ function Speedupdate() {
             setFiles(null);
           }
         };
-        eventSource.onerror = (error) => setError(error);
+        eventSource.onerror = (error) => {
+          setError(error);
+        };
       }
     }
   }, [currentRepo, visibleVersions]);
@@ -272,7 +273,8 @@ function Speedupdate() {
       formData.append("files[]", files[i]);
     }
     fetch(
-      "https://repo.marlin-atlas.ts.net/" + current_repo + "/binaries" + "/" + platform,
+      // "https://repo.marlin-atlas.ts.net/" + current_repo + "/binaries" + "/" + platform,
+      "http://127.0.0.1:8000/" + current_repo + uploadPath + "/" + platform,
       {
         method: "POST",
         body: formData,
@@ -290,8 +292,8 @@ function Speedupdate() {
 
   const RegisterPackages = () => {
     setError(null);
-    let repo_name = currentRepo.keys().next().value;
-    let platforms = currentRepo.get(repo_name);
+    const repo_name = currentRepo.keys().next().value;
+    const platforms = currentRepo.get(repo_name);
     selectedPackagesValues.forEach((pack) => {
       registerPackage(client, repo_name, pack, platforms).catch((err) => {
         setError(err);
@@ -304,8 +306,8 @@ function Speedupdate() {
 
   const UnregisterPackages = () => {
     setError(null);
-    let repo_name = currentRepo.keys().next().value;
-    let platforms = currentRepo.get(repo_name);
+    const repo_name = currentRepo.keys().next().value;
+    const platforms = currentRepo.get(repo_name);
     selectedPackagesValues.forEach((pack) => {
       unregisterPackage(client, repo_name, pack, platforms).catch((err) => {
         setError(err.rawMessage);
@@ -318,8 +320,8 @@ function Speedupdate() {
 
   const DeleteVersion = () => {
     setError(null);
-    let repo_name = currentRepo.keys().next().value;
-    let platforms = currentRepo.get(repo_name);
+    const repo_name = currentRepo.keys().next().value;
+    const platforms = currentRepo.get(repo_name);
     selectedVersionsValues.forEach((version) => {
       unregisterVersion(client, repo_name, version, platforms)
         .then(() => {
@@ -334,8 +336,8 @@ function Speedupdate() {
 
   const DeletePackages = () => {
     setError(null);
-    let repo_name = currentRepo.keys().next().value;
-    let platforms = currentRepo.get(repo_name);
+    const repo_name = currentRepo.keys().next().value;
+    const platforms = currentRepo.get(repo_name);
     selectedPackages.forEach((row) => {
       if (listPackages[row].published) {
         unregisterPackage(
@@ -432,8 +434,8 @@ function Speedupdate() {
                     const platforms = listRepo.get(repo_name);
                     isInit(client, repo_name, platforms)
                       .then(() => {
-                        let current = new Map<string, string[]>();
-                        let platformInt: Platforms[] = [];
+                        const current = new Map<string, string[]>();
+                        const platformInt: Platforms[] = [];
                         for (const host of platforms) {
                           if (host === "win64")
                             platformInt.push(Platforms.WIN64);
@@ -554,7 +556,7 @@ function Speedupdate() {
                   );
                   let list = new Map<string, string[]>();
                   list = listRepo;
-                  let current = new Map<string, string[]>();
+                  const current = new Map<string, string[]>();
                   current.set(path, hosts);
                   list.set(path, hosts);
                   setCurrentRepo(current);
@@ -574,7 +576,7 @@ function Speedupdate() {
                   );
                   isInit(client, path, hosts)
                     .then(() => {
-                      let hosts = getPlatforms();
+                      const hosts = getPlatforms();
                       registerUpdateServer(
                         lucleClient,
                         auth.username,
@@ -618,7 +620,9 @@ function Speedupdate() {
                 id="build-path"
                 label=""
                 variant="standard"
-                onChange={(event) => setBuildPath(event.target.value)}
+                onChange={(event) => {
+                  setBuildPath(event.target.value);
+                }}
               />
             </Grid>
             <Grid size={12}>
@@ -628,7 +632,9 @@ function Speedupdate() {
                 id="upload-path"
                 label=""
                 variant="standard"
-                onChange={(event) => setUploadPath(event.target.value)}
+                onChange={(event) => {
+                  setUploadPath(event.target.value);
+                }}
               />
             </Grid>
             <Grid size={12}>
@@ -657,14 +663,14 @@ function Speedupdate() {
             <IconButton
               size="large"
               onClick={() => {
-                let path = currentRepo.keys().next().value;
+                const path = currentRepo.keys().next().value;
                 repoToDelete(client, path)
                   .then(() => {
                     deleteRepo(lucleClient, path)
                       .then(() => {
                         setError(null);
                         setCurrentRepo(new Map());
-                        let list = listRepo;
+                        const list = listRepo;
                         list.delete(path);
                         setListRepo(list);
                         setPlatformsEnum([]);
@@ -725,8 +731,8 @@ function Speedupdate() {
               <Tooltip title="SetVersion">
                 <IconButton
                   onClick={() => {
-                    let repo_name = currentRepo.keys().next().value;
-                    let platforms = currentRepo.get(repo_name);
+                    const repo_name = currentRepo.keys().next().value;
+                    const platforms = currentRepo.get(repo_name);
                     setError(null);
                     setCurrentVersion(
                       client,
@@ -1136,7 +1142,9 @@ function Speedupdate() {
             labelId="demo-simple-select-standard-label"
             id="demo-simple-select-standard"
             value={uploadBinariesHost}
-            onChange={(event) => setUploadBinariesHost(event.target.value)}
+            onChange={(event) => {
+              setUploadBinariesHost(event.target.value);
+            }}
             label="Hosts"
           >
             <MenuItem value={0}>Win64</MenuItem>

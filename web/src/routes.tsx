@@ -6,9 +6,11 @@ import ForgotPassword from "views/ForgotPassword";
 import AdminIndex from "views/AdminIndex";
 import Speedupdate from "views/Speedupdate";
 import Login from "views/Login";
+import Launcher from "views/Launcher";
 import Dashboard from "layouts/Dashboard";
 
 import { useAuth } from "context/Auth";
+import { element } from "prop-types";
 
 function PrivateRoutes() {
   const user = useAuth();
@@ -39,6 +41,7 @@ const routes = (isInstalled: boolean) => [
             children: [
               { index: true, element: <AdminIndex /> },
               { path: "speedupdate", element: <Speedupdate /> },
+              { path: "launcher", element: <Launcher /> },
               // { path: "tables", element: <Tables /> },
             ],
           },
