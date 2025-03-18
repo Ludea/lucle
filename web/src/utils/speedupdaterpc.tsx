@@ -255,7 +255,7 @@ export async function status(
     async start(controller) {
       const call = client.status(
         {
-          path: path.concat(type),
+          path: path.concat("/", type),
           platforms: platforms,
           options: opt,
         },
