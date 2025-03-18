@@ -156,11 +156,7 @@ pub fn get_config_key(section: &str, key: &str) -> Option<String> {
     let doc = content.parse::<DocumentMut>().unwrap();
 
     if let Some(section) = doc.get(section) {
-        if let Some(key) = section.get(key) {
-            Some(key.to_string())
-        } else {
-            None
-        }
+        section.get(key).map(|key| key.to_string())
     } else {
         None
     }
