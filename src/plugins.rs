@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+/* use std::{fs, path::Path};
 use wasmtime::component::{Component, Linker, ResourceTable};
 use wasmtime::*;
 use wasmtime_wasi::bindings::Command;
@@ -61,3 +61,4 @@ pub async fn load_wasm_runtime() -> Result<()> {
     }
     Ok(())
 }
+ */

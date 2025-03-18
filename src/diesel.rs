@@ -188,7 +188,7 @@ fn path_from_sqlite_url(database_url: &str) -> Result<std::path::PathBuf, crate:
 pub fn set_pool(db_url: &str) {
     let pool = AsyncDieselConnectionManager::<AsyncMysqlConnection>::new(db_url);
     let conn = Pool::builder(pool).build().unwrap();
-    if let Err(_) = POOL.set(Mutex::new(conn)) {
+    if POOL.set(Mutex::new(conn)).is_err() {
         tracing::error!("Unable to set pool");
     }
 }

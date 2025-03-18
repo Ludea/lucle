@@ -157,12 +157,12 @@ pub fn get_config_key(section: &str, key: &str) -> Option<String> {
 
     if let Some(section) = doc.get(section) {
         if let Some(key) = section.get(key) {
-            return Some(key.to_string());
+            Some(key.to_string())
         } else {
-            return None;
+            None
         }
     } else {
-        return None;
+        None
     }
 }
 
@@ -189,7 +189,7 @@ url = ""
             file.read_to_string(&mut content)?;
             if let Err(err) = content.parse::<Value>() {
                 tracing::error!("error on parsing file: {}", err);
-                Err(io::Error::new(io::ErrorKind::Other, err.to_string()))
+                Err(io::Error::other(err.to_string()))
             } else {
                 Ok(())
             }
@@ -205,6 +205,6 @@ url = ""
             tracing::info!("Config file created");
             Ok(())
         }
-        Err(err) => Err(io::Error::new(io::ErrorKind::Other, err.to_string())),
+        Err(err) => Err(io::Error::other(err.to_string())),
     }
 }
