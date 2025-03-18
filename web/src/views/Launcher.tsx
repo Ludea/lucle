@@ -1,10 +1,17 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 
 import TextField from "@mui/material/TextField";
 import { styled } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid2";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+
+//GH Api
+import { Octokit } from "@octokit/rest";
+
+const octokit = new Octokit({
+  auth: "",
+});
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -19,7 +26,92 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 function Launcher() {
-  const [game, setGame] = useState("");
+  const [game, setGame] = useState<String>("");
+  const [updateURL, setUpdateURL] = useState<String>(
+    "https://repo.marlin-atlas.ts.net",
+  );
+  const [disableLauncherCreation, setDisableLauncherCreation] =
+    useState<boolean>(false);
+
+  let status: string = "queued";
+
+  const StartandFollowGHAction = async () => {
+    let launcherOptions = {
+      game_name: game,
+      repository_url: updateURL,
+    };
+
+    setDisableLauncherCreation(true);
+
+    octokit.rest.actions.createWorkflowDispatch({
+      owner: "Ludea",
+      repo: "Sparus",
+      workflow_id: "dispatch.yml",
+      ref: "main",
+      inputs: {
+        content: JSON.stringify(launcherOptions),
+      },
+    });
+
+    new Promise((resolve) => setTimeout(resolve, 5000)).then(() =>
+      octokit.rest.actions
+        .listWorkflowRuns({
+          owner: "Ludea",
+          repo: "Sparus",
+          workflow_id: "dispatch.yml",
+        })
+        .then((result) => {
+          while (["queued", "in_progress"].includes(status)) {
+            new Promise((resolve) => setTimeout(resolve, 500)).then(() => {
+              octokit.rest.actions
+                .getWorkflowRun({
+                  owner: "Ludea",
+                  repo: "Sparus",
+                  run_id: result.data.workflow_runs[0].id,
+                })
+                .then((res) => {
+                  status = res.data.status;
+                  if (status === "completed") {
+                    setDisableLauncherCreation(false);
+                    return;
+                  }
+                })
+                .catch(() => setDisableLauncherCreation(false));
+            });
+          }
+        }),
+    );
+  };
+
+  const getWorkflowRun = () => {
+    octokit.rest.actions
+      .listWorkflowRuns({
+        owner: "Ludea",
+        repo: "Sparus",
+        workflow_id: "dispatch.yml",
+      })
+      .then((result) => {
+        console.log("15:", result.data.workflow_runs[0].status);
+        while (
+          //result.data.workflow_runs[0].status === "queued" ||
+          result.data.workflow_runs[0].status !== "in_progress"
+        ) {
+          console.log("12");
+          /*          octokit.rest.actions
+            .getWorkflowRun({
+              owner: "Ludea",
+              repo: "Sparus",
+              run_id: result.data.workflow_runs[0].id,
+            })
+            .then((res) => {
+              console.log("12: ", res);
+              setDisableLauncherCreation(false);
+            })
+            .catch(() => setDisableLauncherCreation(false)); */
+        }
+      })
+      .catch(() => setDisableLauncherCreation(false));
+  };
 
   return (
     <div>
@@ -32,10 +124,29 @@ function Launcher() {
             label="Game name"
             name="game"
             autoComplete="game"
-            autoFocus
+            sx={{
+              width: "30%",
+            }}
             value={game}
             onChange={(event) => {
               setGame(event.target.value);
+            }}
+          />
+        </Grid>
+        <Grid size={12}>
+          <TextField
+            margin="normal"
+            required
+            id="update_server"
+            label="Url of the update server"
+            name="update_server"
+            autoComplete="update_server"
+            sx={{
+              width: "30%",
+            }}
+            value={updateURL}
+            onChange={(event) => {
+              setUpdateURL(event.target.value);
             }}
           />
         </Grid>
@@ -69,7 +180,11 @@ function Launcher() {
             />
           </Button>
         </Grid>
-        <Button component="label" role={undefined} variant="contained">
+        <Button
+          disabled={disableLauncherCreation}
+          variant="contained"
+          onClick={StartandFollowGHAction}
+        >
           Create Launcher
         </Button>
       </Grid>
