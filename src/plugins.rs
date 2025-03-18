@@ -1,4 +1,4 @@
-/*use std::{fs, path::Path};
+use std::{fs, path::Path};
 use wasmtime::component::{Component, Linker, ResourceTable};
 use wasmtime::*;
 use wasmtime_wasi::bindings::Command;
@@ -41,7 +41,11 @@ pub async fn load_wasm_runtime() -> Result<()> {
         if file_path.is_file() {
             if let Some(extension) = file_path.clone().extension() {
                 if extension == "wasm" {
-                    if let Some(filename) = file_path.clone().file_name().to_lossy_string() {
+                    if let Some(filename) = file_path
+                        .clone()
+                        .file_name()
+                        .and_then(|f| Some(f.to_str()?.to_string()))
+                    {
                         let component = Component::from_file(&engine, filename)?;
                         let command =
                             Command::instantiate_async(&mut store, &component, &linker).await?;
@@ -55,5 +59,5 @@ pub async fn load_wasm_runtime() -> Result<()> {
             }
         }
     }
+    Ok(())
 }
-*/
