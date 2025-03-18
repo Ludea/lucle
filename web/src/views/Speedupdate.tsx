@@ -62,8 +62,8 @@ import { LucleRPC } from "context/Luclerpc";
 // import { uploadFile } from "utils/minio";
 
 const transport = createGrpcWebTransport({
-    baseUrl: "https://api-repo.marlin-atlas.ts.net"
-//  baseUrl: "http://127.0.0.1:3001",
+//  baseUrl: "https://api-repo.marlin-atlas.ts.net",
+    baseUrl: "http://127.0.0.1:3001",
 });
 const client = createClient(Repo, transport);
 
@@ -218,7 +218,7 @@ function Speedupdate() {
     if (currentRepo.size > 0) {
       const current = currentRepo.keys().next().value;
       if (!statusAlreadyStarted) {
-        status(client, current, platformsEnum, opt).then((value) => {
+        status(client, current, platformsEnum, "game", opt).then((value) => {
           const reader = value.getReader();
           setStatusAlreadyStarted(true);
           async function readStream() {
@@ -273,8 +273,12 @@ function Speedupdate() {
       formData.append("files[]", files[i]);
     }
     fetch(
-       "https://repo.marlin-atlas.ts.net/" + current_repo + "/binaries" + "/" + platform,
-    //  "http://127.0.0.1:8080/" + current_repo + "/binaries" + "/" + platform,
+//      "https://repo.marlin-atlas.ts.net/" +
+        current_repo +
+        "/binaries" +
+        "/" +
+        platform,
+        "http://127.0.0.1:8080/" + current_repo + "/binaries" + "/" + platform,
       {
         method: "POST",
         body: formData,
@@ -295,9 +299,11 @@ function Speedupdate() {
     const repo_name = currentRepo.keys().next().value;
     const platforms = currentRepo.get(repo_name);
     selectedPackagesValues.forEach((pack) => {
-      registerPackage(client, repo_name, pack, platforms).catch((err) => {
-        setError(err);
-      });
+      registerPackage(client, repo_name, pack, platforms, "game").catch(
+        (err) => {
+          setError(err);
+        },
+      );
     });
     setSelectedPackages([]);
     setSelectedPackagesValues([]);
@@ -309,9 +315,11 @@ function Speedupdate() {
     const repo_name = currentRepo.keys().next().value;
     const platforms = currentRepo.get(repo_name);
     selectedPackagesValues.forEach((pack) => {
-      unregisterPackage(client, repo_name, pack, platforms).catch((err) => {
-        setError(err.rawMessage);
-      });
+      unregisterPackage(client, repo_name, pack, platforms, "game").catch(
+        (err) => {
+          setError(err.rawMessage);
+        },
+      );
     });
     setSelectedPackages([]);
     setSelectedPackagesValues([]);
@@ -323,7 +331,7 @@ function Speedupdate() {
     const repo_name = currentRepo.keys().next().value;
     const platforms = currentRepo.get(repo_name);
     selectedVersionsValues.forEach((version) => {
-      unregisterVersion(client, repo_name, version, platforms)
+      unregisterVersion(client, repo_name, version, platforms, "game")
         .then(() => {
           setSelectedVersions([]);
           setSelectedVersionsValues([]);
@@ -345,13 +353,16 @@ function Speedupdate() {
           repo_name,
           listPackages[row].name,
           platforms,
+          "game",
         ).catch((err) => {
           setError(err.rawMessage);
         });
       }
-      fileToDelete(client, listPackages[row].name, platforms).catch((err) => {
-        setError(err.rawMessage);
-      });
+      fileToDelete(client, listPackages[row].name, platforms, "game").catch(
+        (err) => {
+          setError(err.rawMessage);
+        },
+      );
       setSelectedPackages([]);
     });
   };
@@ -432,7 +443,7 @@ function Speedupdate() {
                   onClick={() => {
                     setError(null);
                     const platforms = listRepo.get(repo_name);
-                    isInit(client, repo_name, platforms)
+                    isInit(client, repo_name, platforms, "game")
                       .then(() => {
                         const current = new Map<string, string[]>();
                         const platformInt: Platforms[] = [];
@@ -547,7 +558,7 @@ function Speedupdate() {
             variant="contained"
             onClick={() => {
               setError(null);
-              init(client, path, checked)
+              init(client, path, checked, "game")
                 .then(() => {
                   setPath("");
                   const hostsEnum = getPlatforms();
@@ -574,7 +585,7 @@ function Speedupdate() {
                     "repositories",
                     JSON.stringify(Object.fromEntries(list)),
                   );
-                  isInit(client, path, hosts)
+                  isInit(client, path, hosts, "game")
                     .then(() => {
                       const hosts = getPlatforms();
                       registerUpdateServer(
@@ -739,6 +750,7 @@ function Speedupdate() {
                       repo_name,
                       selectedVersionsValues[0],
                       platforms,
+                      "game",
                     )
                       .then(() => {
                         setSelectedVersions([]);
@@ -829,6 +841,7 @@ function Speedupdate() {
                                 version,
                                 description,
                                 platforms,
+                                "game",
                               ).catch((err) => {
                                 setError(err.rawMessage);
                               });
@@ -857,6 +870,7 @@ function Speedupdate() {
                                 version,
                                 description,
                                 platforms,
+                                "game",
                               ).catch((err) => {
                                 setError(err.rawMessage);
                               });
@@ -878,6 +892,7 @@ function Speedupdate() {
                               version,
                               description,
                               platforms,
+                              "game",
                             ).catch((err) => {
                               setError(err.rawMessage);
                             });

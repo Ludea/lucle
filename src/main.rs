@@ -1,27 +1,22 @@
-use diesel_async::pooled_connection::deadpool::Pool;
-use diesel_async::AsyncMysqlConnection;
-use once_cell::sync::Lazy;
+use diesel_async::{pooled_connection::deadpool::Pool, AsyncMysqlConnection};
 use rustls_pemfile::certs;
-use std::path::Path;
-use std::{fs::File, io::BufReader, sync::Arc};
+use std::{fs::File, io::BufReader, path::Path, sync::Arc};
 use tokio_rustls::rustls::ServerConfig;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod diesel;
 mod errors;
 mod http;
-//#[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
-//mod mail;
 pub mod models;
+mod plugins;
 mod query_helper;
 mod rpc;
 pub mod schema;
 mod surreal;
-mod user;
 mod utils;
 
 pub enum DbType {
-    Mysql(Lazy<Pool<AsyncMysqlConnection>>),
+    Mysql(Pool<AsyncMysqlConnection>),
     Surrealdb(surrealdb::Result<()>),
     NoDatabase,
 }
@@ -46,11 +41,23 @@ async fn main() {
     if let Err(err) = utils::create_config_file() {
         tracing::error!("{}", err);
     }
-    let db = match utils::get_config_key("database".to_string()).as_str() {
-        "mysql" => DbType::Mysql(diesel::create_pool()),
-        "surrealdb" => DbType::Surrealdb(surreal::create_database().await),
-        _ => DbType::NoDatabase,
-    };
+    let mut database: DbType = DbType::NoDatabase;
+    if let Some(db) = utils::get_config_key("database", "name") {
+        database = match db.as_str() {
+            "mysql" => {
+                let url = utils::get_config_key("database", "url").unwrap();
+                diesel::set_pool(&url);
+                if let Some(pool) = diesel::get_pool() {
+                    DbType::Mysql(pool)
+                } else {
+                    tracing::error!("Unable to get pool connection");
+                    DbType::NoDatabase
+                }
+            }
+            "surrealdb" => DbType::Surrealdb(surreal::create_database().await),
+            _ => DbType::NoDatabase,
+        };
+    }
 
     if !Path::new(".tls/ca_cert.pem").exists()
         || !Path::new(".tls/server_cert.pem").exists()
@@ -88,11 +95,8 @@ async fn main() {
         .with_single_cert(certs, private_key)
         .unwrap();
 
-    //    #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
-    //    tokio::spawn(async { mail::start_mail_server().await });
-
     if let Err(err) = tokio::join!(
-        rpc::rpc_api(&mut cert_buf, &mut key_buf, db),
+        rpc::rpc_api(&mut cert_buf, &mut key_buf, database),
         http::serve_dir()
     )
     .0

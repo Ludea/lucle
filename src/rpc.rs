@@ -1,6 +1,5 @@
 use super::diesel;
 use super::surreal;
-use super::user;
 use super::utils;
 use crate::DbType;
 use email_address_parser::EmailAddress;
@@ -73,25 +72,24 @@ impl Lucle for LucleApi {
                 }
             }
             Ok(DatabaseType::Mysql) => {
-                utils::set_config_key("mysql".to_string());
+                utils::set_config_key("database", "name", "mysql");
                 if let Some(db_connection) = inner.db_connection {
-                    if let Err(err) = diesel::create_database(
-                        &("mysql://".to_owned()
-                            + &db_connection.username
-                            + ":"
-                            + &db_connection.password
-                            + "@"
-                            + &db_connection.hostname
-                            + ":"
-                            + &db_connection.port.to_string()
-                            + "/"
-                            + &db_name),
-                    )
-                    .await
-                    {
+                    let db_url = &("mysql://".to_owned()
+                        + &db_connection.username
+                        + ":"
+                        + &db_connection.password
+                        + "@"
+                        + &db_connection.hostname
+                        + ":"
+                        + &db_connection.port.to_string()
+                        + "/"
+                        + &db_name);
+                    utils::set_config_key("database", "url", db_url);
+                    if let Err(err) = diesel::create_database(db_url).await {
                         tracing::error!("Unable to create database : {}", err);
                         return Err(Status::internal(err.to_string()));
                     }
+                    diesel::set_pool(db_url);
                 }
             }
             Ok(DatabaseType::Postgresql) => {
@@ -120,7 +118,7 @@ impl Lucle for LucleApi {
         let email = inner.email;
         let reply = Empty {};
         if EmailAddress::is_valid(&email.clone(), None) {
-            match user::create_user(username.clone(), password, email).await {
+            match diesel::create_user(username.clone(), password, email).await {
                 Ok(()) => {
                     tracing::info!("user {} created", username);
                     return Ok(Response::new(reply));
@@ -159,7 +157,7 @@ impl Lucle for LucleApi {
             }
         }
 
-        match user::register_update_server(username.clone(), path.clone(), db_platforms).await {
+        match diesel::register_update_server(username.clone(), path.clone(), db_platforms).await {
             Ok(()) => {
                 tracing::info!("User {} created {} repository", username, path);
                 return Ok(Response::new(reply));
@@ -180,7 +178,7 @@ impl Lucle for LucleApi {
         let username = inner.username;
         let reply = Empty {};
 
-        match user::join_update_server(username.clone(), path.clone()).await {
+        match diesel::join_update_server(username.clone(), path.clone()).await {
             Ok(()) => {
                 tracing::info!("User {} ask to join {} repository", username, path);
                 return Ok(Response::new(reply));
@@ -198,7 +196,7 @@ impl Lucle for LucleApi {
     ) -> Result<Response<ListUpdateServer>, Status> {
         let inner = request.into_inner();
         let username = inner.username;
-        match user::list_update_server_by_user(username).await {
+        match diesel::list_update_server_by_user(username).await {
             Ok(list) => {
                 let reply = ListUpdateServer { repositories: list };
                 Ok(Response::new(reply))
@@ -214,7 +212,7 @@ impl Lucle for LucleApi {
         let inner = request.into_inner();
         let username_or_email = inner.username_or_email;
         let password = inner.password;
-        match user::login(username_or_email, password).await {
+        match diesel::login(username_or_email, password).await {
             Ok(user) => Ok(Response::new(user)),
             Err(err) => {
                 tracing::error!("{}", err);
@@ -228,7 +226,7 @@ impl Lucle for LucleApi {
         _request: Request<Empty>,
     ) -> Result<Response<Empty>, Status> {
         let reply = Empty {};
-        match user::is_table_and_user_created().await {
+        match diesel::is_table_and_user_created().await {
             Ok(()) => Ok(Response::new(reply)),
             Err(err) => {
                 tracing::error!("{}", err);
@@ -240,10 +238,9 @@ impl Lucle for LucleApi {
     async fn delete_repo(&self, request: Request<UpdateServer>) -> Result<Response<Empty>, Status> {
         let reply = Empty {};
         let inner = request.into_inner();
-        let username = inner.username;
         let path = inner.path;
 
-        match user::delete_repo(path.clone()).await {
+        match diesel::delete_repo(path.clone()).await {
             Ok(()) => {
                 tracing::info!("Repo {} deleted", path);
                 Ok(Response::new(reply))
@@ -263,7 +260,7 @@ impl Lucle for LucleApi {
         let email = inner.email;
         let reply = Empty {};
         if EmailAddress::is_valid(email.as_str(), None) {
-            if let Err(err) = user::reset_password(email).await {
+            if let Err(err) = diesel::reset_password(email).await {
                 tracing::error!("{}", err);
                 return Err(Status::internal(err.to_string()));
             }

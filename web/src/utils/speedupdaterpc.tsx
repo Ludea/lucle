@@ -11,7 +11,20 @@ export const init = async (client: any, path: string, platforms: any) =>
       client
         .init(
           {
-            path: path.concat("/", folder),
+            path: path.concat("/game/", folder),
+          },
+          { headers },
+        )
+        .then(() => {
+          resolve();
+        })
+        .catch((error: any) => {
+          reject(error);
+        });
+      client
+        .init(
+          {
+            path: path.concat("/launcher/", folder),
           },
           { headers },
         )
@@ -24,13 +37,18 @@ export const init = async (client: any, path: string, platforms: any) =>
     }
   });
 
-export const isInit = async (client: any, path: string, platforms: any) =>
+export const isInit = async (
+  client: any,
+  path: string,
+  platforms: any,
+  type: string,
+) =>
   new Promise((resolve, reject) => {
     for (const folder of platforms) {
       client
         .is_init(
           {
-            path: path.concat("/", folder),
+            path: path.concat("/", type, "/", folder),
           },
           { headers },
         )
@@ -48,13 +66,14 @@ export const setCurrentVersion = async (
   path: string,
   version: string,
   platforms: any,
+  type: string,
 ) =>
   new Promise((resolve, reject) => {
     for (const folder of platforms) {
       client
         .set_current_version(
           {
-            path: path.concat("/", folder),
+            path: path.concat("/", type, "/", folder),
             version,
           },
           { headers },
@@ -74,13 +93,14 @@ export const registerVersion = async (
   version: string,
   description: string,
   platforms: any,
+  type: string,
 ) =>
   new Promise((resolve, reject) => {
     for (const folder of platforms) {
       client
         .register_version(
           {
-            path: path.concat("/", folder),
+            path: path.concat("/", type, "/", folder),
             version,
             description,
           },
@@ -100,13 +120,14 @@ export const unregisterVersion = async (
   path: string,
   version: string,
   platforms: any,
+  type: string,
 ) =>
   new Promise((resolve, reject) => {
     for (const folder of platforms) {
       client
         .unregister_version(
           {
-            path: path.concat("/", folder),
+            path: path.concat("/", type, "/", folder),
             version,
           },
           { headers },
@@ -125,13 +146,14 @@ export const registerPackage = async (
   path: string,
   name: string,
   platforms: any,
+  type: string,
 ) =>
   new Promise((resolve, reject) => {
     for (const folder of platforms) {
       client
         .register_package(
           {
-            path: path.concat("/", folder),
+            path: path.concat("/", type, "/", folder),
             name,
           },
           { headers },
@@ -150,13 +172,14 @@ export const unregisterPackage = async (
   path: string,
   name: string,
   platforms: any,
+  type: string,
 ) =>
   new Promise((resolve, reject) => {
     for (const folder of platforms) {
       client
         .unregister_package(
           {
-            path: path.concat("/", folder),
+            path: path.concat("/", type, "/", folder),
             name,
           },
           { headers },
@@ -186,11 +209,16 @@ export const repoToDelete = async (client: any, path: string) => {
   });
 };
 
-export const fileToDelete = async (client: any, file: string, platforms: any) =>
+export const fileToDelete = async (
+  client: any,
+  file: string,
+  platforms: any,
+  type: string,
+) =>
   new Promise((resolve, reject) => {
     for (const folder of platforms) {
       client
-        .delete_file({ file: folder.concat("/", file) })
+        .delete_file({ file: folder.concat("/", type, "/", file) })
         .then(
           () => {
             resolve();
@@ -220,13 +248,14 @@ export async function status(
   client: any,
   path: string,
   platforms: any,
+  type: string,
   opt: any,
 ) {
   return new ReadableStream({
     async start(controller) {
       const call = client.status(
         {
-          path: path,
+          path: path.concat(type),
           platforms: platforms,
           options: opt,
         },

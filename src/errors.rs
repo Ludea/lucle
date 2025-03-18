@@ -10,6 +10,8 @@ pub enum Error {
     #[error("Failed to run migrations: {0}")]
     Migration(Box<dyn std::error::Error + Send + Sync + 'static>),
     #[error("User not found")]
+    GetPool,
+    #[error("Cannot get Pool")]
     UserNotFound,
     #[error("No user created")]
     UserNotCreated,

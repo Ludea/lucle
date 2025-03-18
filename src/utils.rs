@@ -23,16 +23,6 @@ struct Claims {
     scope: String,
 }
 
-#[derive(Debug, Deserialize)]
-struct LucleConfig {
-    database: DatabaseConfig,
-}
-
-#[derive(Debug, Deserialize)]
-struct DatabaseConfig {
-    database: String,
-}
-
 pub fn send_mail(from: &str, dest: &str, subject: &str, _body: &str) {
     let context = Context::new();
     let tera = match Tera::new("templates") {
@@ -160,24 +150,37 @@ pub fn generate_jwt(username: String, email: String) -> String {
     .unwrap()
 }
 
-pub fn get_config_key(key: String) -> String {
+pub fn get_config_key(section: &str, key: &str) -> Option<String> {
     let config_file = "config.toml";
-    let file = fs::read_to_string(config_file).unwrap();
-    let content: LucleConfig = toml::from_str(&file).unwrap();
-    content.database.database
+    let content = fs::read_to_string(config_file).unwrap();
+    let doc = content.parse::<DocumentMut>().unwrap();
+
+    if let Some(section) = doc.get(section) {
+        if let Some(key) = section.get(key) {
+            return Some(key.to_string());
+        } else {
+            return None;
+        }
+    } else {
+        return None;
+    }
 }
 
-pub fn set_config_key(val: String) {
+pub fn set_config_key(section: &str, key: &str, val: &str) {
     let config_file = "config.toml";
     let content = fs::read_to_string(config_file).unwrap();
     let mut doc = content.parse::<DocumentMut>().expect("invalid doc");
-    doc["database"]["database"] = value(val)
+    doc[section][key] = value(val);
+    if let Err(err) = fs::write(config_file, doc.to_string()) {
+        tracing::error!("Unable to write config file: {}", err);
+    }
 }
 
 pub fn create_config_file() -> std::result::Result<(), std::io::Error> {
     let default_config = r#"
 [database]
-database = ""
+name = ""
+url = ""
 "#;
 
     let mut content = String::new();
