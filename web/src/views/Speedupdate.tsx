@@ -235,7 +235,7 @@ function Speedupdate() {
         });
 
         const eventSource = new EventSource(
-          "https://repo.marlin-atlas.ts.net/" + current + "/progression",
+          "https://repo.marlin-atlas.ts.net/" + current + "/game" + "/progression",
         );
         eventSource.onmessage = (event) => {
           setUploadProgression(event.data);
