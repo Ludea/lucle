@@ -62,8 +62,8 @@ import { LucleRPC } from "context/Luclerpc";
 // import { uploadFile } from "utils/minio";
 
 const transport = createGrpcWebTransport({
-//  baseUrl: "https://api-repo.marlin-atlas.ts.net",
-    baseUrl: "http://127.0.0.1:3001",
+baseUrl: "https://api-repo.marlin-atlas.ts.net",
+//    baseUrl: "http://127.0.0.1:3001",
 });
 const client = createClient(Repo, transport);
 
@@ -273,12 +273,12 @@ function Speedupdate() {
       formData.append("files[]", files[i]);
     }
     fetch(
-//      "https://repo.marlin-atlas.ts.net/" +
+      "https://repo.marlin-atlas.ts.net/" +
         current_repo +
         "/binaries" +
         "/" +
         platform,
-        "http://127.0.0.1:8080/" + current_repo + "/binaries" + "/" + platform,
+    //    "http://127.0.0.1:8080/" + current_repo + "/binaries" + "/" + platform,
       {
         method: "POST",
         body: formData,
