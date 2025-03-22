@@ -1,11 +1,13 @@
+{{- if .Values.persistence.enabled -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: my-pvc
+  name: lucle
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 500Mi
-  storageClassName: local-path  # Facultatif, car c'est le StorageClass par défaut
+  storageClassName: local-path  
+{{end}} 
