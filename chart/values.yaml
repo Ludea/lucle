@@ -42,6 +42,9 @@ ingressroute:
     - secretName: lucle
       certResolver: letsencrypt
 
+persistence:
+  enabled: true
+  
 resources:
   {}
   # limits:
