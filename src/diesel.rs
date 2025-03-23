@@ -73,6 +73,7 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
                     .execute(&mut conn)
                     .await?;
             }
+            return Ok(());
         }
         Backend::Sqlite => {
             let path = path_from_sqlite_url(database_url)?;
@@ -85,6 +86,7 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
                         url: database_url.to_owned(),
                     })?;
             }
+            return Ok(());
         }
         Backend::Mysql => {
             if AsyncMysqlConnection::establish(database_url).await.is_err() {
@@ -100,41 +102,43 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
                             error,
                             url: mysql_url,
                         })?;
-                if let Err(err) = query_helper::create_database(&database)
-                    .execute(&mut conn)
-                    .await
-                {
-                    tracing::error!("Unable to create database: {}", err);
-                    return Err(crate::errors::Error::Query(err));
-                } else {
-                    conn = AsyncMysqlConnection::establish(database_url)
+                if let Err(err) = is_table_and_user_created().await {
+                    if let Err(err) = query_helper::create_database(&database)
+                        .execute(&mut conn)
                         .await
-                        .map_err(|error| crate::errors::Error::Connection {
-                            error,
-                            url: database_url.to_string(),
-                        })?;
-                    let mut async_wrapper: AsyncConnectionWrapper<AsyncMysqlConnection> =
-                        AsyncConnectionWrapper::from(conn);
-
-                    if let Err(err) = tokio::task::spawn_blocking(move || {
-                        if let Err(err) = async_wrapper.run_pending_migrations(MIGRATIONS) {
-                            tracing::error!("Unable to run migrations: {}", err);
-                            Err(crate::errors::Error::Migration(err))
-                        } else {
-                            tracing::info!("Running migrations");
-                            Ok(())
-                        }
-                    })
-                    .await
                     {
-                        tracing::error!("Unable to join task: {} ", err);
+                        tracing::error!("Unable to create database: {}", err);
+                        return Err(crate::errors::Error::Query(err));
+                    } else {
+                        conn = AsyncMysqlConnection::establish(database_url)
+                            .await
+                            .map_err(|error| crate::errors::Error::Connection {
+                                error,
+                                url: database_url.to_string(),
+                            })?;
+                        let mut async_wrapper: AsyncConnectionWrapper<AsyncMysqlConnection> =
+                            AsyncConnectionWrapper::from(conn);
+
+                        if let Err(err) = tokio::task::spawn_blocking(move || {
+                            if let Err(err) = async_wrapper.run_pending_migrations(MIGRATIONS) {
+                                tracing::error!("Unable to run migrations: {}", err);
+                                Err(crate::errors::Error::Migration(err))
+                            } else {
+                                tracing::info!("Running migrations");
+                                Ok(())
+                            }
+                        })
+                        .await
+                        {
+                            tracing::error!("Unable to join task: {} ", err);
+                        }
                     }
+                    return Ok(());
                 }
             }
         }
     }
-
-    Ok(())
+    return Ok(());
 }
 
 fn change_database_of_url(
