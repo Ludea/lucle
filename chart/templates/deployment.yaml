@@ -33,6 +33,9 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+          - name: volume
+            mountPath: /opt/lucle
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -40,10 +43,6 @@ spec:
             - name: grpc
               containerPort: 3000
               protocol: TCP
-          volumes:
-          - name: volume
-          persistentVolumeClaim:
-            claimName: lucle
           livenessProbe:
             httpGet:
               path: /health
@@ -55,6 +54,10 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
+      volumes:
+      - name: volume
+        persistentVolumeClaim:
+          claimName: lucle
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
