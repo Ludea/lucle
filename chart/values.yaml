@@ -45,7 +45,7 @@ ingressroute:
 persistence:
   enabled: true
   size: 500Mi
-  storageClass: ""
+  storageClass: local-path
   
 resources:
   {}
