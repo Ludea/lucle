@@ -44,6 +44,8 @@ ingressroute:
 
 persistence:
   enabled: true
+  size: 500Mi
+  storageClass: ""
   
 resources:
   {}
