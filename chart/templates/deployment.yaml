@@ -40,6 +40,10 @@ spec:
             - name: grpc
               containerPort: 3000
               protocol: TCP
+          volumes:
+          - name: volume
+          persistentVolumeClaim:
+            claimName: lucle
           livenessProbe:
             httpGet:
               path: /health
