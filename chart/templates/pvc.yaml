@@ -9,5 +9,5 @@ spec:
   resources:
     requests:
       storage: {{ .Values.persistence.size }} 
-  storageClassName: local-path  
+  storageClassName: {{ .Values.persistence.storageClass }}  
 {{end}} 
