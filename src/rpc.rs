@@ -14,7 +14,8 @@ use std::{error::Error, fs::File, io::BufReader, io::ErrorKind};
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
 use tonic::{
-    service::RoutesBuilder, transport::server::Server, Request, Response, Status, Streaming,
+    service::{AxumRouter, Routes},
+    Request, Response, Status, Streaming,
 };
 use tonic_web::GrpcWebLayer;
 use tower_http::cors::{Any, CorsLayer};
@@ -311,33 +312,21 @@ impl Lucle for LucleApi {
     }
 }
 
-pub async fn rpc_api(
-    _cert: &mut BufReader<File>,
-    _key: &mut BufReader<File>,
-    _db: DbType,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "0.0.0.0:3000".parse().unwrap();
-
+pub fn rpc_api(_cert: &mut BufReader<File>, _key: &mut BufReader<File>, _db: DbType) -> AxumRouter {
     let api = LucleApi::default();
     let api = LucleServer::new(api);
 
-    tracing::info!("gRPC server listening on {addr}");
+    let mut routes = Routes::builder();
+    routes.add_service(api);
 
     let cors_layer = CorsLayer::new()
         .allow_origin(Any)
         .allow_headers(Any)
         .expose_headers(Any);
 
-    let mut routes_builder = RoutesBuilder::default();
-    routes_builder.add_service(api);
-
-    Server::builder()
-        .accept_http1(true)
+    routes
+        .routes()
+        .into_axum_router()
         .layer(cors_layer)
         .layer(GrpcWebLayer::new())
-        .add_routes(routes_builder.routes())
-        .serve(addr)
-        .await?;
-
-    Ok(())
 }

@@ -1,5 +1,9 @@
-use axum::{routing::get, Router};
-use std::net::SocketAddr;
+use axum::{
+    handler::HandlerWithoutStateExt,
+    http::StatusCode,
+    routing::{get, get_service},
+    Router,
+};
 use tower_http::{
     services::{ServeDir, ServeFile},
     trace::TraceLayer,
@@ -9,18 +13,18 @@ async fn health_check() -> &'static str {
     "OK"
 }
 
-pub async fn serve_dir() {
-    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    let local_addr = listener.local_addr().unwrap();
-    tracing::info!("HTTP listening on {local_addr}");
+pub fn serve_dir() -> Router {
+    async fn handle_404() -> (StatusCode, &'static str) {
+        (StatusCode::NOT_FOUND, "Not found")
+    }
 
-    let serve_dir = ServeDir::new("web/dist").fallback(ServeFile::new("web/dist/index.html"));
+    let service = handle_404.into_service();
+    let serve_dir = ServeDir::new("web/dist")
+        .fallback(ServeFile::new("web/dist/index.html"))
+        .not_found_service(service);
 
-    let app = Router::new()
+    Router::new()
         .route("/health", get(health_check))
-        .fallback_service(serve_dir)
-        .layer(TraceLayer::new_for_http());
-
-    axum::serve(listener, app).await.unwrap();
+        .route("/", get_service(serve_dir))
+        .layer(TraceLayer::new_for_http())
 }
