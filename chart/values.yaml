@@ -17,6 +17,7 @@ serviceAccount:
 persistence:
   enabled: false
   size: 1Gi
+  storageClass: local-path
 
 podAnnotations: {}
 
