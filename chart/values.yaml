@@ -14,6 +14,10 @@ serviceAccount:
   annotations: {}
   name: ""
 
+persistence:
+  enabled: false
+  size: 1Gi
+
 podAnnotations: {}
 
 podSecurityContext:
