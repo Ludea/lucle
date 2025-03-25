@@ -9,5 +9,5 @@ spec:
   storageClassName: local-path
   resources:
     requests:
-      storage: 1Gi
+      storage: {{ .Values.persistence.size }}
 {{- end }}
