@@ -97,16 +97,12 @@ async fn main() {
         .with_single_cert(certs, private_key)
         .unwrap();
 
-    /*     if let Err(err) = tokio::join!(http::serve_dir()) {
-           tracing::error!("GRPC and HTTP server doesn't start: {err}");
-       }
-    */
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
-    let grpc = rpc::rpc_api(&mut cert_buf, &mut key_buf, database);
+//    let grpc = rpc::rpc_api(&mut cert_buf, &mut key_buf, database);
     let http = http::serve_dir();
-    let app = Router::new().merge(grpc).merge(http);
+    let app = http;//Router::new().merge(grpc).merge(http);
 
     tracing::info!("gRPC and http server listening on {addr}");
     axum::serve(listener, app).await.unwrap();
