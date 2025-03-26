@@ -42,7 +42,7 @@ spec:
               protocol: TCP
           volumeMounts:
           - name: volume
-            mountPath: /opt/lucle
+            mountPath: /opt
           livenessProbe:
             httpGet:
               path: /health
