@@ -41,7 +41,7 @@ spec:
               containerPort: 3000
               protocol: TCP
           volumeMounts:
-          - name: volv
+          - name: volume
             mountPath: /opt/lucle
           livenessProbe:
             httpGet:
@@ -53,11 +53,11 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
       volumes:
       - name: volume
         persistentVolumeClaim:
           claimName: lucle
+      {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
