@@ -151,7 +151,7 @@ pub fn generate_jwt(username: String, email: String) -> String {
 }
 
 pub fn get_config_key(section: &str, key: &str) -> Option<String> {
-    let config_file = "config.toml";
+    let config_file = ".config/lucle.toml";
     let content = fs::read_to_string(config_file).unwrap();
     let doc = content.parse::<DocumentMut>().unwrap();
 
@@ -163,7 +163,7 @@ pub fn get_config_key(section: &str, key: &str) -> Option<String> {
 }
 
 pub fn set_config_key(section: &str, key: &str, val: &str) {
-    let config_file = "config.toml";
+    let config_file = ".config/lucle.toml";
     let content = fs::read_to_string(config_file).unwrap();
     let mut doc = content.parse::<DocumentMut>().expect("invalid doc");
     doc[section][key] = value(val);
@@ -180,7 +180,7 @@ url = ""
 "#;
 
     let mut content = String::new();
-    match fs::File::open("config.toml") {
+    match fs::File::open(".config/lucle.toml") {
         Ok(mut file) => {
             file.read_to_string(&mut content)?;
             if let Err(err) = content.parse::<Value>() {
@@ -196,7 +196,7 @@ url = ""
                 .write(true)
                 .create(true)
                 .truncate(true)
-                .open("config.toml")?;
+                .open(".config/lucle.toml")?;
             file.write_all(default_config.as_bytes())?;
             tracing::info!("Config file created");
             Ok(())
