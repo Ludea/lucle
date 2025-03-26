@@ -40,6 +40,9 @@ spec:
             - name: grpc
               containerPort: 3000
               protocol: TCP
+          volumeMounts:
+          - name: volv
+            mountPath: /opt/lucle
           livenessProbe:
             httpGet:
               path: /health
