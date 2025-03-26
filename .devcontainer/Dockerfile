@@ -14,7 +14,9 @@ RUN npm install -g pnpm
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-RUN ls
+RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+RUN chmod 700 get_helm.sh
+RUN ./get_helm.sh
 #RUN cd /workspaces/lucle && cargo build
 #RUN cd /workspaces/lucle/web && pnpm install
 
