@@ -11,9 +11,12 @@ dist-ssr
 Cargo.lock
 web/src/gen/lucle_connect.ts
 web/src/gen/lucle_pb.ts
-.tls/
-plugins/
 *.db
 .keep
 .devcontainer/lapdev-guest-agent
 .devcontainer/install_guest_agent.sh
+
+# Application
+plugins/
+.config
+.tls/
