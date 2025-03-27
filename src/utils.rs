@@ -179,6 +179,10 @@ name = ""
 url = ""
 "#;
 
+    if let Err(err) = fs::create_dir_all(".config") {
+        tracing::error!("{}", err);
+    }
+
     let mut content = String::new();
     match fs::File::open(".config/lucle.toml") {
         Ok(mut file) => {

@@ -138,7 +138,7 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
             }
         }
     }
-    return Ok(());
+    Ok(())
 }
 
 fn change_database_of_url(
