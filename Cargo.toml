@@ -61,7 +61,7 @@ surrealdb = { version = "2.0", features = ["kv-surrealkv"] }
 
 [target.'cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))'.dependencies]
 # Database
-mysqlclient-sys = { version = "0.4", features = ["bundled"] }
+#mysqlclient-sys = { version = "0.4", features = ["bundled"] }
 #pq-sys = { version = "0.6.1", features = ["bundled"] }
 # Wasm runtime
 wasmtime = { version = "31.0.0", features = ["async"] }
