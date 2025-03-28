@@ -60,11 +60,10 @@ libsqlite3-sys = { version = "0.30", features = ["bundled"] }
 surrealdb = { version = "2.0", features = ["kv-surrealkv"] }
 
 [target.'cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))'.dependencies]
+# Database
 mysqlclient-sys = { version = "0.4", features = ["bundled"] }
 #pq-sys = { version = "0.6.1", features = ["bundled"] }
-
 # Wasm runtime
-[target.'cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))'.dependencies]
 wasmtime = { version = "31.0.0", features = ["async"] }
 wasmtime-wasi = "31.0.0"
 
