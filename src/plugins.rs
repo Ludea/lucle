@@ -1,4 +1,4 @@
-/* use std::{fs, path::Path};
+use std::{fs, path::Path};
 use wasmtime::component::{Component, Linker, ResourceTable};
 use wasmtime::*;
 use wasmtime_wasi::bindings::Command;
@@ -23,7 +23,7 @@ impl WasiView for ComponentRunStates {
 pub async fn load_wasm_runtime() -> Result<()> {
     let mut config = Config::new();
     config.async_support(true);
-    let engine = Engine::default(&config)?;
+    let engine = Engine::new(&config)?;
     let mut linker = Linker::new(&engine);
     wasmtime_wasi::add_to_linker_sync(&mut linker)?;
 
@@ -35,25 +35,20 @@ pub async fn load_wasm_runtime() -> Result<()> {
     let mut store = Store::new(&engine, state);
 
     let plugins_path = Path::new("plugins");
-    for entry in fs::read_dir(plugins_path).unwrap() {
-        let entry = entry.unwrap();
-        let file_path = entry.path();
-        if file_path.is_file() {
-            if let Some(extension) = file_path.clone().extension() {
-                if extension == "wasm" {
-                    if let Some(filename) = file_path
-                        .clone()
-                        .file_name()
-                        .and_then(|f| Some(f.to_str()?.to_string()))
-                    {
-                        let component = Component::from_file(&engine, filename)?;
+    if plugins_path.is_dir() {
+        for entry in fs::read_dir(plugins_path).unwrap() {
+            let entry = entry.unwrap();
+            let file_path = entry.path();
+            if file_path.is_file() {
+                if let Some(extension) = file_path.clone().extension() {
+                    if extension == "wasm" {
+                        let component = Component::from_file(&engine, "wasm.wasm")?;
                         let command =
                             Command::instantiate_async(&mut store, &component, &linker).await?;
                         let program_result = command.wasi_cli_run().call_run(&mut store).await?;
-                        match program_result {
-                            Ok(()) => Ok(()),
-                            Err(()) => std::process::exit(1),
-                        };
+                        if let Err(err) = program_result {
+                            tracing::error!("{:?}", err);
+                        }
                     }
                 }
             }
@@ -61,4 +56,3 @@ pub async fn load_wasm_runtime() -> Result<()> {
     }
     Ok(())
 }
- */

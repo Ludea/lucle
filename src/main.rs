@@ -10,6 +10,7 @@ mod diesel;
 mod errors;
 mod http;
 pub mod models;
+#[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
 mod plugins;
 mod query_helper;
 mod rpc;
@@ -43,6 +44,11 @@ async fn main() {
     if let Err(err) = utils::create_config_file() {
         tracing::error!("{}", err);
     }
+
+    if let Err(err) = plugins::load_wasm_runtime().await {
+        tracing::error!("{}", err);
+    }
+
     let mut database: DbType = DbType::NoDatabase;
     if let Some(db) = utils::get_config_key("database", "name") {
         database = match db.as_str() {
