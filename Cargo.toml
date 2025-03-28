@@ -64,18 +64,6 @@ surrealdb = { version = "2.0", features = ["kv-surrealkv"] }
 #pq-sys = { version = "0.6.1", features = ["bundled"] }
 #mysql_async = { version = "0.34", default-features = false, features = ["default-rustls"]}
 
-# Mail server 
-#[target.'cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))'.dependencies]
-#common = { git = "https://github.com/stalwartlabs/mail-server"}
-#smtp = { git = "https://github.com/stalwartlabs/mail-server" }
-#store = { git = "https://github.com/stalwartlabs/mail-server", features = ["sqlite", "mysql", "postgres"]}
-#imap = { git = "https://github.com/stalwartlabs/mail-server"}
-#managesieve = { git = "https://github.com/stalwartlabs/mail-server" }
-#utils = { git = "https://github.com/stalwartlabs/mail-server"}
-#directory = { git = "https://github.com/stalwartlabs/mail-server"}
-#jmap = { git = "https://github.com/stalwartlabs/mail-server"}
-#pop3 = { git = "https://github.com/stalwartlabs/mail-server"}
-
 # Wasm runtime
 #[target.'cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))'.dependencies]
 wasmtime = { version = "31.0.0", features = ["async"] }
