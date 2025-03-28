@@ -12,7 +12,7 @@ diffy = "0.4.0"
 prost = "0.13"
 tokio = { version = "1.27", features = ["full"] }
 tokio-rustls = { version = "0.26.0", default-features = false, features = ["logging", "tls12", "ring"] }
-tonic = { git = "https://github.com/hyperium/tonic" }
+tonic = "0.13"
 tonic-web = { git = "https://github.com/MarkusTieger/tonic", features = ["axum"] }
 tokio-stream = "0.1"
 heck = "0.5.0"
@@ -59,17 +59,17 @@ diesel-derive-enum = { version = "2.1.0", features = ["mysql"] }
 libsqlite3-sys = { version = "0.30", features = ["bundled"] } 
 surrealdb = { version = "2.0", features = ["kv-surrealkv"] }
 
-#[target.'cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))'.dependencies]
-#mysqlclient-sys = { version = "0.4", features = ["bundled"] }
+[target.'cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))'.dependencies]
+mysqlclient-sys = { version = "0.4", features = ["bundled"] }
 #pq-sys = { version = "0.6.1", features = ["bundled"] }
 #mysql_async = { version = "0.34", default-features = false, features = ["default-rustls"]}
 
 # Wasm runtime
-#[target.'cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))'.dependencies]
+[target.'cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))'.dependencies]
 wasmtime = { version = "31.0.0", features = ["async"] }
 wasmtime-wasi = "31.0.0"
 
 [build-dependencies]
-tonic-build = { git = "https://github.com/hyperium/tonic", features = ["prost"] } 
+tonic-build = { version = "0.13", features = ["prost"] } 
 prost-build = "0.13"
 protox = "0.7.1"
