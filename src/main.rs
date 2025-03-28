@@ -45,6 +45,7 @@ async fn main() {
         tracing::error!("{}", err);
     }
 
+    #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
     if let Err(err) = plugins::load_wasm_runtime().await {
         tracing::error!("{}", err);
     }
