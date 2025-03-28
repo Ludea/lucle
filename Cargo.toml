@@ -51,7 +51,7 @@ serde_json = "1.0.133"
 mime_guess = "2.0.5"
 
 # Database
-diesel = { version = "2.2.2", features = ["chrono", "serde_json"] }
+diesel = { version = "2.2", features = ["chrono", "serde_json"] }
 diesel_migrations = "2.2.0"
 diesel-async = { version = "0.5", features = ["async-connection-wrapper", "mysql", "postgres", "sqlite", "deadpool"]}
 #mysql_async = { version = "0.34", default-features = false, features = ["default-rustls"]}
