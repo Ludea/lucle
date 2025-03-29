@@ -174,9 +174,16 @@ pub fn set_config_key(section: &str, key: &str, val: &str) {
 
 pub fn create_config_file() -> std::result::Result<(), std::io::Error> {
     let default_config = r#"
+######################################
+#####				#####
+#####	   Lucle Settings	#####
+#####				#####
+#####################################
 [database]
-name = ""
+type = ""
 url = ""
+port = ""
+name = ""
 "#;
 
     if let Err(err) = fs::create_dir_all(".config") {
@@ -202,7 +209,6 @@ url = ""
                 .truncate(true)
                 .open(".config/lucle.toml")?;
             file.write_all(default_config.as_bytes())?;
-            tracing::info!("Config file created");
             Ok(())
         }
         Err(err) => Err(io::Error::other(err.to_string())),

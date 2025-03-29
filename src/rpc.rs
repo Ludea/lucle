@@ -70,7 +70,7 @@ impl Lucle for LucleApi {
                 }
             }
             Ok(DatabaseType::Mysql) => {
-                utils::set_config_key("database", "name", "mysql");
+                utils::set_config_key("database", "type", "mysql");
                 if let Some(db_connection) = inner.db_connection {
                     let db_url = &("mysql://".to_owned()
                         + &db_connection.username
@@ -82,7 +82,10 @@ impl Lucle for LucleApi {
                         + &db_connection.port.to_string()
                         + "/"
                         + &db_name);
-                    utils::set_config_key("database", "url", db_url);
+                    utils::set_config_key("database", "url", &db_connection.hostname);
+                    utils::set_config_key("database", "port", &db_connection.port.to_string());
+                    utils::set_config_key("database", "name", &db_name);
+
                     if let Err(err) = diesel::create_database(db_url).await {
                         tracing::error!("Unable to create database : {}", err);
                         return Err(Status::internal(err.to_string()));
@@ -327,6 +330,6 @@ pub fn rpc_api(_cert: &mut BufReader<File>, _key: &mut BufReader<File>, _db: DbT
     routes
         .routes()
         .into_axum_router()
-        .layer(cors_layer)
         .layer(GrpcWebLayer::new())
+        .layer(cors_layer)
 }

@@ -51,11 +51,13 @@ async fn main() {
     }
 
     let mut database: DbType = DbType::NoDatabase;
-    if let Some(db) = utils::get_config_key("database", "name") {
+    if let Some(db) = utils::get_config_key("database", "type") {
         database = match db.as_str() {
             "mysql" => {
                 let url = utils::get_config_key("database", "url").unwrap();
-                diesel::set_pool(&url);
+                let port = utils::get_config_key("database", "port").unwrap();
+                let name = utils::get_config_key("database", "name").unwrap();
+                diesel::set_pool(&(format!("mysql://{}:{}/{}", url, port, name)));
                 if let Some(pool) = diesel::get_pool() {
                     DbType::Mysql(pool)
                 } else {
@@ -104,13 +106,24 @@ async fn main() {
         .with_single_cert(certs, private_key)
         .unwrap();
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    let http_addr = SocketAddr::from(([0, 0, 0, 0], 8080));
+    let http_listener = tokio::net::TcpListener::bind(http_addr).await.unwrap();
+    let grpc_addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    let grpc_listener = tokio::net::TcpListener::bind(grpc_addr).await.unwrap();
 
     let grpc = rpc::rpc_api(&mut cert_buf, &mut key_buf, database);
     let http = http::serve_dir();
-    let app = Router::new().merge(grpc).merge(http);
+    //let app = Router::new().merge(grpc).merge(http);
 
-    tracing::info!("gRPC and http server listening on {addr}");
-    axum::serve(listener, app).await.unwrap();
+    tracing::info!("gRPC listening on {grpc_addr}");
+    tracing::info!("http listening on {http_addr}");
+
+    if let Err(err) = tokio::join!(
+        axum::serve(grpc_listener, grpc),
+        axum::serve(http_listener, http),
+    )
+    .0
+    {
+        tracing::error!("GRPC and HTTP server doesn't start: {err}");
+    }
 }
