@@ -1,5 +1,5 @@
 import Icon from "@mui/material/Icon";
-import Speedupdate from "views/Speedupdate";
+import Speedupdate from "views/Speedupdate/Index";
 import Launcher from "views/Launcher";
 
 const adminroutes = [

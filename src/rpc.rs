@@ -14,7 +14,7 @@ use std::{error::Error, fs::File, io::BufReader, io::ErrorKind};
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
 use tonic::{
-    service::{AxumRouter, Routes},
+    service::{AxumRouter, Routes, RoutesBuilder},
     Request, Response, Status, Streaming,
 };
 use tonic_web::GrpcWebLayer;
@@ -315,11 +315,11 @@ impl Lucle for LucleApi {
     }
 }
 
-pub fn rpc_api(_cert: &mut BufReader<File>, _key: &mut BufReader<File>, _db: DbType) -> AxumRouter {
+pub fn rpc_api(_db: DbType) -> AxumRouter {
     let api = LucleApi::default();
     let api = LucleServer::new(api);
 
-    let mut routes = Routes::builder();
+    let mut routes = RoutesBuilder::default();
     routes.add_service(api);
 
     let cors_layer = CorsLayer::new()

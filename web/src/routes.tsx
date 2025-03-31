@@ -4,9 +4,9 @@ import Landing from "views/Landing";
 import Install from "layouts/Install";
 import ForgotPassword from "views/ForgotPassword";
 import AdminIndex from "views/AdminIndex";
-import Speedupdate from "views/Speedupdate";
+import Speedupdate from "views/Speedupdate/Index";
 import Login from "views/Login";
-import Launcher from "views/Launcher";
+import Launcher from "views/Speedupdate/Launcher";
 import Dashboard from "layouts/Dashboard";
 
 import { useAuth } from "context/Auth";

@@ -1,9 +1,7 @@
 use axum::Router;
 use diesel_async::{pooled_connection::deadpool::Pool, AsyncMysqlConnection};
-use rustls_pemfile::certs;
 use std::net::SocketAddr;
 use std::{fs::File, io::BufReader, path::Path, sync::Arc};
-use tokio_rustls::rustls::ServerConfig;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod diesel;
@@ -70,54 +68,17 @@ async fn main() {
         };
     }
 
-    if !Path::new(".tls/ca_cert.pem").exists()
-        || !Path::new(".tls/server_cert.pem").exists()
-        || !Path::new(".tls/server_private_key.pem").exists()
-    {
-        let pki = Arc::new(utils::Pki::new());
-
-        if let Err(err) = std::fs::create_dir_all(".tls") {
-            tracing::error!("{}", err);
-        }
-        if let Err(err) = utils::write_pem(".tls/ca_cert.pem", &pki.ca_cert.cert.pem()) {
-            tracing::error!("{}", err);
-        }
-        if let Err(err) = utils::write_pem(".tls/server_cert.pem", &pki.server_cert.cert.pem()) {
-            tracing::error!("{}", err);
-        }
-        if let Err(err) = utils::write_pem(
-            ".tls/server_private_key.pem",
-            &pki.server_cert.key_pair.serialize_pem(),
-        ) {
-            tracing::error!("{}", err);
-        }
-    }
-
-    let cert_file = File::open(".tls/server_cert.pem").unwrap();
-    let mut cert_buf = BufReader::new(cert_file);
-    let certs = certs(&mut cert_buf).map(|result| result.unwrap()).collect();
-
-    let key_file = File::open(".tls/server_private_key.pem").unwrap();
-    let mut key_buf = BufReader::new(key_file);
-    let private_key = rustls_pemfile::private_key(&mut key_buf).unwrap().unwrap();
-
-    ServerConfig::builder()
-        .with_no_client_auth()
-        .with_single_cert(certs, private_key)
-        .unwrap();
-
     let http_addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     let http_listener = tokio::net::TcpListener::bind(http_addr).await.unwrap();
     let grpc_addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     let grpc_listener = tokio::net::TcpListener::bind(grpc_addr).await.unwrap();
 
-    let grpc = rpc::rpc_api(&mut cert_buf, &mut key_buf, database);
+    let grpc = rpc::rpc_api(database);
     let http = http::serve_dir();
     //let app = Router::new().merge(grpc).merge(http);
 
     tracing::info!("gRPC listening on {grpc_addr}");
     tracing::info!("http listening on {http_addr}");
-
     if let Err(err) = tokio::join!(
         axum::serve(grpc_listener, grpc),
         axum::serve(http_listener, http),
