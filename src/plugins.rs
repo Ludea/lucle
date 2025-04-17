@@ -22,7 +22,7 @@ impl WasiView for ComponentRunStates {
 
 pub async fn load_wasm_runtime() -> Result<()> {
     let mut config = Config::new();
-    config.async_support(true);
+    config.async_support(true).wasm_component_model(true);
     let engine = Engine::new(&config)?;
     let mut linker = Linker::new(&engine);
     wasmtime_wasi::add_to_linker_sync(&mut linker)?;
@@ -42,13 +42,11 @@ pub async fn load_wasm_runtime() -> Result<()> {
             if file_path.is_file() {
                 if let Some(extension) = file_path.clone().extension() {
                     if extension == "wasm" {
-                        let component = Component::from_file(&engine, "wasm.wasm")?;
+                        let filename = entry.file_name().into_string().unwrap();
+                        let component = Component::from_file(&engine, "plugins/surreal.wasm")?;
                         let command =
                             Command::instantiate_async(&mut store, &component, &linker).await?;
-                        let program_result = command.wasi_cli_run().call_run(&mut store).await?;
-                        if let Err(err) = program_result {
-                            tracing::error!("{:?}", err);
-                        }
+
                     }
                 }
             }
