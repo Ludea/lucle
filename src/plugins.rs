@@ -1,7 +1,6 @@
 use std::{fs, path::Path};
 use wasmtime::component::{Component, Linker, ResourceTable};
 use wasmtime::*;
-use wasmtime_wasi::bindings::Command;
 use wasmtime_wasi::{IoView, WasiCtx, WasiCtxBuilder, WasiView};
 
 pub struct ComponentRunStates {
@@ -25,7 +24,7 @@ pub async fn load_wasm_runtime() -> Result<()> {
     config.async_support(true).wasm_component_model(true);
     let engine = Engine::new(&config)?;
     let mut linker = Linker::new(&engine);
-    wasmtime_wasi::add_to_linker_sync(&mut linker)?;
+    wasmtime_wasi::add_to_linker_async(&mut linker)?;
 
     let wasi = WasiCtxBuilder::new().inherit_stdio().inherit_args().build();
     let state = ComponentRunStates {
@@ -42,11 +41,13 @@ pub async fn load_wasm_runtime() -> Result<()> {
             if file_path.is_file() {
                 if let Some(extension) = file_path.clone().extension() {
                     if extension == "wasm" {
-                        let filename = entry.file_name().into_string().unwrap();
-                        let component = Component::from_file(&engine, "plugins/surreal.wasm")?;
-                        let command =
-                            Command::instantiate_async(&mut store, &component, &linker).await?;
-
+                        let component = Component::from_file(&engine, file_path)?;
+                        let instance = linker.instantiate_async(&mut store, &component).await?;
+                        let func = instance
+                            .get_func(&mut store, "start")
+                            .expect("function run not found");
+                        let mut result = []; //[wasmtime::component::Val::String("".into())];
+                        func.call_async(&mut store, &[], &mut result).await?;
                     }
                 }
             }
