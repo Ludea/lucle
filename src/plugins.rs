@@ -1,7 +1,7 @@
 use std::{fs, path::Path};
 use wasmtime::component::{Component, Linker, ResourceTable};
 use wasmtime::*;
-use wasmtime_wasi::{IoView, WasiCtx, WasiCtxBuilder, WasiView};
+use wasmtime_wasi::{IoView, WasiCtx, WasiCtxBuilder, WasiView, DirPerms, FilePerms};
 
 pub struct ComponentRunStates {
     pub wasi_ctx: WasiCtx,
@@ -26,7 +26,13 @@ pub async fn load_wasm_runtime() -> Result<()> {
     let mut linker = Linker::new(&engine);
     wasmtime_wasi::add_to_linker_async(&mut linker)?;
 
-    let wasi = WasiCtxBuilder::new().inherit_stdio().inherit_args().build();
+    let wasi = WasiCtxBuilder::new()
+        .inherit_stdio()
+        .inherit_stdout()
+        .inherit_args()
+        .preopened_dir(".", ".", DirPerms::all(), FilePerms::all())?
+        .build();
+        
     let state = ComponentRunStates {
         wasi_ctx: wasi,
         resource_table: ResourceTable::new(),
