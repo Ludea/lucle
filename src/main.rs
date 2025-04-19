@@ -13,12 +13,11 @@ mod plugins;
 mod query_helper;
 mod rpc;
 pub mod schema;
-mod surreal;
 mod utils;
 
 pub enum DbType {
     Mysql(Pool<AsyncMysqlConnection>),
-    Surrealdb(surrealdb::Result<()>),
+    Surrealdb(),
     NoDatabase,
 }
 
@@ -63,7 +62,7 @@ async fn main() {
                     DbType::NoDatabase
                 }
             }
-            "surrealdb" => DbType::Surrealdb(surreal::create_database().await),
+            "surrealdb" => DbType::Surrealdb(),
             _ => DbType::NoDatabase,
         };
     }

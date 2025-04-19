@@ -1,5 +1,4 @@
 use super::diesel;
-use super::surreal;
 use super::utils;
 use crate::DbType;
 use email_address_parser::EmailAddress;
@@ -100,10 +99,10 @@ impl Lucle for LucleApi {
                 }
             }
             Ok(DatabaseType::Surrealdb) => {
-                if let Err(err) = surreal::create_database().await {
-                    tracing::error!("Unable to create database : {}", err);
-                    return Err(Status::internal(err.to_string()));
-                }
+                tracing::error!(
+                    "Unable to create SurrealDb database, it's currently not supported"
+                );
+                return Err(Status::internal("Database not supported".to_string()));
             }
             _ => {}
         }
