@@ -1,7 +1,6 @@
 use axum::Router;
 use diesel_async::{pooled_connection::deadpool::Pool, AsyncMysqlConnection};
 use std::net::SocketAddr;
-use std::{fs::File, io::BufReader, path::Path, sync::Arc};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod diesel;
@@ -69,17 +68,17 @@ async fn main() {
 
     let http_addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     let http_listener = tokio::net::TcpListener::bind(http_addr).await.unwrap();
-    let grpc_addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-    let grpc_listener = tokio::net::TcpListener::bind(grpc_addr).await.unwrap();
+    //let grpc_addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    //let grpc_listener = tokio::net::TcpListener::bind(grpc_addr).await.unwrap();
 
-    let grpc = rpc::rpc_api(database);
+    //let grpc = rpc::rpc_api(database);
     let http = http::serve_dir();
     //let app = Router::new().merge(grpc).merge(http);
 
-    tracing::info!("gRPC listening on {grpc_addr}");
     tracing::info!("http listening on {http_addr}");
     if let Err(err) = tokio::join!(
-        axum::serve(grpc_listener, grpc),
+        // axum::serve(grpc_listener, grpc),
+        rpc::rpc_api(database),
         axum::serve(http_listener, http),
     )
     .0

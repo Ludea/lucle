@@ -134,7 +134,7 @@ pub fn write_pem(path: &str, pem: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn create_tls_config() {
+pub fn create_tls_config() -> ServerConfig {
     if !Path::new(".tls/ca_cert.pem").exists()
         || !Path::new(".tls/server_cert.pem").exists()
         || !Path::new(".tls/server_private_key.pem").exists()
@@ -169,7 +169,7 @@ pub fn create_tls_config() {
     ServerConfig::builder()
         .with_no_client_auth()
         .with_single_cert(certs, private_key)
-        .unwrap();
+        .unwrap()
 }
 
 pub fn generate_jwt(username: String, email: String) -> String {

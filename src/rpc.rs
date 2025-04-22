@@ -2,21 +2,28 @@ use super::diesel;
 use super::utils;
 use crate::DbType;
 use email_address_parser::EmailAddress;
+use hyper::server::conn::http2::Builder;
+use hyper_util::{
+    rt::{TokioExecutor, TokioIo},
+    service::TowerToHyperService,
+};
 use luclerpc::{
     lucle_server::{Lucle, LucleServer},
     Credentials, Database, DatabaseType, Empty, ListUpdateServer, Message, Platforms,
     ResetPassword, UpdateServer, User, UserCreation, Username,
 };
 use serde::{Deserialize, Serialize};
-use std::pin::Pin;
-use std::{error::Error, fs::File, io::BufReader, io::ErrorKind};
-use tokio::sync::mpsc;
+use std::{error::Error, io::ErrorKind, net::SocketAddr, pin::Pin, sync::Arc};
+use tokio::{net::TcpListener, sync::mpsc};
+use tokio_rustls::TlsAcceptor;
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
 use tonic::{
-    service::{AxumRouter, Routes, RoutesBuilder},
+    body::Body,
+    service::Routes,
     Request, Response, Status, Streaming,
 };
 use tonic_web::GrpcWebLayer;
+use tower::ServiceExt;
 use tower_http::cors::{Any, CorsLayer};
 
 pub mod luclerpc {
@@ -314,21 +321,71 @@ impl Lucle for LucleApi {
     }
 }
 
-pub fn rpc_api(_db: DbType) -> AxumRouter {
+pub async fn rpc_api(_db: DbType) -> Result<(), Box<dyn std::error::Error>> {
+    //AxumRouter {
     let api = LucleApi::default();
     let api = LucleServer::new(api);
 
-    let mut routes = RoutesBuilder::default();
-    routes.add_service(api);
+    let routes = Routes::new(api).prepare();
 
     let cors_layer = CorsLayer::new()
         .allow_origin(Any)
         .allow_headers(Any)
         .expose_headers(Any);
 
-    routes
-        .routes()
-        .into_axum_router()
-        .layer(GrpcWebLayer::new())
-        .layer(cors_layer)
+    let http = Builder::new(TokioExecutor::new());
+    let tls = utils::create_tls_config();
+    let grpc_addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    let listener = TcpListener::bind(grpc_addr).await?;
+    let tls_acceptor = TlsAcceptor::from(Arc::new(tls));
+    tracing::info!("gRPC listening on {grpc_addr}");
+
+    loop {
+        let (conn, addr) = match listener.accept().await {
+            Ok(incoming) => incoming,
+            Err(e) => {
+                tracing::error!("Error accepting connection: {}", e);
+                continue;
+            }
+        };
+
+        let http = http.clone();
+        let tls_acceptor = tls_acceptor.clone();
+        let svc = routes.clone();
+
+        tokio::spawn(async move {
+            let mut certificates = Vec::new();
+
+            let conn = tls_acceptor
+                .accept_with(conn, |info| {
+                    if let Some(certs) = info.peer_certificates() {
+                        for cert in certs {
+                            certificates.push(cert.clone());
+                        }
+                    }
+                })
+                .await
+                .unwrap();
+
+            let svc = tower::ServiceBuilder::new()
+                .service(svc)
+                .into_axum_router()
+                .layer(GrpcWebLayer::new());
+            //.layer(cors_layer);
+
+            http.serve_connection(
+                TokioIo::new(conn),
+                TowerToHyperService::new(
+                    svc.map_request(|req: http::Request<_>| req.map(Body::new)),
+                ),
+            )
+            .await
+            .unwrap();
+        });
+    }
+    /*     routes
+    .routes()
+    .into_axum_router()
+    .layer(GrpcWebLayer::new())
+    .layer(cors_layer) */
 }
