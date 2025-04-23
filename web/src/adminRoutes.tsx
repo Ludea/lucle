@@ -1,10 +1,7 @@
 import Icon from "@mui/material/Icon";
 import Speedupdate from "views/Speedupdate/Index";
 import Launcher from "views/Speedupdate/Launcher";
-<<<<<<< HEAD
-=======
 import Index from "views/AdminIndex";
->>>>>>> 99ebfc6 (wip)
 
 const adminroutes = [
   {
