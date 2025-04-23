@@ -102,7 +102,7 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
                             error,
                             url: mysql_url,
                         })?;
-                if let Err(err) = is_table_and_user_created().await {
+                if let Err(err) = is_table_created().await {
                     if let Err(err) = query_helper::create_database(&database)
                         .execute(&mut conn)
                         .await
@@ -533,7 +533,7 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
     }
 }
 
-pub async fn is_table_and_user_created() -> Result<(), Error> {
+pub async fn is_table_created() -> Result<(), Error> {
     if let Some(pool) = get_pool() {
         let mut conn = pool.get().await?;
         match users::table.count().get_result::<i64>(&mut conn).await {
@@ -550,6 +550,25 @@ pub async fn is_table_and_user_created() -> Result<(), Error> {
         Err(crate::errors::Error::GetPool)
     }
 }
+
+pub async fn is_default_user_created() -> Result<(), Error> {
+    if let Some(pool) = get_pool() {
+        let mut conn = pool.get().await?;
+        match users::table.count().get_result::<i64>(&mut conn).await {
+            Ok(user_count) => {
+                if user_count > 0 {
+                    Ok(())
+                } else {
+                    Err(crate::errors::Error::UserNotCreated)
+                }
+            }
+            Err(err) => Err(crate::errors::Error::Query(err)),
+        }
+    } else {
+        Err(crate::errors::Error::GetPool)
+    }
+}
+
 
 pub async fn reset_password(email: String) -> Result<(), Error> {
     if let Some(pool) = get_pool() {
