@@ -1,7 +1,7 @@
 use std::{fs, path::Path};
 use wasmtime::component::{Component, Linker, ResourceTable};
 use wasmtime::*;
-use wasmtime_wasi::{IoView, WasiCtx, WasiCtxBuilder, WasiView, DirPerms, FilePerms};
+use wasmtime_wasi::{DirPerms, FilePerms, IoView, WasiCtx, WasiCtxBuilder, WasiView};
 
 pub struct ComponentRunStates {
     pub wasi_ctx: WasiCtx,
@@ -32,7 +32,7 @@ pub async fn load_wasm_runtime() -> Result<()> {
         .inherit_args()
         .preopened_dir(".", ".", DirPerms::all(), FilePerms::all())?
         .build();
-        
+
     let state = ComponentRunStates {
         wasi_ctx: wasi,
         resource_table: ResourceTable::new(),

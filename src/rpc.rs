@@ -2,28 +2,20 @@ use super::diesel;
 use super::utils;
 use crate::DbType;
 use email_address_parser::EmailAddress;
-use hyper::server::conn::http2::Builder;
-use hyper_util::{
-    rt::{TokioExecutor, TokioIo},
-    service::TowerToHyperService,
-};
 use luclerpc::{
     lucle_server::{Lucle, LucleServer},
     Credentials, Database, DatabaseType, Empty, ListUpdateServer, Message, Platforms,
     ResetPassword, UpdateServer, User, UserCreation, Username,
 };
 use serde::{Deserialize, Serialize};
-use std::{error::Error, io::ErrorKind, net::SocketAddr, pin::Pin, sync::Arc};
-use tokio::{net::TcpListener, sync::mpsc};
-use tokio_rustls::TlsAcceptor;
+use std::{error::Error, io::ErrorKind, pin::Pin};
+use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
 use tonic::{
-    body::Body,
     service::{AxumRouter, RoutesBuilder},
     Request, Response, Status, Streaming,
 };
 use tonic_web::GrpcWebLayer;
-use tower::ServiceExt;
 use tower_http::cors::{Any, CorsLayer};
 
 pub mod luclerpc {
@@ -336,7 +328,7 @@ pub fn rpc_api(_db: DbType) -> AxumRouter {
     routes
         .routes()
         .into_axum_router()
-	.without_v07_checks()
+        .without_v07_checks()
         .layer(GrpcWebLayer::new())
         .layer(cors_layer)
 }

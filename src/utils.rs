@@ -4,18 +4,12 @@ use lettre::{
     message::{header, MultiPart, SinglePart},
     FileTransport, Message, Transport,
 };
-use rcgen::{DnType, KeyPair, KeyUsagePurpose};
-use rustls_pemfile::certs;
 use serde::{Deserialize, Serialize};
 use std::{
-    fs::{self, File, OpenOptions},
-    io::{self, BufReader, ErrorKind, Read, Result, Write},
-    path::Path,
-    sync::Arc,
+    fs::{self, OpenOptions},
+    io::{self, ErrorKind, Read, Write},
 };
 use tera::{Context, Tera};
-use time::{Duration, OffsetDateTime};
-use tokio_rustls::rustls::ServerConfig;
 use toml::Value;
 use toml_edit::{value, DocumentMut};
 
@@ -62,114 +56,6 @@ pub fn send_mail(from: &str, dest: &str, subject: &str, _body: &str) {
 
     // Store the message when you're ready.
     mailer.send(&email).expect("failed to deliver message");
-}
-
-pub struct Pki {
-    pub ca_cert: rcgen::CertifiedKey,
-    pub server_cert: rcgen::CertifiedKey,
-}
-
-impl Pki {
-    pub fn new() -> Self {
-        let alg = &rcgen::PKCS_ECDSA_P256_SHA256;
-        let mut ca_params = rcgen::CertificateParams::new(Vec::new()).unwrap();
-        let (yesterday, tomorrow) = validity_period();
-        ca_params
-            .distinguished_name
-            .push(DnType::OrganizationName, "Rustls Server Acceptor");
-        ca_params
-            .distinguished_name
-            .push(DnType::CommonName, "Example CA");
-        ca_params.is_ca = rcgen::IsCa::Ca(rcgen::BasicConstraints::Unconstrained);
-        ca_params.key_usages = vec![
-            KeyUsagePurpose::KeyCertSign,
-            KeyUsagePurpose::DigitalSignature,
-            KeyUsagePurpose::CrlSign,
-        ];
-        ca_params.not_before = yesterday;
-        ca_params.not_after = tomorrow;
-        let ca_key = KeyPair::generate_for(alg).unwrap();
-        let ca_cert = ca_params.self_signed(&ca_key).unwrap();
-
-        let mut server_ee_params =
-            rcgen::CertificateParams::new(vec!["localhost".to_string()]).unwrap();
-        server_ee_params.is_ca = rcgen::IsCa::NoCa;
-        let (yesterday, tomorrow) = validity_period();
-        server_ee_params
-            .distinguished_name
-            .push(DnType::CommonName, "localhost");
-        server_ee_params.use_authority_key_identifier_extension = true;
-        server_ee_params
-            .key_usages
-            .push(KeyUsagePurpose::DigitalSignature);
-        server_ee_params.not_before = yesterday;
-        server_ee_params.not_after = tomorrow;
-        let ee_key = KeyPair::generate_for(alg).unwrap();
-        let server_cert = server_ee_params
-            .signed_by(&ee_key, &ca_cert, &ca_key)
-            .unwrap();
-
-        Self {
-            ca_cert: rcgen::CertifiedKey {
-                cert: ca_cert,
-                key_pair: ca_key,
-            },
-            server_cert: rcgen::CertifiedKey {
-                cert: server_cert,
-                key_pair: ee_key,
-            },
-        }
-    }
-}
-fn validity_period() -> (OffsetDateTime, OffsetDateTime) {
-    let day = Duration::new(86400, 0);
-    let yesterday = OffsetDateTime::now_utc().checked_sub(day).unwrap();
-    let tomorrow = OffsetDateTime::now_utc().checked_add(day).unwrap();
-    (yesterday, tomorrow)
-}
-
-pub fn write_pem(path: &str, pem: &str) -> Result<()> {
-    let mut file = File::create(path)?;
-    file.write_all(pem.as_bytes())?;
-    Ok(())
-}
-
-pub fn create_tls_config() -> ServerConfig {
-    if !Path::new(".tls/ca_cert.pem").exists()
-        || !Path::new(".tls/server_cert.pem").exists()
-        || !Path::new(".tls/server_private_key.pem").exists()
-    {
-        let pki = Arc::new(self::Pki::new());
-
-        if let Err(err) = std::fs::create_dir_all(".tls") {
-            tracing::error!("{}", err);
-        }
-        if let Err(err) = write_pem(".tls/ca_cert.pem", &pki.ca_cert.cert.pem()) {
-            tracing::error!("{}", err);
-        }
-        if let Err(err) = write_pem(".tls/server_cert.pem", &pki.server_cert.cert.pem()) {
-            tracing::error!("{}", err);
-        }
-        if let Err(err) = write_pem(
-            ".tls/server_private_key.pem",
-            &pki.server_cert.key_pair.serialize_pem(),
-        ) {
-            tracing::error!("{}", err);
-        }
-    }
-
-    let cert_file = File::open(".tls/server_cert.pem").unwrap();
-    let mut cert_buf = BufReader::new(cert_file);
-    let certs = certs(&mut cert_buf).map(|result| result.unwrap()).collect();
-
-    let key_file = File::open(".tls/server_private_key.pem").unwrap();
-    let mut key_buf = BufReader::new(key_file);
-    let private_key = rustls_pemfile::private_key(&mut key_buf).unwrap().unwrap();
-
-    ServerConfig::builder()
-        .with_no_client_auth()
-        .with_single_cert(certs, private_key)
-        .unwrap()
 }
 
 pub fn generate_jwt(username: String, email: String) -> String {

@@ -66,23 +66,16 @@ async fn main() {
         };
     }
 
-    let http_addr = SocketAddr::from(([0, 0, 0, 0], 8080));
-    let http_listener = tokio::net::TcpListener::bind(http_addr).await.unwrap();
-    //let grpc_addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-    //let grpc_listener = tokio::net::TcpListener::bind(grpc_addr).await.unwrap();
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8112));
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
     let grpc = rpc::rpc_api(database);
     let http = http::serve_dir();
-    let app = Router::new().without_v07_checks().merge(grpc).merge(http);
+    let app = Router::new().merge(grpc).merge(http);
 
-    tracing::info!("http listening on {http_addr}");
-    //if let Err(err) = tokio::join!(
-    // axum::serve(grpc_listener, grpc),
-    //  rpc::rpc_api(database),
-    axum::serve(http_listener, app).await.unwrap();
-    //)
-    //.0
-    //{
-    //  tracing::error!("GRPC and HTTP server doesn't start: {err}");
-    //}
+    tracing::info!("http and gRPC server listening on {addr}");
+
+    if let Err(err) = axum::serve(listener, app).await {
+        tracing::error!("Cannot start server: {err}");
+    }
 }
