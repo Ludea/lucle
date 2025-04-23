@@ -19,7 +19,7 @@ use tokio_rustls::TlsAcceptor;
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
 use tonic::{
     body::Body,
-    service::Routes,
+    service::{AxumRouter, RoutesBuilder},
     Request, Response, Status, Streaming,
 };
 use tonic_web::GrpcWebLayer;
@@ -209,7 +209,7 @@ impl Lucle for LucleApi {
                 Ok(Response::new(reply))
             }
             Err(err) => {
-                tracing::error!("{}", err);
+                tracing::error!("o{}", err);
                 return Err(Status::internal(err.to_string()));
             }
         }
@@ -321,71 +321,22 @@ impl Lucle for LucleApi {
     }
 }
 
-pub async fn rpc_api(_db: DbType) -> Result<(), Box<dyn std::error::Error>> {
-    //AxumRouter {
+pub fn rpc_api(_db: DbType) -> AxumRouter {
     let api = LucleApi::default();
     let api = LucleServer::new(api);
 
-    let routes = Routes::new(api).prepare();
+    let mut routes = RoutesBuilder::default();
+    routes.add_service(api);
 
     let cors_layer = CorsLayer::new()
         .allow_origin(Any)
         .allow_headers(Any)
         .expose_headers(Any);
 
-    let http = Builder::new(TokioExecutor::new());
-    let tls = utils::create_tls_config();
-    let grpc_addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-    let listener = TcpListener::bind(grpc_addr).await?;
-    let tls_acceptor = TlsAcceptor::from(Arc::new(tls));
-    tracing::info!("gRPC listening on {grpc_addr}");
-
-    loop {
-        let (conn, addr) = match listener.accept().await {
-            Ok(incoming) => incoming,
-            Err(e) => {
-                tracing::error!("Error accepting connection: {}", e);
-                continue;
-            }
-        };
-
-        let http = http.clone();
-        let tls_acceptor = tls_acceptor.clone();
-        let svc = routes.clone();
-
-        tokio::spawn(async move {
-            let mut certificates = Vec::new();
-
-            let conn = tls_acceptor
-                .accept_with(conn, |info| {
-                    if let Some(certs) = info.peer_certificates() {
-                        for cert in certs {
-                            certificates.push(cert.clone());
-                        }
-                    }
-                })
-                .await
-                .unwrap();
-
-            let svc = tower::ServiceBuilder::new()
-                .service(svc)
-                .into_axum_router()
-                .layer(GrpcWebLayer::new());
-            //.layer(cors_layer);
-
-            http.serve_connection(
-                TokioIo::new(conn),
-                TowerToHyperService::new(
-                    svc.map_request(|req: http::Request<_>| req.map(Body::new)),
-                ),
-            )
-            .await
-            .unwrap();
-        });
-    }
-    /*     routes
-    .routes()
-    .into_axum_router()
-    .layer(GrpcWebLayer::new())
-    .layer(cors_layer) */
+    routes
+        .routes()
+        .into_axum_router()
+	.without_v07_checks()
+        .layer(GrpcWebLayer::new())
+        .layer(cors_layer)
 }
