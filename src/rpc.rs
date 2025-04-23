@@ -225,7 +225,7 @@ impl Lucle for LucleApi {
         _request: Request<Empty>,
     ) -> Result<Response<Empty>, Status> {
         let reply = Empty {};
-        match diesel::is_table_and_user_created().await {
+        match diesel::is_table_created().await {
             Ok(()) => Ok(Response::new(reply)),
             Err(err) => {
                 tracing::error!("{}", err);
