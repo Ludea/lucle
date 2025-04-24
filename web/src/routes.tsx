@@ -10,7 +10,6 @@ import Launcher from "views/Speedupdate/Launcher";
 import Dashboard from "layouts/Dashboard";
 
 import { useAuth } from "context/Auth";
-import { element } from "prop-types";
 
 function PrivateRoutes() {
   const user = useAuth();
@@ -32,29 +31,16 @@ function InstalledSpeedupdate({ isInstalled }: { isInstalled: boolean }) {
 const routes = (isInstalled: boolean) => [
   { path: "/", element: <Landing /> },
   {
-    path: "/*",
     element: <InstalledRoutes isInstalled={isInstalled} />,
     children: [
       { path: "login", element: <Login /> },
       { path: "forgot", element: <ForgotPassword /> },
       {
-	path: "/*",
         element: <PrivateRoutes />,
         children: [
-          {
-            path: "admin/*",
-            element: <InstalledSpeedupdate isInstalled={false} />,
-            children: [
-              {
-                element: <Dashboard />,
-                children: [
-                  { index: true, element: <Index /> },
-                  { path: "speedupdate", element: <Speedupdate /> },
-                  { path: "launcher", element: <Launcher /> },
-                ],
-              },
-            ],
-          },
+          { path: ":repo", element: <Index /> },
+          { path: ":repo/game", element: <Speedupdate /> },
+          { path: ":repo/launcher", element: <Speedupdate /> },
         ],
       },
     ],
