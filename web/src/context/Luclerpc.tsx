@@ -16,7 +16,7 @@ function LucleRPCProvider({
 }) {
   const transport = createGrpcWebTransport({
     //    baseUrl: `https://api.marlin-atlas.ts.net`,
-    baseUrl: `http://127.0.0.1:3000`,
+    baseUrl: `http://127.0.0.1:8112`,
   });
   const client = createClient(Lucle, transport);
   return <LucleRPC.Provider value={client}>{children}</LucleRPC.Provider>;

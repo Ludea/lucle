@@ -38,9 +38,14 @@ const routes = (isInstalled: boolean) => [
       {
         element: <PrivateRoutes />,
         children: [
-          { path: ":repo", element: <Index /> },
-          { path: ":repo/game", element: <Speedupdate /> },
-          { path: ":repo/launcher", element: <Speedupdate /> },
+          {
+            element: <Dashboard />,
+            children: [
+              { path: ":repo", element: <Index /> },
+              { path: ":repo/game", element: <Speedupdate /> },
+              { path: ":repo/launcher", element: <Speedupdate /> },
+            ],
+          },
         ],
       },
     ],

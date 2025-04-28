@@ -12,7 +12,7 @@ service Lucle {
   rpc delete_repo (UpdateServer) returns (Empty);
   rpc is_database_created (Empty) returns (Empty);
   rpc forgot_password (ResetPassword) returns (Empty);
-  rpc ServerStreamingEcho (stream Empty) returns (stream Message);
+  rpc get_plugins (Plugin) returns (Empty);
 }
 
 enum DatabaseType {
@@ -77,8 +77,8 @@ message ResetPassword {
   string email = 1;
 }
 
-message Message {
-  string plugin = 1;
+message Plugin {
+  string name = 1;
 }
 
 message Empty {}

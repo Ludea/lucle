@@ -9,15 +9,15 @@ const adminroutes = [
     name: "Home",
     key: "admin",
     icon: <Icon fontSize="small">dashboard</Icon>,
-    route: "admin",
+    route: ":repo",
     component: <Index />,
   },
   {
     type: "collapse",
     name: "Speedupdate",
-    key: "speedupdate",
+    key: "game",
     icon: <Icon fontSize="small">dashboard</Icon>,
-    route: "speedupdate",
+    route: ":repo/game",
     component: <Speedupdate />,
   },
   {
@@ -25,7 +25,7 @@ const adminroutes = [
     name: "Launcher",
     key: "launcher",
     icon: <Icon fontSize="small">dashboard</Icon>,
-    route: "launcher",
+    route: ":repo/launcher",
     component: <Launcher />,
   },
 ];

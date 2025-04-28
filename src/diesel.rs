@@ -569,7 +569,6 @@ pub async fn is_default_user_created() -> Result<(), Error> {
     }
 }
 
-
 pub async fn reset_password(email: String) -> Result<(), Error> {
     if let Some(pool) = get_pool() {
         let mut conn = pool.get().await?;

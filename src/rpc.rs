@@ -4,16 +4,14 @@ use crate::DbType;
 use email_address_parser::EmailAddress;
 use luclerpc::{
     lucle_server::{Lucle, LucleServer},
-    Credentials, Database, DatabaseType, Empty, ListUpdateServer, Message, Platforms,
-    ResetPassword, UpdateServer, User, UserCreation, Username,
+    Credentials, Database, DatabaseType, Empty, ListUpdateServer, Platforms, Plugin, ResetPassword,
+    UpdateServer, User, UserCreation, Username,
 };
 use serde::{Deserialize, Serialize};
-use std::{error::Error, io::ErrorKind, pin::Pin};
-use tokio::sync::mpsc;
-use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
+use std::fs::File;
 use tonic::{
     service::{AxumRouter, RoutesBuilder},
-    Request, Response, Status, Streaming,
+    Request, Response, Status,
 };
 use tonic_web::GrpcWebLayer;
 use tower_http::cors::{Any, CorsLayer};
@@ -30,26 +28,7 @@ pub enum Hosts {
     Linux,
 }
 
-type ResponseStream = Pin<Box<dyn Stream<Item = Result<Message, Status>> + Send>>;
 type StreamResult<T> = Result<Response<T>, Status>;
-
-fn match_for_io_error(err_status: &Status) -> Option<&std::io::Error> {
-    let mut err: &(dyn Error + 'static) = err_status;
-
-    loop {
-        if let Some(io_err) = err.downcast_ref::<std::io::Error>() {
-            return Some(io_err);
-        }
-
-        if let Some(h2_err) = err.downcast_ref::<h2::Error>() {
-            if let Some(io_err) = h2_err.get_io() {
-                return Some(io_err);
-            }
-        }
-
-        err = err.source()?;
-    }
-}
 
 #[derive(Default)]
 pub struct LucleApi {}
@@ -267,7 +246,22 @@ impl Lucle for LucleApi {
         Ok(Response::new(reply))
     }
 
-    type ServerStreamingEchoStream = ResponseStream;
+    async fn get_plugins(&self, request: Request<Plugin>) -> Result<Response<Empty>, Status> {
+        let name = request.into_inner().name;
+        match reqwest::get("http://127.0.0.1:8012/plugins/").await {
+            Ok(res) => {
+                if let Err(err) = File::create(format!("{}.wasm", name)) {
+                    return Err(Status::internal(err.to_string()));
+                }
+                //res.bytes()
+            }
+
+            Err(err) => Err(Status::NotFound),
+        }
+        let reply = Empty {};
+        Ok(Response::new(reply))
+    }
+    /*type ServerStreamingEchoStream = ResponseStream;
 
     async fn server_streaming_echo(
         &self,
@@ -310,7 +304,7 @@ impl Lucle for LucleApi {
         Ok(Response::new(
             Box::pin(output_stream) as Self::ServerStreamingEchoStream
         ))
-    }
+    }*/
 }
 
 pub fn rpc_api(_db: DbType) -> AxumRouter {
