@@ -8,13 +8,17 @@ use luclerpc::{
     UpdateServer, User, UserCreation, Username,
 };
 use serde::{Deserialize, Serialize};
-use std::fs::File;
+use std::{
+    fs::{self, File},
+    io::{BufReader, Cursor},
+};
 use tonic::{
     service::{AxumRouter, RoutesBuilder},
     Request, Response, Status,
 };
 use tonic_web::GrpcWebLayer;
 use tower_http::cors::{Any, CorsLayer};
+use wasmsign2::PublicKey;
 
 pub mod luclerpc {
     tonic::include_proto!("luclerpc");
@@ -27,8 +31,6 @@ pub enum Hosts {
     Macosarm64,
     Linux,
 }
-
-type StreamResult<T> = Result<Response<T>, Status>;
 
 #[derive(Default)]
 pub struct LucleApi {}
@@ -250,61 +252,31 @@ impl Lucle for LucleApi {
         let name = request.into_inner().name;
         match reqwest::get("http://127.0.0.1:8012/plugins/").await {
             Ok(res) => {
-                if let Err(err) = File::create(format!("{}.wasm", name)) {
+                let file_name = format!("{}.wasm", name);
+                if let Err(err) = File::create(&file_name) {
+                    tracing::error!("Error on saving plugins: {err}");
                     return Err(Status::internal(err.to_string()));
                 }
-                //res.bytes()
+                let bytes = res.bytes().await.unwrap();
+                if let Err(err) = fs::write(&file_name, &bytes) {
+                    tracing::error!("Error on saving plugins: {err}");
+                    return Err(Status::internal(err.to_string()));
+                }
+
+                //TODO: Remove unwrap
+                let public_key = PublicKey::from_file("pk_file").unwrap();
+                let cursor = Cursor::new(bytes);
+                let mut reader = BufReader::new(cursor);
+                if let Err(err) = public_key.verify(&mut reader, detached_signatures) {
+                    tracing::error!("Error during plugins verification: {err}");
+                }
             }
 
-            Err(err) => Err(Status::NotFound),
+            Err(err) => return Err(Status::not_found(err.to_string())),
         }
         let reply = Empty {};
         Ok(Response::new(reply))
     }
-    /*type ServerStreamingEchoStream = ResponseStream;
-
-    async fn server_streaming_echo(
-        &self,
-        req: Request<Streaming<Empty>>,
-    ) -> StreamResult<Self::ServerStreamingEchoStream> {
-        tracing::info!("client connected from {:?}", req.remote_addr().unwrap());
-
-        let message = Message {
-            plugin: "allo".to_string(),
-        };
-
-        let mut in_stream = req.into_inner();
-        let (tx, rx) = mpsc::channel(128);
-
-        tokio::spawn(async move {
-            while let Some(result) = in_stream.next().await {
-                match result {
-                    Ok(_) => tx
-                        .send(Result::<_, Status>::Ok(message.clone()))
-                        .await
-                        .expect("working rx"),
-                    Err(err) => {
-                        if let Some(io_err) = match_for_io_error(&err) {
-                            if io_err.kind() == ErrorKind::BrokenPipe {
-                                tracing::error!("client disconnected: broken pipe");
-                                break;
-                            }
-                        }
-                        match tx.send(Err(err)).await {
-                            Ok(_) => (),
-                            Err(_err) => break,
-                        }
-                    }
-                }
-            }
-            tracing::info!("stream ended");
-        });
-
-        let output_stream = ReceiverStream::new(rx);
-        Ok(Response::new(
-            Box::pin(output_stream) as Self::ServerStreamingEchoStream
-        ))
-    }*/
 }
 
 pub fn rpc_api(_db: DbType) -> AxumRouter {
