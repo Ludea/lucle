@@ -250,28 +250,37 @@ impl Lucle for LucleApi {
 
     async fn get_plugins(&self, request: Request<Plugin>) -> Result<Response<Empty>, Status> {
         let name = request.into_inner().name;
-        match reqwest::get("http://127.0.0.1:8012/plugins/").await {
+        match reqwest::get(format!("http://127.0.0.1:8012/plugins/{}", name)).await {
             Ok(res) => {
                 let file_name = format!("{}.wasm", name);
-                if let Err(err) = File::create(&file_name) {
-                    tracing::error!("Error on saving plugins: {err}");
-                    return Err(Status::internal(err.to_string()));
-                }
-                let bytes = res.bytes().await.unwrap();
-                if let Err(err) = fs::write(&file_name, &bytes) {
-                    tracing::error!("Error on saving plugins: {err}");
-                    return Err(Status::internal(err.to_string()));
-                }
-
-                //TODO: Remove unwrap
                 let public_key = PublicKey::from_file("pk_file").unwrap();
-                let cursor = Cursor::new(bytes);
-                let mut reader = BufReader::new(cursor);
-                if let Err(err) = public_key.verify(&mut reader, detached_signatures) {
-                    tracing::error!("Error during plugins verification: {err}");
+
+                match res.bytes().await {
+                    Err(err) => {
+                        tracing::error!("Error reading response: {err}");
+                        return Err(Status::internal(err.to_string()));
+                    }
+                    Ok(bytes) => {
+                        let cursor = Cursor::new(bytes.clone());
+                        let mut reader = BufReader::new(cursor);
+
+                        if let Err(err) = public_key.verify(&mut reader, None) {
+                            tracing::error!("Error during plugins verification: {err}");
+                            return Err(Status::internal(err.to_string()));
+                        }
+
+                        if let Err(err) = File::create(&file_name) {
+                            tracing::error!("Error on saving plugins: {err}");
+                            return Err(Status::internal(err.to_string()));
+                        }
+
+                        if let Err(err) = fs::write(&file_name, &bytes) {
+                            tracing::error!("Error on writing plugins data: {err}");
+                            return Err(Status::internal(err.to_string()));
+                        }
+                    }
                 }
             }
-
             Err(err) => return Err(Status::not_found(err.to_string())),
         }
         let reply = Empty {};
