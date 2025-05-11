@@ -3,9 +3,18 @@ use wasmtime::component::{Component, Linker, ResourceTable};
 use wasmtime::*;
 use wasmtime_wasi::{DirPerms, FilePerms, IoView, WasiCtx, WasiCtxBuilder, WasiView};
 
+struct HostComponent;
+
+impl host::Host for HostComponent {
+    fn log(&mut self, message: String) {
+        println!("{message}");
+    }
+}
+
 pub struct ComponentRunStates {
     pub wasi_ctx: WasiCtx,
     pub resource_table: ResourceTable,
+    host: HostComponent,
 }
 
 impl IoView for ComponentRunStates {
@@ -18,6 +27,8 @@ impl WasiView for ComponentRunStates {
         &mut self.wasi_ctx
     }
 }
+
+impl MyWorldImports for ComponentRunStates {}
 
 pub async fn load_wasm_runtime() -> Result<()> {
     let mut config = Config::new();
@@ -36,6 +47,7 @@ pub async fn load_wasm_runtime() -> Result<()> {
     let state = ComponentRunStates {
         wasi_ctx: wasi,
         resource_table: ResourceTable::new(),
+        host: HostComponent {},
     };
     let mut store = Store::new(&engine, state);
 
