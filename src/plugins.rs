@@ -1,12 +1,14 @@
 use std::{fs, path::Path};
-use wasmtime::component::{Component, Linker, ResourceTable};
+use wasmtime::component::{bindgen, Component, Linker, ResourceTable};
 use wasmtime::*;
 use wasmtime_wasi::{DirPerms, FilePerms, IoView, WasiCtx, WasiCtxBuilder, WasiView};
+
+bindgen!("lucleworld" in "wit/lucle.wit");
 
 struct HostComponent;
 
 impl host::Host for HostComponent {
-    fn log(&mut self, message: String) {
+    fn logs(&mut self, message: String) {
         println!("{message}");
     }
 }
@@ -28,8 +30,6 @@ impl WasiView for ComponentRunStates {
     }
 }
 
-impl MyWorldImports for ComponentRunStates {}
-
 pub async fn load_wasm_runtime() -> Result<()> {
     let mut config = Config::new();
     config.async_support(true).wasm_component_model(true);
@@ -50,6 +50,9 @@ pub async fn load_wasm_runtime() -> Result<()> {
         host: HostComponent {},
     };
     let mut store = Store::new(&engine, state);
+    host::add_to_linker(&mut linker, |state: &mut ComponentRunStates| {
+        &mut state.host
+    })?;
 
     let plugins_path = Path::new("plugins");
     if plugins_path.is_dir() {
