@@ -13,8 +13,6 @@ pub fn serve_dir() -> Router {
 
     Router::new()
         .route("/health", get(health_check))
-        //        .nest_service("/", serve_dir)
+        .fallback_service(serve_dir)
         .layer(TraceLayer::new_for_http())
-        .without_v07_checks()
-        .nest_service("/", serve_dir)
 }

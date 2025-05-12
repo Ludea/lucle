@@ -303,7 +303,7 @@ pub fn rpc_api(_db: DbType) -> AxumRouter {
     routes
         .routes()
         .into_axum_router()
-        .without_v07_checks()
+        .reset_fallback()
         .layer(GrpcWebLayer::new())
         .layer(cors_layer)
 }

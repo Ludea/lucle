@@ -8,11 +8,13 @@ import Speedupdate from "views/Speedupdate/Index";
 import Login from "views/Login";
 import Launcher from "views/Speedupdate/Launcher";
 import Dashboard from "layouts/Dashboard";
+import ListRepo from "views/Speedupdate/Repos";
 
 import { useAuth } from "context/Auth";
 
 function PrivateRoutes() {
   const user = useAuth();
+  console.log("user repositories: ", user.repositories);
   return user.token ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
@@ -41,9 +43,13 @@ const routes = (isInstalled: boolean) => [
           {
             element: <Dashboard />,
             children: [
+              {
+                element: <ListRepo />,
+                path: "list",
+              },
               { path: ":repo", element: <Index /> },
               { path: ":repo/game", element: <Speedupdate /> },
-              { path: ":repo/launcher", element: <Speedupdate /> },
+              { path: ":repo/launcher", element: <Launcher /> },
             ],
           },
         ],

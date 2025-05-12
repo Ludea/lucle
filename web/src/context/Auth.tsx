@@ -58,7 +58,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
             "repositories",
             JSON.stringify(Object.fromEntries(list_repo)),
           );
-          navigate("/admin/speedupdate");
+          navigate("/list");
         })
         .catch((err) => {
           reject(err);

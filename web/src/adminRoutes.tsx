@@ -2,6 +2,7 @@ import Icon from "@mui/material/Icon";
 import Speedupdate from "views/Speedupdate/Index";
 import Launcher from "views/Speedupdate/Launcher";
 import Index from "views/AdminIndex";
+import ListRepo from "views/Speedupdate/Repos";
 
 const adminroutes = [
   {
@@ -11,6 +12,14 @@ const adminroutes = [
     icon: <Icon fontSize="small">dashboard</Icon>,
     route: ":repo",
     component: <Index />,
+  },
+  {
+    type: "collapse",
+    name: "List Repo",
+    key: "repo",
+    icon: <Icon fontSize="small">dashboard</Icon>,
+    route: "list",
+    component: <ListRepo />,
   },
   {
     type: "collapse",
