@@ -77,8 +77,47 @@ export default function Install() {
 
   const isStepFailed = (step: number) => step === activeStep;
 
+  const handleClick = () => {
+    setError(null);
+    switch (activeStep) {
+      case 0:
+        {
+          createDB(client, selectedDB, dbInfos.dbName, dbInfos)
+            .then(() => {
+              setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            })
+            .catch((err) => {
+              setError(err.rawMessage);
+            });
+        }
+        break;
+      case 1:
+        if (password === confirmPassword && password) {
+          createUser(client, username, password, email, "admin").catch(
+            (err) => {
+              setError(err.rawMessage);
+            },
+          );
+          setTimeout(() => navigate("/"), 10000);
+          setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        } else {
+          setError("Password doesn't match");
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box
+      sx={{ width: "100%" }}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          handleClick();
+        }
+      }}
+    >
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => {
           const stepProps: {
@@ -136,39 +175,7 @@ export default function Install() {
             <Button
               disabled={activeStep === 2 && passwordStrengh < 3}
               onClick={() => {
-                setError(null);
-                switch (activeStep) {
-                  case 0:
-                    {
-                      createDB(client, selectedDB, dbInfos.dbName, dbInfos)
-                        .then(() => {
-                          setActiveStep((prevActiveStep) => prevActiveStep + 1);
-                        })
-                        .catch((err) => {
-                          setError(err.rawMessage);
-                        });
-                    }
-                    break;
-                  case 1:
-                    if (password === confirmPassword && password) {
-                      createUser(
-                        client,
-                        username,
-                        password,
-                        email,
-                        "admin",
-                      ).catch((err) => {
-                        setError(err.rawMessage);
-                      });
-                      setTimeout(() => navigate("/"), 10000);
-                      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-                    } else {
-                      setError("Password doesn't match");
-                    }
-                    break;
-                  default:
-                    break;
-                }
+                handleClick();
               }}
             >
               {activeStep === steps.length - 1 ? "Finish" : "Next"}

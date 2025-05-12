@@ -109,7 +109,7 @@ function ListRepo() {
       <Grid container>
         <Grid size={12}>
           <FormLabel component="legend">Platforms</FormLabel>
-          <FormGroup sx={{ width: "20%", border: "2px red solid"}}>
+          <FormGroup sx={{ width: "20%", border: "2px red solid" }}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -140,8 +140,8 @@ function ListRepo() {
               }
               label="Macos x86_64"
             />
-            </FormGroup>
-            <FormGroup sx={{ width: "20%" }}>
+          </FormGroup>
+          <FormGroup sx={{ width: "20%" }}>
             <FormControlLabel
               control={
                 <Checkbox
