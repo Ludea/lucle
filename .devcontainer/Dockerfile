@@ -8,6 +8,7 @@ RUN apt-get update && apt install -y --no-install-recommends \
     npm \
     git
 
+RUN chown mysql:root /run/mysqld
 RUN service mariadb start
 RUN npm install -g pnpm
 
