@@ -93,13 +93,14 @@ export default function Install() {
         break;
       case 1:
         if (password === confirmPassword && password) {
-          createUser(client, username, password, email, "admin").catch(
-            (err) => {
+          createUser(client, username, password, email, "admin")
+            .then(() => {
+              setTimeout(() => navigate("/"), 5000);
+              setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            })
+            .catch((err) => {
               setError(err.rawMessage);
-            },
-          );
-          setTimeout(() => navigate("/"), 10000);
-          setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            });
         } else {
           setError("Password doesn't match");
         }
@@ -140,7 +141,7 @@ export default function Install() {
         <>
           <Typography sx={{ mt: 2, mb: 1 }}>
             <p>All steps completed - you&apos;re finished</p>
-            <p>You will be redirect to home page into 10 secondes</p>
+            <p>You will be redirect to home page into 5 secondes</p>
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "roqw", pt: 2 }}>
             <Box sx={{ flex: "1 1 auto" }} />

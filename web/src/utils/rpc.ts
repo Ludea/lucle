@@ -63,17 +63,24 @@ export const createUser = async (
   user_password: string,
   user_mail: string,
   role: string,
-) => {
-  const { error } = await client.create_user({
-    // TODO: delete this var
-    database_path: "lucle.db",
-    username: login,
-    password: user_password,
-    email: user_mail,
-    role,
+) =>
+  new Promise((resolve, reject) => {
+    client
+      .create_user({
+        // TODO: delete this var
+        database_path: "lucle.db",
+        username: login,
+        password: user_password,
+        email: user_mail,
+        role,
+      })
+      .then(() => {
+        resolve();
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
-  if (error) throw error;
-};
 
 export const registerUpdateServer = async (
   client: any,

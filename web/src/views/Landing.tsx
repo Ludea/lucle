@@ -40,7 +40,12 @@ function Landing() {
         }}
       >
         <Container>
-          <Grid container item xs={12} lg={7} justifyContent="center" mx="auto">
+          <Grid
+            container
+            size={{ xs: 12, lg: 7 }}
+            justifyContent="center"
+            mx="auto"
+          >
             <Typography
               variant="h1"
               color="white"
@@ -88,7 +93,7 @@ function Landing() {
         </Container>
         <Container>
           <Grid container spacing={3}>
-            <Grid item xs={12} lg={4}>
+            <Grid size={{ xs: 12, lg: 4 }}>
               <FilledInfoCard
                 variant="gradient"
                 color="info"
@@ -103,7 +108,7 @@ function Landing() {
                 }}
               />
             </Grid>
-            <Grid item xs={12} lg={4}>
+            <Grid size={{ size: 12, lg: 4 }}>
               <FilledInfoCard
                 color="info"
                 icon="precision_manufacturing"
@@ -117,7 +122,7 @@ function Landing() {
                 }}
               />
             </Grid>
-            <Grid item xs={12} lg={4}>
+            <Grid size={{ xs: 12, lg: 4 }}>
               <FilledInfoCard
                 color="info"
                 icon="apps"
@@ -139,10 +144,7 @@ function Landing() {
           <Container>
             <Grid container spacing={3}>
               <Grid
-                item
-                xs={12}
-                lg={5}
-                ml="auto"
+                size={{ xs: 12, lg: 5, ml: "auto" }}
                 sx={{ textAlign: { xs: "center", lg: "left" } }}
               >
                 <Typography variant="h4" fontWeight="bold" mb={0.5}>
@@ -153,9 +155,7 @@ function Landing() {
                 </Typography>
               </Grid>
               <Grid
-                item
-                xs={12}
-                lg={5}
+                size={{ xs: 12, lg: 5 }}
                 my={{ xs: 5, lg: "auto" }}
                 mr={{ xs: 0, lg: "auto" }}
                 sx={{ textAlign: { xs: "center", lg: "right" } }}
