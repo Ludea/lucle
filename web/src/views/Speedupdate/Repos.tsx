@@ -26,7 +26,13 @@ const transport = createGrpcWebTransport({
 });
 const client = createClient(Repo, transport);
 
-function ListRepo() {
+function ListRepo({
+  selectedRepoName,
+  selectedRepoHosts,
+}: {
+  selectedRepoName: string;
+  selectedRepoHosts: string /*Platforms[]*/;
+}) {
   const [listRepo, setListRepo] = useState<Map<string, string[]>>(new Map());
   const [error, setError] = useState<string | null>(null);
   const [path, setPath] = useState<string>("");
@@ -77,6 +83,8 @@ function ListRepo() {
                         if (host === "linux") platformInt.push(Platforms.LINUX);
                       }
                       current.set(repo_name, platforms);
+                      selectedRepoName(current);
+                      selectedRepoHosts("platformInt");
                       //setCurrentRepo(current);
                       //setPlatformsEnum(platformInt);
                       localStorage.setItem(

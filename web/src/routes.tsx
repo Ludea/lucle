@@ -14,7 +14,6 @@ import { useAuth } from "context/Auth";
 
 function PrivateRoutes() {
   const user = useAuth();
-  console.log("user repositories: ", user.repositories);
   return user.token ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
@@ -44,7 +43,7 @@ const routes = (isInstalled: boolean) => [
             element: <Dashboard />,
             children: [
               {
-                element: <ListRepo />,
+                element: <ListRepo selectedRepoName="" selectedRepoHosts="" />,
                 path: "list",
               },
               { path: ":repo", element: <Index /> },
