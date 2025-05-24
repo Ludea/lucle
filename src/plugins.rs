@@ -1,7 +1,8 @@
 use std::{fs, path::Path};
 use wasmtime::component::{bindgen, Component, Linker, ResourceTable};
 use wasmtime::*;
-use wasmtime_wasi::p2::{DirPerms, FilePerms, IoView, WasiCtx, WasiCtxBuilder, WasiView};
+use wasmtime_wasi::{DirPerms, FilePerms},
+                    p2::{IoView, WasiCtx, WasiCtxBuilder, WasiView};
 
 bindgen!("lucleworld" in "wit/lucle.wit");
 
