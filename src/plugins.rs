@@ -36,7 +36,7 @@ pub async fn load_wasm_runtime() -> Result<()> {
     config.async_support(true).wasm_component_model(true);
     let engine = Engine::new(&config)?;
     let mut linker = Linker::new(&engine);
-    wasmtime_wasi::add_to_linker_async(&mut linker)?;
+    wasmtime_wasi::p2::add_to_linker_async(&mut linker)?;
 
     let wasi = WasiCtxBuilder::new()
         .inherit_stdio()
