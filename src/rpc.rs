@@ -182,7 +182,7 @@ impl Lucle for LucleApi {
                 Ok(Response::new(reply))
             }
             Err(err) => {
-                tracing::error!("o{}", err);
+                tracing::error!("{}", err);
                 return Err(Status::internal(err.to_string()));
             }
         }
@@ -209,7 +209,8 @@ impl Lucle for LucleApi {
         match diesel::is_table_created().await {
             Ok(()) => Ok(Response::new(reply)),
             Err(err) => {
-                tracing::error!("{}", err);
+                println!("NOKOK");
+                tracing::error!("allo : {}", err);
                 Err(Status::internal(err.to_string()))
             }
         }

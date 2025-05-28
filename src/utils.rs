@@ -84,7 +84,7 @@ pub fn get_config_key(section: &str, key: &str) -> Option<String> {
     let doc = content.parse::<DocumentMut>().unwrap();
 
     if let Some(section) = doc.get(section) {
-        section.get(key).map(|key| key.to_string())
+        section.get(key)?.as_str().map(|key| key.to_string())
     } else {
         None
     }
@@ -103,10 +103,10 @@ pub fn set_config_key(section: &str, key: &str, val: &str) {
 pub fn create_config_file() -> std::result::Result<(), std::io::Error> {
     let default_config = r#"
 ######################################
-#####				#####
-#####	   Lucle Settings	#####
-#####				#####
-#####################################
+#####				             #####
+#####	   Lucle Settings	     #####
+#####				             #####
+######################################
 [database]
 type = ""
 url = ""
