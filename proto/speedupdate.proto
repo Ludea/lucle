@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package speedupdate;
+
+service Repo {
+  rpc Init (RepositoryPath) returns (Empty);
+  rpc Is_init (RepositoryPath) returns (Empty);
+  rpc Status (RepositoryStatus) returns (stream RepoStatusOutput);
+  rpc Set_current_version (Version) returns (Empty);
+  rpc Register_version (Version) returns (Empty);
+  rpc Unregister_version (Version) returns (Empty);
+  rpc Register_package (Package) returns (Empty);
+  rpc Unregister_package (Package) returns (Empty);
+  rpc Delete_repo (RepositoryPath) returns (Empty);
+  rpc Delete_file (FileToDelete) returns (Empty);
+}
+
+enum Platforms {
+  WIN64 = 0;
+  MACOS_X86_64 = 1;
+  MACOS_ARM64 = 2;
+  LINUX = 3;
+}
+
+message RepositoryPath {
+  string path = 1;
+}
+
+message Options {
+  string build_path = 1;
+  string upload_path = 2;
+}
+
+message RepositoryStatus {
+  string path = 1;
+  repeated Platforms platforms = 2;
+  optional Options options = 3;
+}
+
+message FileToDelete {
+  string file = 1;
+}
+
+message Empty {}
+
+message Versions {
+  string revision = 1;
+  string description = 2;
+}
+
+message RepoStatus {
+  string current_version = 1;
+  repeated Versions versions = 2;
+  repeated string packages = 3;
+  repeated string available_packages = 4;
+  repeated string available_binaries = 5;
+  uint64 size = 6;
+}
+
+message RepoStatusOutput {
+  repeated RepoStatus status = 1;
+}
+
+message Version {
+  string path = 1;
+  string version = 2;
+  optional string description = 3;
+}
+
+message Package {
+  string path = 1;
+  string name = 2;
+}

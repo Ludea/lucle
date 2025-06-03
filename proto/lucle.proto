@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package luclerpc;
+
+service Lucle {
+  rpc create_db (Database) returns (Empty);
+  rpc login (Credentials) returns (User);
+  rpc create_user (UserCreation) returns (Empty);
+  rpc register_update_server (UpdateServer) returns (Empty); 
+  rpc join_update_server (UpdateServer) returns (Empty);
+  rpc list_update_server_by_user (Username) returns (ListUpdateServer);
+  rpc delete_repo (UpdateServer) returns (Empty);
+  rpc is_database_created (Empty) returns (Empty);
+  rpc forgot_password (ResetPassword) returns (Empty);
+  rpc get_plugins (Plugin) returns (Empty);
+}
+
+enum DatabaseType {
+  MYSQL = 0;
+  POSTGRESQL = 1;
+  SQLITE = 2;
+  SURREALDB = 3;
+}
+
+enum Platforms {
+  WIN64 = 0;
+  MACOS_X86_64 = 1;
+  MACOS_ARM64 = 2;
+  LINUX = 3;
+}
+
+message Database_Connection {
+  string hostname = 3;
+  string port = 4;
+  string username = 5;
+  string password = 6;
+}
+
+message Database {
+  DatabaseType db_type = 1;
+  optional string db_name = 2;
+  optional Database_Connection db_connection = 4; 
+}
+
+message UpdateServer {
+  string path = 1;
+  string username = 2;
+  repeated Platforms platforms = 3;
+}
+
+message Username {
+  string username = 1;
+}
+
+message ListUpdateServer {
+  repeated string repositories =1;
+}
+
+message Credentials {
+  string username_or_email = 1;
+  string password = 2;
+}
+
+message UserCreation {
+  string username = 1;
+  string password = 2;
+  string email = 3;
+}
+
+message User {
+  string username = 1;
+  string token = 2;
+  repeated UpdateServer repositories = 3;
+}
+
+message ResetPassword {
+  string email = 1;
+}
+
+message Plugin {
+  string name = 1;
+}
+
+message Empty {}

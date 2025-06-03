@@ -1,0 +1,22 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+
+
+# Added by cargo
+
+/target
+Cargo.lock
+web/src/gen/lucle_connect.ts
+web/src/gen/lucle_pb.ts
+*.db
+.keep
+.devcontainer/lapdev-guest-agent
+.devcontainer/install_guest_agent.sh
+
+# Application
+plugins/
+.config
+.tls/
