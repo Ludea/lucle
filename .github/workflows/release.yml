@@ -6,10 +6,68 @@ on:
       - v*.*.*
 
 jobs:
-  build-container:
-    runs-on: ubuntu-22.04
+  frontend:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: Install dependencies
+        run: cd web && pnpm install
+      - name: Build frontend (js side)
+        run: cd web && pnpm build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web
+          if-no-files-found: error
+          path: web/dist
+
+  build_aarch64:
+    runs-on: ubuntu-latest
+    container: ghcr.io/blackdex/rust-musl:aarch64-musl
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --release
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lucle-arm64
+          if-no-files-found: error
+          path: target/aarch64-unknown-linux-musl/release/lucle
+
+  build_x86_64:
+    runs-on: ubuntu-latest
+    container: ghcr.io/blackdex/rust-musl:x86_64-musl
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --release
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lucle-amd64
+          if-no-files-found: error
+          path: target/x86_64-unknown-linux-musl/release/lucle
+        
+  build-container:
+    runs-on: ubuntu-22.04
+    needs: [build_aarch64, build_x86_64, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: lucle-*
+      - uses: actions/download-artifact@v4
+        with:
+          name: web
+          path: web/dist
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -23,6 +81,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ludea/lucle:0.1.0
+          tags: ludea/lucle:${{ github.ref_name }}
           platforms: linux/amd64, linux/arm64
           target: alpine
