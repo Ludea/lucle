@@ -23,9 +23,10 @@ function Information() {
       <Container>
         <Grid
           container
-          item
-          xs={12}
-          lg={6}
+          size={{
+            xs: 12,
+            lg: 6,
+          }}
           justifyContent="center"
           sx={{ mx: "auto", textAlign: "center" }}
         >
@@ -39,7 +40,7 @@ function Information() {
           </Typography>
         </Grid>
         <Grid container spacing={3} sx={{ mt: 8 }}>
-          <Grid item xs={12} md={6} lg={4}>
+          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
             <DefaultReviewCard
               name="Nick Willever"
               date="1 day ago"
@@ -47,7 +48,7 @@ function Information() {
               rating={5}
             />
           </Grid>
-          <Grid item xs={12} md={6} lg={4}>
+          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
             <DefaultReviewCard
               color="info"
               name="Shailesh Kushwaha"
@@ -56,7 +57,7 @@ function Information() {
               rating={5}
             />
           </Grid>
-          <Grid item xs={12} md={6} lg={4}>
+          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
             <DefaultReviewCard
               name="Samuel Kamuli"
               date="3 weeks ago"
@@ -67,7 +68,7 @@ function Information() {
         </Grid>
         <Divider sx={{ my: 6 }} />
         <Grid container spacing={3} justifyContent="center">
-          <Grid item xs={6} md={4} lg={2}>
+          <Grid size={{ xs: 6, md: 4, lg: 2 }}>
             <Box
               component="img"
               src={appleLogo}
@@ -76,7 +77,7 @@ function Information() {
               opacity={0.6}
             />
           </Grid>
-          <Grid item xs={6} md={4} lg={2}>
+          <Grid size={{ xs: 6, md: 4, lg: 2 }}>
             <Box
               component="img"
               src={facebookLogo}
@@ -85,7 +86,7 @@ function Information() {
               opacity={0.6}
             />
           </Grid>
-          <Grid item xs={6} md={4} lg={2}>
+          <Grid size={{ xs: 6, md: 4, lg: 2 }}>
             <Box
               component="img"
               src={nasaLogo}
@@ -94,7 +95,7 @@ function Information() {
               opacity={0.6}
             />
           </Grid>
-          <Grid item xs={6} md={4} lg={2}>
+          <Grid size={{ xs: 6, md: 4, lg: 2 }}>
             <Box
               component="img"
               src={vodafoneLogo}
@@ -103,7 +104,7 @@ function Information() {
               opacity={0.6}
             />
           </Grid>
-          <Grid item xs={6} md={4} lg={2}>
+          <Grid size={{ xs: 6, md: 4, lg: 2 }}>
             <Box
               component="img"
               src={digitalOceanLogo}

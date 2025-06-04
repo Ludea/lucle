@@ -32,7 +32,7 @@ function BuiltByDevelopers() {
       }}
     >
       <Container>
-        <Grid container item xs={12} lg={6} sx={{ ml: { xs: 0, lg: 6 } }}>
+        <Grid container size={{ xs: 12, lg: 6 }} sx={{ ml: { xs: 0, lg: 6 } }}>
           <Typography variant="h4" color="white" fontWeight="bold">
             Built by developers
           </Typography>

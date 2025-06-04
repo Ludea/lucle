@@ -93,7 +93,7 @@ function Signin({ onSignin, error }: { onSignin: void; error: string }) {
           Sign In
         </Button>
         <Grid container>
-          <Grid item xs>
+          <Grid>
             <Link to="/forgot">Forgot password?</Link>
           </Grid>
         </Grid>

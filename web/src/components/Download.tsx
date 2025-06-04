@@ -1,18 +1,3 @@
-/*
-=========================================================
-* Material Kit 2 React - v2.1.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-kit-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 // @mui material components
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
@@ -50,9 +35,10 @@ function Download() {
         <Container sx={{ position: "relative", zIndex: 2, py: 12 }}>
           <Grid
             container
-            item
-            xs={12}
-            md={7}
+            size={{
+              xs: 12,
+              md: 7,
+            }}
             justifyContent="center"
             mx="auto"
             textAlign="center"
@@ -83,13 +69,13 @@ function Download() {
         </Container>
       </Box>
       <Container>
-        <Grid container item xs={6} mx="auto">
+        <Grid container size={{ xs: 6 }} mx="auto">
           <Box textAlign="center">
             <Typography variant="h3" mt={6} mb={3}>
               Available on these technologies
             </Typography>
             <Grid container spacing={3} justifyContent="center">
-              <Grid item xs={4} lg={2}>
+              <Grid size={{ xs: 4, lg: 2 }}>
                 <Tooltip title="Bootstrap 5 - Most popular front-end component library">
                   <Box
                     component="a"
@@ -104,7 +90,7 @@ function Download() {
                   </Box>
                 </Tooltip>
               </Grid>
-              <Grid item xs={4} lg={2}>
+              <Grid size={{ xs: 4, lg: 2 }}>
                 <Tooltip title="Comming soon">
                   <Box
                     opacity={0.5}
@@ -121,7 +107,7 @@ function Download() {
                   </Box>
                 </Tooltip>
               </Grid>
-              <Grid item xs={4} lg={2}>
+              <Grid size={{ xs: 4, lg: 2 }}>
                 <Tooltip title="Comming soon">
                   <Box
                     opacity={0.5}
@@ -138,7 +124,7 @@ function Download() {
                   </Box>
                 </Tooltip>
               </Grid>
-              <Grid item xs={4} lg={2}>
+              <Grid size={{ xs: 4, lg: 2 }}>
                 <Tooltip title="Comming soon">
                   <Box
                     opacity={0.5}
@@ -155,7 +141,7 @@ function Download() {
                   </Box>
                 </Tooltip>
               </Grid>
-              <Grid item xs={4} lg={2}>
+              <Grid size={{ xs: 4, lg: 2 }}>
                 <Tooltip title="Comming soon">
                   <Box
                     component="a"
@@ -170,7 +156,7 @@ function Download() {
                   </Box>
                 </Tooltip>
               </Grid>
-              <Grid item xs={4} lg={2}>
+              <Grid size={{ xs: 4, lg: 2 }}>
                 <Tooltip title="Comming soon">
                   <Box
                     opacity={0.5}

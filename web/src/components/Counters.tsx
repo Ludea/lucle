@@ -13,8 +13,8 @@ function Counters() {
   return (
     <Box component="section" py={3}>
       <Container>
-        <Grid container item xs={12} lg={9} sx={{ mx: "auto" }}>
-          <Grid item xs={12} md={4}>
+        <Grid container size={{ xs: 12, lg: 9 }} sx={{ mx: "auto" }}>
+          <Grid size={{ xs: 12 }} md={4}>
             <DefaultCounterCard
               count={70}
               suffix="+"
@@ -22,7 +22,7 @@ function Counters() {
               description="From buttons, to inputs, navbars, alerts or cards, you are covered"
             />
           </Grid>
-          <Grid item xs={12} md={4} display="flex">
+          <Grid size={{ xs: 12 }} md={4} display="flex">
             <Divider
               orientation="vertical"
               sx={{ display: { xs: "none", md: "block" }, mx: 0 }}
@@ -38,7 +38,7 @@ function Counters() {
               sx={{ display: { xs: "none", md: "block" }, ml: 0 }}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12 }} md={4}>
             <DefaultCounterCard
               count={4}
               title="Pages"

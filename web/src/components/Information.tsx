@@ -21,13 +21,14 @@ function Information() {
       <Container>
         <Grid
           container
-          item
-          xs={11}
+          size={{
+            xs: 11,
+          }}
           spacing={3}
           alignItems="center"
           sx={{ mx: "auto" }}
         >
-          <Grid item xs={12} lg={4} sx={{ mx: "auto" }}>
+          <Grid size={{ xs: 12, lg: 4 }} sx={{ mx: "auto" }}>
             <RotatingCard>
               <RotatingCardFront
                 image={bgFront}
@@ -53,9 +54,9 @@ function Information() {
               />
             </RotatingCard>
           </Grid>
-          <Grid item xs={12} lg={7} sx={{ ml: "auto" }}>
+          <Grid size={{ xs: 12, lg: 7 }} sx={{ ml: "auto" }}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12 }} md={6}>
                 <DefaultInfoCard
                   icon="content_copy"
                   title="Full Documentation"
@@ -63,7 +64,7 @@ function Information() {
                     everything inside our documentation."
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12 }} md={6}>
                 <DefaultInfoCard
                   icon="flip_to_front"
                   title="MUI Ready"
@@ -72,14 +73,14 @@ function Information() {
               </Grid>
             </Grid>
             <Grid container spacing={3} sx={{ mt: { xs: 0, md: 6 } }}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12 }} md={6}>
                 <DefaultInfoCard
                   icon="price_change"
                   title="Save Time & Money"
                   description="Creating your design from scratch with dedicated designers can be very expensive. Start with our Design System."
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12 }} md={6}>
                 <DefaultInfoCard
                   icon="devices"
                   title="Fully Responsive"

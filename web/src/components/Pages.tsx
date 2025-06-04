@@ -18,7 +18,7 @@ import data from "components/data/pagesData";
 
 function Pages() {
   const renderData = data.map(({ image, name, route }) => (
-    <Grid item xs={12} md={6} sx={{ mb: { xs: 3, lg: 0 } }} key={name}>
+    <Grid size={{ xs: 12, md: 6 }} sx={{ mb: { xs: 3, lg: 0 } }} key={name}>
       <Link to={route}>
         <Card image={image} name={name} display="grid" minHeight="auto" />
       </Link>
@@ -30,9 +30,10 @@ function Pages() {
       <Container>
         <Grid
           container
-          item
-          xs={12}
-          lg={6}
+          size={{
+            xs: 12,
+            lg: 6,
+          }}
           flexDirection="column"
           alignItems="center"
           sx={{ textAlign: "center", my: 6, mx: "auto", px: 0.75 }}
@@ -55,12 +56,12 @@ function Pages() {
       </Container>
       <Container sx={{ mt: { xs: 8, lg: 16 } }}>
         <Grid container spacing={3}>
-          <Grid item xs={12} lg={9} sx={{ mt: 3, px: { xs: 0, lg: 8 } }}>
+          <Grid size={{ xs: 12, lg: 9 }} sx={{ mt: 3, px: { xs: 0, lg: 8 } }}>
             <Grid container spacing={3}>
               {renderData}
             </Grid>
           </Grid>
-          <Grid item xs={12} lg={3}>
+          <Grid size={{ xs: 12, lg: 3 }}>
             <Box position="sticky" top="100px" pb={{ xs: 2, lg: 6 }}>
               <Typography variant="h3" fontWeight="bold" mb={1}>
                 Presentation Pages for Company, Landing Pages, Blogs and Support

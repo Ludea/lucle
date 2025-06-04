@@ -19,7 +19,7 @@ import data from "components/data/designBlocksData";
 function DesignBlocks() {
   const renderData = data.map(({ title, description, items }) => (
     <Grid container spacing={3} sx={{ mb: 10 }} key={title}>
-      <Grid item xs={12} lg={3}>
+      <Grid size={{ xs: 12, lg: 3 }}>
         <Box position="sticky" top="100px" pb={{ xs: 2, lg: 6 }}>
           <Typography variant="h3" fontWeight="bold" mb={1}>
             {title}
@@ -35,10 +35,10 @@ function DesignBlocks() {
           </Typography>
         </Box>
       </Grid>
-      <Grid item xs={12} lg={9}>
+      <Grid size={{ xs: 12, lg: 9 }}>
         <Grid container spacing={3}>
           {items.map(({ image, name, count, route, pro }) => (
-            <Grid item xs={12} md={4} sx={{ mb: 2 }} key={name}>
+            <Grid size={{ xs: 12 }} md={4} sx={{ mb: 2 }} key={name}>
               <Link to={pro ? "/" : route}>
                 <Card image={image} name={name} count={count} pro={pro} />
               </Link>
@@ -54,9 +54,10 @@ function DesignBlocks() {
       <Container>
         <Grid
           container
-          item
-          xs={12}
-          lg={6}
+          size={{
+            xs: 12,
+            lg: 6,
+          }}
           flexDirection="column"
           alignItems="center"
           sx={{ textAlign: "center", my: 6, mx: "auto", px: 0.75 }}
