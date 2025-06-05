@@ -5,6 +5,9 @@ on:
     tags:
       - v*.*.*
 
+permissions:
+  contents: write 
+
 jobs:
   frontend:
     runs-on: ubuntu-latest
