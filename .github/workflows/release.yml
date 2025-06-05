@@ -84,7 +84,8 @@ jobs:
       - name: Build container
         uses: docker/build-push-action@v6
         with:
+          file: Dockerfile
+          context: .
           push: true
           tags: ludea/lucle:${{ env.VERSION }}
           platforms: linux/amd64, linux/arm64
-          target: alpine
