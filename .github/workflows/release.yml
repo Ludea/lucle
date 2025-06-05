@@ -61,6 +61,10 @@ jobs:
     needs: [build_aarch64, build_x86_64, frontend]
     steps:
       - uses: actions/checkout@v4
+      - name: extract version without "v"
+        run: |
+          GITHUB_TAG="${{ github.ref_name }}"
+          VERSION="${GITHUB_TAG#v}"
       - uses: actions/download-artifact@v4
         with:
           pattern: lucle-*
@@ -81,6 +85,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ludea/lucle:${{ github.ref_name }}
+          tags: ludea/lucle:$VERSION
           platforms: linux/amd64, linux/arm64
           target: alpine
