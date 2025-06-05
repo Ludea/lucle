@@ -64,7 +64,7 @@ jobs:
       - name: extract version without "v"
         run: |
           GITHUB_TAG="${{ github.ref_name }}"
-          VERSION="${GITHUB_TAG#v}"
+          echo "VERSION=${GITHUB_TAG#v}" >> $GITHUB_ENV
       - uses: actions/download-artifact@v4
         with:
           pattern: lucle-*
@@ -85,6 +85,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ludea/lucle:$VERSION
+          tags: ludea/lucle:${{ env.VERSION }}
           platforms: linux/amd64, linux/arm64
           target: alpine
