@@ -58,5 +58,5 @@ wasmtime-wasi = "33.0.0"
 
 [build-dependencies]
 tonic-build = { version = "0.13", features = ["prost"] } 
-prost-build = "0.13"
+prost-build = "0.14"
 protox = "0.8.0"
