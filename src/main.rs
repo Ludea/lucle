@@ -20,6 +20,11 @@ pub enum DbType {
     NoDatabase,
 }
 
+#[derive(vite_rs::Embed)]
+#[dev_server_port = "5173"]
+#[root = "./web"]
+struct Assets;
+
 #[tokio::main]
 async fn main() {
     tracing_subscriber::registry()
@@ -36,6 +41,10 @@ async fn main() {
                 .with_file(false),
         )
         .init();
+
+    #[cfg(debug_assertions)]
+    let _guard = Assets::start_dev_server(true);
+    tracing::info!("Starting vitejs dev server on http://localhost:5173");
 
     if let Err(err) = utils::create_config_file() {
         tracing::error!("{}", err);
