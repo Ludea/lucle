@@ -54,7 +54,7 @@ vite-rs = "0.2.1"
 #mysqlclient-sys = { version = "0.4", features = ["bundled"] }
 #pq-sys = { version = "0.6.1", features = ["bundled"] }
 # Wasm runtime
-wasmtime = { version = "33.0.0", features = ["async"] }
+wasmtime = { version = "34.0.0", features = ["async"] }
 wasmtime-wasi = "33.0.0"
 
 [build-dependencies]
