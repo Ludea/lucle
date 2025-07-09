@@ -1,5 +1,5 @@
 use std::{fs, path::Path};
-use wasmtime::component::{bindgen, Component, Linker, ResourceTable};
+use wasmtime::component::{bindgen, Component, HasSelf, Linker, ResourceTable};
 use wasmtime::*;
 use wasmtime_wasi::{
     p2::{IoView, WasiCtx, WasiCtxBuilder, WasiView},
@@ -53,7 +53,7 @@ pub async fn load_wasm_runtime() -> Result<()> {
         host: HostComponent {},
     };
     let mut store = Store::new(&engine, state);
-    host::add_to_linker(&mut linker, |state: &mut ComponentRunStates| {
+    host::add_to_linker::<_, HasSelf<_>>(&mut linker, |state: &mut ComponentRunStates| {
         &mut state.host
     })?;
 
