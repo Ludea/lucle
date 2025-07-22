@@ -21,8 +21,7 @@ import { init, isInit } from "utils/speedupdaterpc";
 import { registerUpdateServer } from "utils/rpc";
 
 const transport = createGrpcWebTransport({
-  //  baseUrl: "https://api-repo.marlin-atlas.ts.net",
-  baseUrl: "http://127.0.0.1:8012",
+  baseUrl: "https://repo.marlin-atlas.ts.net", 
 });
 const client = createClient(Repo, transport);
 
