@@ -10,7 +10,7 @@ use std::{
     io::{self, ErrorKind, Read, Write},
 };
 use tera::{Context, Tera};
-use toml::Value;
+use toml::Table;
 use toml_edit::{value, DocumentMut};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -124,7 +124,7 @@ password = ""
     match fs::File::open(".config/lucle.toml") {
         Ok(mut file) => {
             file.read_to_string(&mut content)?;
-            if let Err(err) = content.parse::<Value>() {
+            if let Err(err) = content.parse::<Table>() {
                 tracing::error!("error on parsing file: {}", err);
                 Err(io::Error::other(err.to_string()))
             } else {
