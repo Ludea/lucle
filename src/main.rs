@@ -56,7 +56,7 @@ async fn main() {
                 let user = utils::get_config_key("database", "user").unwrap();
                 let password = utils::get_config_key("database", "password").unwrap();
                 diesel::set_pool(
-                    &(format!("mysql://{}:{}@{}:{}/{}", user, password, url, port, name)),
+                    &(format!("mysql://{user}:{password}@{url}:{port}/{name}")),
                 );
                 if let Some(pool) = diesel::get_pool() {
                     DbType::Mysql(pool)

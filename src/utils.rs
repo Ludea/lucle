@@ -26,7 +26,7 @@ pub fn send_mail(from: &str, dest: &str, subject: &str, _body: &str) {
     let tera = match Tera::new("templates") {
         Ok(t) => t,
         Err(e) => {
-            println!("Parsing error(s): {}", e);
+            println!("Parsing error(s): {e}");
             ::std::process::exit(1);
         }
     };

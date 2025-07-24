@@ -252,9 +252,9 @@ impl Lucle for LucleApi {
 
     async fn get_plugins(&self, request: Request<Plugin>) -> Result<Response<Empty>, Status> {
         let name = request.into_inner().name;
-        match reqwest::get(format!("http://127.0.0.1:8012/plugins/{}", name)).await {
+        match reqwest::get(format!("http://127.0.0.1:8012/plugins/{name}")).await {
             Ok(res) => {
-                let file_name = format!("{}.wasm", name);
+                let file_name = format!("{name}.wasm");
                 let public_key = PublicKey::from_file("pk_file").unwrap();
 
                 match res.bytes().await {
