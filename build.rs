@@ -9,11 +9,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .join("file_descriptor_set.bin");
     fs::write(&file_descriptor_path, file_descriptors.encode_to_vec()).unwrap();
 
-    let mut config = prost_build::Config::new();
-    config.protoc_arg("--experimental_allow_proto3_optional");
-    tonic_build::configure()
+    tonic_prost_build::configure()
         .skip_protoc_run()
+        .protoc_arg("--experimental_allow_proto3_optional")
         .file_descriptor_set_path(&file_descriptor_path)
-        .compile_protos_with_config(config, &["proto/lucle.proto"], &["proto"])?;
+        .compile_protos(&["proto/lucle.proto"], &["proto"])?;
     Ok(())
 }
