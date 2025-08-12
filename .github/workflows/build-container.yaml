@@ -13,7 +13,7 @@ jobs:
   frontend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: setup node
         uses: actions/setup-node@v4
         with:
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ghcr.io/blackdex/rust-musl:aarch64-musl
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build
         run: cargo build --release
       - name: Upload artifacts
@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ghcr.io/blackdex/rust-musl:x86_64-musl
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build
         run: cargo build --release
       - name: Upload artifacts
@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [build_aarch64, build_x86_64, frontend]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
         with:
           pattern: lucle-*
