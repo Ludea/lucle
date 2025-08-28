@@ -1,10 +1,7 @@
 use std::{fs, path::Path};
 use wasmtime::component::{bindgen, Component, HasSelf, Linker, ResourceTable};
 use wasmtime::*;
-use wasmtime_wasi::{
-    p2::{IoView, WasiCtx, WasiCtxBuilder, WasiView},
-    DirPerms, FilePerms,
-};
+use wasmtime_wasi::{DirPerms, FilePerms, WasiCtx, WasiCtxBuilder, WasiCtxView, WasiView};
 
 bindgen!("lucleworld" in "wit/lucle.wit");
 
@@ -22,14 +19,12 @@ pub struct ComponentRunStates {
     host: HostComponent,
 }
 
-impl IoView for ComponentRunStates {
-    fn table(&mut self) -> &mut ResourceTable {
-        &mut self.resource_table
-    }
-}
 impl WasiView for ComponentRunStates {
-    fn ctx(&mut self) -> &mut WasiCtx {
-        &mut self.wasi_ctx
+    fn ctx(&mut self) -> WasiCtxView<'_> {
+        WasiCtxView {
+            ctx: &mut self.wasi_ctx,
+            table: &mut self.resource_table,
+        }
     }
 }
 
