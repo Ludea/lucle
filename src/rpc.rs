@@ -8,10 +8,18 @@ use luclerpc::{
     UpdateServer, User, UserCreation, Username,
 };
 use serde::{Deserialize, Serialize};
+use sparus::{
+    event_server::{Event, EventServer},
+    Empty as EmptyMessage, Message,
+};
+
 use std::{
     fs::{self, File},
     io::{BufReader, Cursor},
+    pin::Pin,
 };
+use tokio::sync::mpsc;
+use tokio_stream::{wrappers::ReceiverStream, Stream};
 use tonic::{
     service::{AxumRouter, RoutesBuilder},
     Request, Response, Status,
@@ -22,6 +30,10 @@ use wasmsign2::PublicKey;
 
 pub mod luclerpc {
     tonic::include_proto!("luclerpc");
+}
+
+pub mod sparus {
+    tonic::include_proto!("sparus");
 }
 
 #[derive(Serialize, Deserialize)]
@@ -289,13 +301,34 @@ impl Lucle for LucleApi {
         Ok(Response::new(reply))
     }
 }
+type SparusResult<T> = Result<Response<T>, Status>;
+type ResponseStream = Pin<Box<dyn Stream<Item = Result<Message, Status>> + Send>>;
+
+#[derive(Default)]
+pub struct EventRoute {}
+
+#[tonic::async_trait]
+impl Event for EventRoute {
+    type SparusStream = ResponseStream;
+
+    async fn sparus(&self, req: Request<EmptyMessage>) -> SparusResult<Self::SparusStream> {
+        let (tx, rx) = mpsc::channel(128);
+
+        let output_stream = ReceiverStream::new(rx);
+        Ok(Response::new(Box::pin(output_stream) as Self::SparusStream))
+    }
+}
 
 pub fn rpc_api(_db: DbType) -> AxumRouter {
     let api = LucleApi::default();
     let api = LucleServer::new(api);
 
+    let event_route = EventRoute::default();
+    let event_route = EventServer::new(event_route);
+
     let mut routes = RoutesBuilder::default();
     routes.add_service(api);
+    routes.add_service(event_route);
 
     let cors_layer = CorsLayer::new()
         .allow_origin(Any)

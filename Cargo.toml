@@ -26,7 +26,7 @@ serde = { version = "1.0.0", features = ["derive"] }
 rcgen = "0.14.1"
 rustls-pemfile = "2.0.0"
 argon2 = { version = "0.5.2", features = ["std"] }
-lettre = { version = "0.11.1", default-features = false, features = ["smtp-transport", "pool", "hostname", "builder", "rustls-tls", "file-transport"] }
+#lettre = { version = "0.11.1", default-features = false, features = ["smtp-transport", "pool", "hostname", "builder", "rustls-tls", "file-transport"] }
 email-address-parser = "2.0.0"
 tera = "1.19.1"
 hyper-util = "0.1.1"
@@ -46,6 +46,7 @@ diesel_migrations = "2.2.0"
 diesel-async = { version = "0.6", features = ["async-connection-wrapper", "mysql", "postgres", "sqlite", "deadpool"]}
 #mysql_async = { version = "0.34", default-features = false, features = ["default-rustls"]}
 libsqlite3-sys = { version = "0.30", features = ["bundled"] } 
+tokio-async = "0.0.0"
 
 [target.'cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))'.dependencies]
 # Database
