@@ -1,5 +1,6 @@
 use super::schema::{
-    repositories, sql_types::UsersRepositoriesPermissionEnum, users, users_repositories,
+    plugins, repositories, repositories_plugins, sql_types::UsersRepositoriesPermissionEnum, users,
+    users_repositories,
 };
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
@@ -38,6 +39,15 @@ pub struct NewUser {
 #[diesel(table_name = repositories)]
 #[diesel(check_for_backend(diesel::mysql::Mysql))]
 pub struct Repository {
+    pub id: i32,
+    pub name: String,
+    pub created_at: NaiveDateTime,
+    pub platforms: String,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = repositories)]
+pub struct NewRepository {
     pub name: String,
     pub created_at: NaiveDateTime,
     pub platforms: String,
@@ -80,4 +90,28 @@ impl FromSql<UsersRepositoriesPermissionEnum, diesel::mysql::Mysql> for Permissi
             _ => Err("Unrecognized enum variant".into()),
         }
     }
+}
+
+#[derive(Insertable, Selectable, Queryable, Debug, PartialEq)]
+#[diesel(table_name = plugins)]
+#[diesel(check_for_backend(diesel::mysql::Mysql))]
+pub struct Plugins {
+    pub id: i32,
+    pub name: String,
+    pub version: f32,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = plugins)]
+pub struct NewPlugins {
+    pub name: String,
+    pub version: f32,
+}
+
+#[derive(Insertable, Selectable, Queryable, Debug, PartialEq)]
+#[diesel(table_name = repositories_plugins)]
+#[diesel(check_for_backend(diesel::mysql::Mysql))]
+pub struct RepositoriesPlugins {
+    pub repository_id: i32,
+    pub list_plugins: String,
 }

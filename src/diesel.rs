@@ -1,6 +1,6 @@
 use super::query_helper;
 use crate::errors::Error;
-use crate::models::{NewUser, Permission, Repository, User, UsersRepositories};
+use crate::models::{NewRepository, NewUser, Permission, Repository, User, UsersRepositories};
 use crate::rpc::{
     luclerpc::{Platforms, UpdateServer, User as LucleUser},
     Hosts,
@@ -248,7 +248,7 @@ pub async fn register_update_server(
             .await?;
 
         let json_platforms = serde_json::to_string(&platforms).unwrap();
-        let repo = Repository {
+        let repo = NewRepository {
             name: repository.clone(),
             created_at: now,
             platforms: json_platforms,

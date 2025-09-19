@@ -42,4 +42,19 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    plugins (id) {
+        id -> Integer,
+        name -> VarChar,
+        version -> Float,
+    }
+}
+
+diesel::table! {
+    repositories_plugins (repository_id) {
+        repository_id -> Integer,
+        list_plugins -> VarChar,
+    }
+}
+
 diesel::allow_tables_to_appear_in_same_query!(repositories, users, users_repositories,);
