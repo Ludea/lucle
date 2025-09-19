@@ -10,7 +10,7 @@ use luclerpc::{
 use serde::{Deserialize, Serialize};
 use sparus::{
     event_server::{Event, EventServer},
-    Empty as EmptyMessage, Message,
+    Empty as EmptyMessage, Message, Plugins,
 };
 
 use std::{
@@ -18,8 +18,9 @@ use std::{
     io::{BufReader, Cursor},
     pin::Pin,
 };
-use tokio::sync::mpsc;
-use tokio_stream::{wrappers::ReceiverStream, Stream};
+use tokio::sync::broadcast;
+use tokio_stream::StreamExt;
+use tokio_stream::{wrappers::BroadcastStream, Stream};
 use tonic::{
     service::{AxumRouter, RoutesBuilder},
     Request, Response, Status,
@@ -304,18 +305,41 @@ impl Lucle for LucleApi {
 type SparusResult<T> = Result<Response<T>, Status>;
 type ResponseStream = Pin<Box<dyn Stream<Item = Result<Message, Status>> + Send>>;
 
-#[derive(Default)]
-pub struct EventRoute {}
+pub struct EventRoute {
+    tx: broadcast::Sender<Message>,
+}
 
 #[tonic::async_trait]
 impl Event for EventRoute {
+    async fn send_event(&self, _req: Request<Message>) -> Result<Response<EmptyMessage>, Status> {
+        let message = Message {
+            plugin: "foo".to_string(),
+            event_type: 0,
+        };
+
+        let tx_cloned = self.tx.clone();
+
+        tokio::spawn(async move {
+            if let Err(err) = tx_cloned.send(message) {
+                println!("error : {:?}", err);
+            }
+        });
+        let response = EmptyMessage {};
+        Ok(Response::new(response))
+    }
+
     type SparusStream = ResponseStream;
 
-    async fn sparus(&self, req: Request<EmptyMessage>) -> SparusResult<Self::SparusStream> {
-        let (tx, rx) = mpsc::channel(128);
+    async fn sparus(&self, req: Request<Plugins>) -> SparusResult<Self::SparusStream> {
+        let list = req.into_inner();
+        println!("list plugin from client : {:?}", list.list_plugin);
 
-        let output_stream = ReceiverStream::new(rx);
-        Ok(Response::new(Box::pin(output_stream) as Self::SparusStream))
+        let rx = self.tx.subscribe();
+        let output_stream = BroadcastStream::new(rx).map(|res| match res {
+            Ok(out) => Ok(out),
+            Err(err) => Err(Status::internal(err.to_string())),
+        });
+        Ok(Response::new(Box::pin(output_stream)))
     }
 }
 
@@ -323,7 +347,8 @@ pub fn rpc_api(_db: DbType) -> AxumRouter {
     let api = LucleApi::default();
     let api = LucleServer::new(api);
 
-    let event_route = EventRoute::default();
+    let (tx, _rx) = broadcast::channel(128);
+    let event_route = EventRoute { tx: tx };
     let event_route = EventServer::new(event_route);
 
     let mut routes = RoutesBuilder::default();
