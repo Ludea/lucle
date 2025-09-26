@@ -13,6 +13,7 @@ use sparus::{
     Empty as EmptyMessage, Message, Plugins,
 };
 
+use std::collections::HashSet;
 use std::{
     fs::{self, File},
     io::{BufReader, Cursor},
@@ -139,6 +140,7 @@ impl Lucle for LucleApi {
         let platforms = inner.platforms;
         let path = inner.path;
         let username = inner.username;
+        let list_plugins = inner.plugins;
         let reply = Empty {};
 
         let mut db_platforms = Vec::new();
@@ -152,7 +154,14 @@ impl Lucle for LucleApi {
             }
         }
 
-        match diesel::register_update_server(username.clone(), path.clone(), db_platforms).await {
+        match diesel::register_update_server(
+            username.clone(),
+            path.clone(),
+            db_platforms,
+            list_plugins,
+        )
+        .await
+        {
             Ok(()) => {
                 tracing::info!("User {} created {} repository", username, path);
                 return Ok(Response::new(reply));
@@ -191,6 +200,7 @@ impl Lucle for LucleApi {
     ) -> Result<Response<ListUpdateServer>, Status> {
         let inner = request.into_inner();
         let username = inner.username;
+
         match diesel::list_update_server_by_user(username).await {
             Ok(list) => {
                 let reply = ListUpdateServer { repositories: list };
@@ -331,8 +341,35 @@ impl Event for EventRoute {
     type SparusStream = ResponseStream;
 
     async fn sparus(&self, req: Request<Plugins>) -> SparusResult<Self::SparusStream> {
-        let list = req.into_inner();
-        println!("list plugin from client : {:?}", list.list_plugin);
+        let inner = req.into_inner();
+        let plugin_list_from_client = inner.list_plugin;
+        let repo_name = inner.repository_name;
+
+        let plugin_name_from_client: HashSet<_> = plugin_list_from_client.keys().cloned().collect();
+
+        let registered_plugins = diesel::list_plugin_by_repository(repo_name.clone())
+            .await
+            .unwrap();
+        let registered_plugins_hashset: HashSet<_> = registered_plugins.iter().cloned().collect();
+
+        let diff: Vec<String> = registered_plugins_hashset
+            .difference(&plugin_name_from_client)
+            .cloned()
+            .collect();
+
+        for plugin in diff {
+            let message = Message {
+                plugin,
+                event_type: 2,
+            };
+
+            let tx_cloned = self.tx.clone();
+            tokio::spawn(async move {
+                if let Err(err) = tx_cloned.send(message) {
+                    println!("error : {:?}", err);
+                }
+            });
+        }
 
         let rx = self.tx.subscribe();
         let output_stream = BroadcastStream::new(rx).map(|res| match res {
@@ -348,7 +385,7 @@ pub fn rpc_api(_db: DbType) -> AxumRouter {
     let api = LucleServer::new(api);
 
     let (tx, _rx) = broadcast::channel(128);
-    let event_route = EventRoute { tx: tx };
+    let event_route = EventRoute { tx };
     let event_route = EventServer::new(event_route);
 
     let mut routes = RoutesBuilder::default();

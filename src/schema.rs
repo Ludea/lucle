@@ -14,6 +14,7 @@ diesel::table! {
         name -> Varchar,
         created_at -> Timestamp,
         platforms -> Text,
+        plugins -> Text,
     }
 }
 
@@ -46,14 +47,7 @@ diesel::table! {
     plugins (id) {
         id -> Integer,
         name -> VarChar,
-        version -> Float,
-    }
-}
-
-diesel::table! {
-    repositories_plugins (repository_id) {
-        repository_id -> Integer,
-        list_plugins -> VarChar,
+        version -> VarChar,
     }
 }
 

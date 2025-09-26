@@ -46,6 +46,7 @@ message UpdateServer {
   string path = 1;
   string username = 2;
   repeated Platforms platforms = 3;
+  repeated string plugins = 4;
 }
 
 message Username {

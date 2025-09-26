@@ -240,6 +240,7 @@ pub async fn register_update_server(
     username: String,
     repository: String,
     platforms: Vec<Hosts>,
+    list_plugin: Vec<String>,
 ) -> Result<(), Error> {
     if let Some(pool) = get_pool() {
         let mut conn = pool.get().await?;
@@ -248,10 +249,12 @@ pub async fn register_update_server(
             .await?;
 
         let json_platforms = serde_json::to_string(&platforms).unwrap();
+        let json_plugins = serde_json::to_string(&list_plugin).unwrap();
         let repo = NewRepository {
             name: repository.clone(),
             created_at: now,
             platforms: json_platforms,
+            plugins: json_plugins,
         };
 
         diesel::insert_into(repositories::table)
@@ -389,10 +392,13 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                     Ok(Some(list_repo)) => {
                         let mut user_repo: Vec<UpdateServer> = Vec::new();
                         let mut repo_platforms: Vec<i32> = Vec::new();
+                        let mut list_plugins: Vec<String> = Vec::new();
+
                         let mut new_repo = UpdateServer {
                             path: "".to_string(),
                             username: "".to_string(),
                             platforms: Vec::new(),
+                            plugins: Vec::new(),
                         };
                         for repo in list_repo {
                             match repositories::table
@@ -406,6 +412,15 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                                     for r in &repo {
                                         let parsed_platforms: Value =
                                             serde_json::from_str(&r.platforms).unwrap();
+                                        let parsed_plugins: Value =
+                                            serde_json::from_str(&r.plugins).unwrap();
+                                        if let Some(list_plug) = parsed_plugins.as_array() {
+                                            for list in list_plug {
+                                                if let Some(p) = list.as_str() {
+                                                    list_plugins.push(p.into());
+                                                }
+                                            }
+                                        }
                                         if let Some(list_platforms) = parsed_platforms.as_array() {
                                             for platform in list_platforms {
                                                 if let Some(plat) = platform.as_str() {
@@ -422,13 +437,14 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                                                     }
                                                 }
                                             }
-                                            new_repo = UpdateServer {
-                                                path: r.name.clone(),
-                                                username: val.username.clone(),
-                                                platforms: repo_platforms.clone(),
-                                            };
-                                            repo_platforms.clear();
                                         }
+                                        new_repo = UpdateServer {
+                                            path: r.name.clone(),
+                                            username: val.username.clone(),
+                                            platforms: repo_platforms.clone(),
+                                            plugins: list_plugins.clone(),
+                                        };
+                                        repo_platforms.clear();
                                     }
                                 }
                                 Ok(None) => {}
@@ -465,6 +481,7 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                             Ok(Some(list_repo)) => {
                                 let mut user_repo: Vec<UpdateServer> = Vec::new();
                                 let mut repo_platforms: Vec<i32> = Vec::new();
+                                let mut list_plugins: Vec<String> = Vec::new();
 
                                 for repo in list_repo {
                                     match repositories::table
@@ -492,6 +509,15 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                                                     }
                                                     _ => {}
                                                 }
+                                                let parsed_plugins: Value =
+                                                    serde_json::from_str(&r.plugins).unwrap();
+                                                if let Some(list_plug) = parsed_plugins.as_array() {
+                                                    for list in list_plug {
+                                                        if let Some(p) = list.as_str() {
+                                                            list_plugins.push(p.into());
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                         Ok(None) => {}
@@ -501,6 +527,7 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                                         path: repo.repository_name,
                                         username: val.username.clone(),
                                         platforms: repo_platforms.clone(),
+                                        plugins: list_plugins.clone(),
                                     };
                                     user_repo.push(new_repo);
                                 }
@@ -596,6 +623,36 @@ pub async fn reset_password(email: String) -> Result<(), Error> {
         }
     }
     Ok(())
+}
+
+pub async fn list_plugin_by_repository(repository_name: String) -> Result<Vec<String>, Error> {
+    if let Some(pool) = get_pool() {
+        let mut conn = pool.get().await?;
+        match repositories::table
+            .filter(repositories::dsl::name.eq(repository_name))
+            .select(Repository::as_select())
+            .first(&mut conn)
+            .await
+            .optional()
+        {
+            Ok(Some(repo)) => {
+                let mut plugins_list: Vec<String> = Vec::new();
+                let parsed_plugins: Value = serde_json::from_str(&repo.plugins).unwrap();
+                if let Some(list_plug) = parsed_plugins.as_array() {
+                    for list in list_plug {
+                        if let Some(p) = list.as_str() {
+                            plugins_list.push(p.into());
+                        }
+                    }
+                }
+                Ok(plugins_list)
+            }
+            Ok(None) => Ok(Vec::new()),
+            Err(err) => Err(crate::errors::Error::Query(err)),
+        }
+    } else {
+        Err(crate::errors::Error::GetPool)
+    }
 }
 
 fn login_user(
