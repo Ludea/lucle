@@ -7,12 +7,12 @@ use luclerpc::{
     Credentials, Database, DatabaseType, Empty, ListUpdateServer, Platforms, Plugin, ResetPassword,
     UpdateServer, User, UserCreation, Username,
 };
+use semver::Version;
 use serde::{Deserialize, Serialize};
 use sparus::{
     event_server::{Event, EventServer},
     Empty as EmptyMessage, Message, Plugins,
 };
-
 use std::collections::HashSet;
 use std::{
     fs::{self, File},
@@ -331,7 +331,9 @@ impl Event for EventRoute {
 
         tokio::spawn(async move {
             if let Err(err) = tx_cloned.send(message) {
-                println!("error : {:?}", err);
+                Err(Status::internal(err.to_string()))
+            } else {
+                Ok(())
             }
         });
         let response = EmptyMessage {};
@@ -357,6 +359,38 @@ impl Event for EventRoute {
             .cloned()
             .collect();
 
+        let common_plugin: Vec<String> = registered_plugins_hashset
+            .intersection(&plugin_name_from_client)
+            .cloned()
+            .collect();
+
+        match diesel::get_plugin_version(common_plugin).await {
+            Ok(registered_plugin_with_version) => {
+                for (registered_plugin, registered_version) in registered_plugin_with_version {
+                    if let Some(version_from_client) =
+                        plugin_list_from_client.get(&registered_plugin)
+                    {
+                        let registered_semver = Version::parse(&registered_version).unwrap();
+                        let semver_from_client = Version::parse(&version_from_client).unwrap();
+                        if registered_semver.gt(&semver_from_client) {
+                            let message = Message {
+                                plugin: registered_plugin,
+                                event_type: 1,
+                            };
+                            let tx_cloned = self.tx.clone();
+                            tokio::spawn(async move {
+                                if let Err(err) = tx_cloned.send(message) {
+                                    Err(Status::internal(err.to_string()))
+                                } else {
+                                    Ok(())
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+            Err(err) => return Err(Status::internal(err.to_string())),
+        }
         for plugin in diff {
             let message = Message {
                 plugin,
@@ -366,8 +400,9 @@ impl Event for EventRoute {
             let tx_cloned = self.tx.clone();
             tokio::spawn(async move {
                 if let Err(err) = tx_cloned.send(message) {
-                    println!("error : {:?}", err);
+                    return Err(Status::internal(err.to_string()));
                 }
+                Ok(())
             });
         }
 

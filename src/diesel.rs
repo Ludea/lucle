@@ -1,11 +1,13 @@
 use super::query_helper;
 use crate::errors::Error;
-use crate::models::{NewRepository, NewUser, Permission, Repository, User, UsersRepositories};
+use crate::models::{
+    NewRepository, NewUser, Permission, Plugins, Repository, User, UsersRepositories,
+};
 use crate::rpc::{
     luclerpc::{Platforms, UpdateServer, User as LucleUser},
     Hosts,
 };
-use crate::schema::{repositories, users, users_repositories};
+use crate::schema::{plugins, repositories, users, users_repositories};
 use crate::utils;
 use argon2::{
     self,
@@ -25,7 +27,10 @@ use diesel_async::{
 use diesel_async::{AsyncConnection, AsyncMysqlConnection, AsyncPgConnection, RunQueryDsl};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use serde_json::Value;
-use std::sync::{Mutex, OnceLock};
+use std::{
+    collections::HashMap,
+    sync::{Mutex, OnceLock},
+};
 use url::Url;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
@@ -648,6 +653,33 @@ pub async fn list_plugin_by_repository(repository_name: String) -> Result<Vec<St
                 Ok(plugins_list)
             }
             Ok(None) => Ok(Vec::new()),
+            Err(err) => Err(crate::errors::Error::Query(err)),
+        }
+    } else {
+        Err(crate::errors::Error::GetPool)
+    }
+}
+
+pub async fn get_plugin_version(
+    plugins_name: Vec<String>,
+) -> Result<HashMap<String, String>, Error> {
+    if let Some(pool) = get_pool() {
+        let mut conn = pool.get().await?;
+        match plugins::table
+            .filter(plugins::dsl::name.eq_any(plugins_name))
+            .select(Plugins::as_select())
+            .load(&mut conn)
+            .await
+            .optional()
+        {
+            Ok(Some(plugins)) => {
+                let plugin_with_version: HashMap<String, String> = plugins
+                    .into_iter()
+                    .map(|plug| (plug.name, plug.version))
+                    .collect();
+                Ok(plugin_with_version)
+            }
+            Ok(None) => Ok(HashMap::new()),
             Err(err) => Err(crate::errors::Error::Query(err)),
         }
     } else {
