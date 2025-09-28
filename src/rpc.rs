@@ -371,7 +371,7 @@ impl Event for EventRoute {
                         plugin_list_from_client.get(&registered_plugin)
                     {
                         let registered_semver = Version::parse(&registered_version).unwrap();
-                        let semver_from_client = Version::parse(&version_from_client).unwrap();
+                        let semver_from_client = Version::parse(version_from_client).unwrap();
                         if registered_semver.gt(&semver_from_client) {
                             let message = Message {
                                 plugin: registered_plugin,
