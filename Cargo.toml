@@ -31,7 +31,7 @@ email-address-parser = "2.0.0"
 tera = "1.19.1"
 hyper-util = "0.1.1"
 time = "0.3.30"
-jsonwebtoken = "10.0.0"
+jsonwebtoken = { version = "10.0.0", features = ["rust_crypto"] }
 base64 = "0.22.1"
 thiserror = "2.0.0"
 h2 = "0.4"
