@@ -20,11 +20,10 @@ use diesel::result;
 use diesel::select;
 use diesel::sqlite::SqliteConnection;
 use diesel_async::pooled_connection::{deadpool::Pool, AsyncDieselConnectionManager};
+use diesel_async::sync_connection_wrapper::SyncConnectionWrapper;
 use diesel_async::{
-    async_connection_wrapper::AsyncConnectionWrapper,
-    sync_connection_wrapper::SyncConnectionWrapper,
+    AsyncConnection, AsyncMigrationHarness, AsyncMysqlConnection, AsyncPgConnection, RunQueryDsl,
 };
-use diesel_async::{AsyncConnection, AsyncMysqlConnection, AsyncPgConnection, RunQueryDsl};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use serde_json::Value;
 use std::{
@@ -121,21 +120,10 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
                                 error,
                                 url: database_url.to_string(),
                             })?;
-                        let mut async_wrapper: AsyncConnectionWrapper<AsyncMysqlConnection> =
-                            AsyncConnectionWrapper::from(conn);
-
-                        if let Err(err) = tokio::task::spawn_blocking(move || {
-                            if let Err(err) = async_wrapper.run_pending_migrations(MIGRATIONS) {
-                                tracing::error!("Unable to run migrations: {}", err);
-                                Err(crate::errors::Error::Migration(err))
-                            } else {
-                                tracing::info!("Running migrations");
-                                Ok(())
-                            }
-                        })
-                        .await
-                        {
-                            tracing::error!("Unable to join task: {} ", err);
+                        let mut harness = AsyncMigrationHarness::new(conn);
+                        if let Err(err) = harness.run_pending_migrations(MIGRATIONS) {
+                            tracing::error!("Unable to run migrations: {}", err);
+                            return Err(crate::errors::Error::Migration(err));
                         }
                     }
                     return Ok(());

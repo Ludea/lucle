@@ -42,9 +42,9 @@ wasmsign2 = "0.2.6"
 semver = "1.0"
 
 # Database
-diesel = { version = "2.2", features = ["chrono", "serde_json"] }
-diesel_migrations = "2"
-diesel-async = { version = "0.6.1", features = ["async-connection-wrapper", "mysql", "postgres", "sqlite", "deadpool"]}
+diesel = { version = "2.3", features = ["chrono", "serde_json"] }
+diesel_migrations = "2.3"
+diesel-async = { version = "0.7", features = ["async-connection-wrapper", "mysql", "postgres", "sqlite", "deadpool", "migrations"]}
 #mysql_async = { version = "0.34", default-features = false, features = ["default-rustls"]}
 libsqlite3-sys = { version = "0.35", features = ["bundled"] } 
 
