@@ -27,7 +27,6 @@ use tonic::{
     Request, Response, Status,
 };
 use tonic_web::GrpcWebLayer;
-use tower_http::cors::{Any, CorsLayer};
 use wasmsign2::PublicKey;
 
 pub mod luclerpc {
@@ -430,15 +429,9 @@ pub fn rpc_api(_db: DbType) -> AxumRouter {
     routes.add_service(api);
     routes.add_service(event_route);
 
-    let cors_layer = CorsLayer::new()
-        .allow_origin(Any)
-        .allow_headers(Any)
-        .expose_headers(Any);
-
     routes
         .routes()
         .into_axum_router()
         .reset_fallback()
         .layer(GrpcWebLayer::new())
-        .layer(cors_layer)
 }

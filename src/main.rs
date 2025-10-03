@@ -1,6 +1,7 @@
 use axum::Router;
 use diesel_async::{pooled_connection::deadpool::Pool, AsyncMysqlConnection};
 use std::net::SocketAddr;
+use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod diesel;
@@ -71,9 +72,14 @@ async fn main() {
     let addr = SocketAddr::from(([0, 0, 0, 0], 8112));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
+    let cors_layer = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_headers(Any)
+        .expose_headers(Any);
+
     let grpc = rpc::rpc_api(database);
     let http = http::serve_dir();
-    let app = Router::new().merge(grpc).merge(http);
+    let app = Router::new().merge(grpc).merge(http).layer(cors_layer);
 
     tracing::info!("http and gRPC server listening on {addr}");
 
