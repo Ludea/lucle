@@ -241,8 +241,8 @@ pub async fn register_update_server(
             .get_result::<NaiveDateTime>(&mut conn)
             .await?;
 
-        let json_platforms = serde_json::to_string(&platforms).unwrap();
-        let json_plugins = serde_json::to_string(&list_plugin).unwrap();
+        let json_platforms = serde_json::to_string(&platforms)?;
+        let json_plugins = serde_json::to_string(&list_plugin)?;
         let repo = NewRepository {
             name: repository.clone(),
             created_at: now,
@@ -404,9 +404,9 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                                 Ok(Some(repo)) => {
                                     for r in &repo {
                                         let parsed_platforms: Value =
-                                            serde_json::from_str(&r.platforms).unwrap();
+                                            serde_json::from_str(&r.platforms)?;
                                         let parsed_plugins: Value =
-                                            serde_json::from_str(&r.plugins).unwrap();
+                                            serde_json::from_str(&r.plugins)?;
                                         if let Some(list_plug) = parsed_plugins.as_array() {
                                             for list in list_plug {
                                                 if let Some(p) = list.as_str() {
@@ -503,7 +503,7 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                                                     _ => {}
                                                 }
                                                 let parsed_plugins: Value =
-                                                    serde_json::from_str(&r.plugins).unwrap();
+                                                    serde_json::from_str(&r.plugins)?;
                                                 if let Some(list_plug) = parsed_plugins.as_array() {
                                                     for list in list_plug {
                                                         if let Some(p) = list.as_str() {
@@ -630,7 +630,7 @@ pub async fn list_plugin_by_repository(repository_name: String) -> Result<Vec<St
         {
             Ok(Some(repo)) => {
                 let mut plugins_list: Vec<String> = Vec::new();
-                let parsed_plugins: Value = serde_json::from_str(&repo.plugins).unwrap();
+                let parsed_plugins: Value = serde_json::from_str(&repo.plugins)?;
                 if let Some(list_plug) = parsed_plugins.as_array() {
                     for list in list_plug {
                         if let Some(p) = list.as_str() {
@@ -682,7 +682,7 @@ fn login_user(
     email: String,
     repositories: Vec<UpdateServer>,
 ) -> Result<LucleUser, Error> {
-    let parsed_hash = PasswordHash::new(&stored_password).unwrap();
+    let parsed_hash = PasswordHash::new(&stored_password)?;
     Argon2::default().verify_password(password.as_bytes(), &parsed_hash)?;
     let token = utils::generate_jwt(username.clone(), email);
     Ok(LucleUser {

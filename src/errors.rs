@@ -25,4 +25,6 @@ pub enum Error {
     Deadpool(#[from] diesel_async::pooled_connection::deadpool::PoolError),
     #[error("Failed to parse database url: {0}")]
     UrlParsing(#[from] url::ParseError),
+    #[error("Failed to parse json data")]
+    Json(#[from] serde_json::Error),
 }
