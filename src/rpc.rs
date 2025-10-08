@@ -347,8 +347,7 @@ impl Event for EventRoute {
         let repo_name = inner.repository_name;
 
         let plugin_name_from_client: HashSet<_> = plugin_list_from_client.keys().cloned().collect();
-
-        let registered_plugins = diesel::list_plugin_by_repository(repo_name.clone())
+        let registered_plugins = diesel::list_plugin_by_repository(repo_name)
             .await
             .unwrap_or_else(|err| {
                 tracing::error!("{}", err);
@@ -356,8 +355,8 @@ impl Event for EventRoute {
             });
         let registered_plugins_hashset: HashSet<_> = registered_plugins.iter().cloned().collect();
 
-        let diff: Vec<String> = registered_plugins_hashset
-            .difference(&plugin_name_from_client)
+        let diff: Vec<String> = plugin_name_from_client
+            .difference(&registered_plugins_hashset)
             .cloned()
             .collect();
 
