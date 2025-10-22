@@ -54,7 +54,7 @@ libsqlite3-sys = { version = "0.35", features = ["bundled"] }
 #mysqlclient-sys = { version = "0.4", features = ["bundled"] }
 #pq-sys = { version = "0.6.1", features = ["bundled"] }
 # Wasm runtime
-wasmtime = { version = "37.0.0", features = ["async"] }
+wasmtime = { version = "38.0.2", features = ["async"] }
 wasmtime-wasi = "38.0.1"
 
 [build-dependencies]
