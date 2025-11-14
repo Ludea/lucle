@@ -91,12 +91,10 @@ function Launcher() {
         workflow_id: "dispatch.yml",
       })
       .then((result) => {
-        console.log("15:", result.data.workflow_runs[0].status);
         while (
           //result.data.workflow_runs[0].status === "queued" ||
           result.data.workflow_runs[0].status !== "in_progress"
         ) {
-          console.log("12");
           /*          octokit.rest.actions
             .getWorkflowRun({
               owner: "Ludea",
