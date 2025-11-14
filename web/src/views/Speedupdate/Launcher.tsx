@@ -30,6 +30,7 @@ function Launcher() {
   const [updateURL, setUpdateURL] = useState<String>(
     "https://repo.marlin-atlas.ts.net",
   );
+  const [pluginsURL, setPluginsURL] = useState<String>("");
   const [disableLauncherCreation, setDisableLauncherCreation] =
     useState<boolean>(false);
 
@@ -145,6 +146,23 @@ function Launcher() {
             value={updateURL}
             onChange={(event) => {
               setUpdateURL(event.target.value);
+            }}
+          />
+        </Grid>
+        <Grid size={12}>
+          <TextField
+            margin="normal"
+            required
+            id="plugin_url"
+            label="Url of the plugins"
+            name="plugin_url"
+            autoComplete="plugin_url"
+            sx={{
+              width: "30%",
+            }}
+            value={pluginsURL}
+            onChange={(event) => {
+              setPluginsURL(event.target.value);
             }}
           />
         </Grid>
