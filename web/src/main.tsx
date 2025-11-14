@@ -7,6 +7,7 @@ import { MaterialUIControllerProvider } from "context";
 
 // Context
 import { LucleRPCProvider } from "context/Luclerpc";
+import { SparusRPCProvider } from "context/Sparus";
 
 import "regenerator-runtime";
 
@@ -17,7 +18,9 @@ root.render(
   <BrowserRouter>
     <MaterialUIControllerProvider>
       <LucleRPCProvider>
-        <App />
+        <SparusRPCProvider>
+          <App />
+        </SparusRPCProvider>
       </LucleRPCProvider>
     </MaterialUIControllerProvider>
   </BrowserRouter>,
