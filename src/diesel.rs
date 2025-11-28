@@ -600,7 +600,81 @@ pub async fn reset_password(email: String) -> Result<(), Error> {
             .optional()
         {
             Ok(Some(val)) => {
-                let token = utils::generate_jwt(val.username, val.email.clone());
+                let mut user_repo: Vec<UpdateServer> = Vec::new();
+                if let Some(list_repo) = users_repositories::table
+                    .filter(users_repositories::dsl::user_id.eq(val.id))
+                    .select(UsersRepositories::as_select())
+                    .load(&mut conn)
+                    .await
+                    .optional()?
+                {
+                    let mut repo_platforms: Vec<i32> = Vec::new();
+                    let mut list_plugins: Vec<String> = Vec::new();
+
+                    let mut new_repo = UpdateServer {
+                        path: "".to_string(),
+                        username: "".to_string(),
+                        platforms: Vec::new(),
+                        plugins: Vec::new(),
+                    };
+                    for repo in list_repo {
+                        match repositories::table
+                            .filter(repositories::dsl::name.eq(repo.repository_name.clone()))
+                            .select(Repository::as_select())
+                            .load(&mut conn)
+                            .await
+                            .optional()
+                        {
+                            Ok(Some(repo)) => {
+                                for r in &repo {
+                                    let parsed_platforms: Value =
+                                        serde_json::from_str(&r.platforms)?;
+                                    let parsed_plugins: Value = serde_json::from_str(&r.plugins)?;
+                                    if let Some(list_plug) = parsed_plugins.as_array() {
+                                        for list in list_plug {
+                                            if let Some(p) = list.as_str() {
+                                                list_plugins.push(p.into());
+                                            }
+                                        }
+                                    }
+                                    if let Some(list_platforms) = parsed_platforms.as_array() {
+                                        for platform in list_platforms {
+                                            if let Some(plat) = platform.as_str() {
+                                                match plat {
+                                                    "Win64" => {
+                                                        repo_platforms.push(Platforms::Win64.into())
+                                                    }
+                                                    "Macosx8664" => repo_platforms
+                                                        .push(Platforms::MacosX8664.into()),
+                                                    "Macosarm64" => repo_platforms
+                                                        .push(Platforms::MacosArm64.into()),
+                                                    "Linux" => {
+                                                        repo_platforms.push(Platforms::Linux.into())
+                                                    }
+                                                    _ => {}
+                                                }
+                                            }
+                                        }
+                                    }
+                                    new_repo = UpdateServer {
+                                        path: r.name.clone(),
+                                        username: val.username.clone(),
+                                        platforms: repo_platforms.clone(),
+                                        plugins: list_plugins.clone(),
+                                    };
+                                    repo_platforms.clear();
+                                }
+                            }
+                            Ok(None) => {}
+                            Err(err) => {
+                                return Err(crate::errors::Error::Query(err));
+                            }
+                        }
+                        user_repo.push(new_repo.clone());
+                    }
+                }
+
+                let token = utils::generate_jwt(val.username, val.email.clone(), user_repo);
                 if diesel::update(users::table.filter(users::dsl::email.eq(val.email.clone())))
                     .set(users::dsl::reset_token.eq(token))
                     .execute(&mut conn)
@@ -684,7 +758,7 @@ fn login_user(
 ) -> Result<LucleUser, Error> {
     let parsed_hash = PasswordHash::new(&stored_password)?;
     Argon2::default().verify_password(password.as_bytes(), &parsed_hash)?;
-    let token = utils::generate_jwt(username.clone(), email);
+    let token = utils::generate_jwt(username.clone(), email, repositories.clone());
     Ok(LucleUser {
         username,
         token,

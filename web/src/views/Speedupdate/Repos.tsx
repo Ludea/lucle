@@ -21,7 +21,8 @@ import { init, isInit } from "utils/speedupdaterpc";
 import { registerUpdateServer } from "utils/rpc";
 
 const transport = createGrpcWebTransport({
-  baseUrl: "https://repo.marlin-atlas.ts.net",
+  //  baseUrl: "https://repo.marlin-atlas.ts.net",
+  baseUrl: "http://127.0.0.1:8012",
 });
 const client = createClient(Repo, transport);
 
@@ -220,21 +221,15 @@ function ListRepo({
                   "repositories",
                   JSON.stringify(Object.fromEntries(list)),
                 );
-                isInit(client, path, hosts, "game")
-                  .then(() => {
-                    const hosts = getPlatforms();
-                    registerUpdateServer(
-                      lucleClient,
-                      auth.username,
-                      path,
-                      hosts,
-                    ).catch((err) => {
-                      setError(err.rawMessage);
-                    });
-                  })
-                  .catch((err) => {
-                    setError(err.rawMessage);
-                  });
+                const hosts_string = getPlatforms();
+                registerUpdateServer(
+                  lucleClient,
+                  auth.username,
+                  path,
+                  hosts_string,
+                ).catch((err) => {
+                  setError(err.rawMessage);
+                });
               })
               .catch((err) => {
                 setError(err.rawMessage);
