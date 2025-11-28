@@ -21,8 +21,7 @@ import { init, isInit } from "utils/speedupdaterpc";
 import { registerUpdateServer } from "utils/rpc";
 
 const transport = createGrpcWebTransport({
-  //  baseUrl: "https://repo.marlin-atlas.ts.net",
-  baseUrl: "http://127.0.0.1:8012",
+  baseUrl: "https://repo.marlin-atlas.ts.net",
 });
 const client = createClient(Repo, transport);
 
@@ -86,7 +85,7 @@ function ListRepo({
                       selectedRepoName(current);
                       selectedRepoHosts("platformInt");
                       //setCurrentRepo(current);
-                      //setPlatformsEnum(platformInt);
+                      setPlatformsEnum(platformInt);
                       localStorage.setItem(
                         "current_repo",
                         JSON.stringify({ repo_name, platforms }),

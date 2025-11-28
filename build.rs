@@ -11,10 +11,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tonic_prost_build::configure()
         .skip_protoc_run()
-        .type_attribute(
-            "UpdateServer",
-            "#[derive(serde::Serialize, serde::Deserialize)]",
-        )
         .protoc_arg("--experimental_allow_proto3_optional")
         .file_descriptor_set_path(&file_descriptor_path)
         .compile_protos(&["proto/lucle.proto", "proto/sparus.proto"], &["proto"])?;

@@ -1,10 +1,13 @@
-const token = localStorage.getItem("token");
-const headers = new Headers();
-headers.set("Authorization", `Bearer ${token}`);
+const setHeaders = (): Headers => {
+  const token = localStorage.getItem("token");
+  const headers = new Headers();
+  headers.set("Authorization", `Bearer ${token}`);
+  return headers;
+};
 
 export const init = async (client: any, path: string, platforms: any) =>
   new Promise((resolve, reject) => {
-console.log(token)
+    let headers = setHeaders();
     const subPath = Object.keys(platforms).filter(
       (key) => platforms[key] === true,
     );
@@ -45,6 +48,7 @@ export const isInit = async (
   type: string,
 ) =>
   new Promise((resolve, reject) => {
+    let headers = setHeaders();
     for (const folder of platforms) {
       client
         .is_init(
@@ -70,6 +74,7 @@ export const setCurrentVersion = async (
   type: string,
 ) =>
   new Promise((resolve, reject) => {
+    let headers = setHeaders();
     for (const folder of platforms) {
       client
         .set_current_version(
@@ -97,6 +102,7 @@ export const registerVersion = async (
   type: string,
 ) =>
   new Promise((resolve, reject) => {
+    let headers = setHeaders();
     for (const folder of platforms) {
       client
         .register_version(
@@ -124,6 +130,7 @@ export const unregisterVersion = async (
   type: string,
 ) =>
   new Promise((resolve, reject) => {
+    let headers = setHeaders();
     for (const folder of platforms) {
       client
         .unregister_version(
@@ -150,6 +157,7 @@ export const registerPackage = async (
   type: string,
 ) =>
   new Promise((resolve, reject) => {
+    let headers = setHeaders();
     for (const folder of platforms) {
       client
         .register_package(
@@ -176,6 +184,7 @@ export const unregisterPackage = async (
   type: string,
 ) =>
   new Promise((resolve, reject) => {
+    let headers = setHeaders();
     for (const folder of platforms) {
       client
         .unregister_package(
@@ -196,6 +205,7 @@ export const unregisterPackage = async (
 
 export const repoToDelete = async (client: any, path: string) => {
   new Promise((resolve, reject) => {
+    let headers = setHeaders();
     client
       .delete_repo({ path: path })
       .then(
@@ -217,6 +227,7 @@ export const fileToDelete = async (
   type: string,
 ) =>
   new Promise((resolve, reject) => {
+    let headers = setHeaders();
     for (const folder of platforms) {
       client
         .delete_file({ file: folder.concat("/", type, "/", file) })
@@ -254,6 +265,7 @@ export async function status(
 ) {
   return new ReadableStream({
     async start(controller) {
+      let headers = setHeaders();
       const call = client.status(
         {
           path: path.concat("/", type),

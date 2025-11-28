@@ -673,8 +673,11 @@ pub async fn reset_password(email: String) -> Result<(), Error> {
                         user_repo.push(new_repo.clone());
                     }
                 }
-
-                let token = utils::generate_jwt(val.username, val.email.clone(), user_repo);
+                let repo_string: Vec<String> = user_repo
+                    .into_iter()
+                    .map(|update_server| update_server.path)
+                    .collect();
+                let token = utils::generate_jwt(val.username, val.email.clone(), repo_string);
                 if diesel::update(users::table.filter(users::dsl::email.eq(val.email.clone())))
                     .set(users::dsl::reset_token.eq(token))
                     .execute(&mut conn)
@@ -758,7 +761,12 @@ fn login_user(
 ) -> Result<LucleUser, Error> {
     let parsed_hash = PasswordHash::new(&stored_password)?;
     Argon2::default().verify_password(password.as_bytes(), &parsed_hash)?;
-    let token = utils::generate_jwt(username.clone(), email, repositories.clone());
+    let repo_string: Vec<String> = repositories
+        .clone()
+        .into_iter()
+        .map(|update_server| update_server.path)
+        .collect();
+    let token = utils::generate_jwt(username.clone(), email, repo_string);
     Ok(LucleUser {
         username,
         token,

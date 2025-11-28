@@ -1,4 +1,3 @@
-use crate::rpc::luclerpc::UpdateServer;
 use base64::{engine::general_purpose, Engine as _};
 use jsonwebtoken::{encode, get_current_timestamp, Algorithm, EncodingKey};
 use lettre::{
@@ -19,7 +18,7 @@ struct Claims {
     sub: String,
     email: String,
     exp: u64,
-    scope: Vec<UpdateServer>,
+    scope: Vec<String>,
 }
 
 pub fn send_mail(from: &str, dest: &str, subject: &str, _body: &str) {
@@ -59,7 +58,7 @@ pub fn send_mail(from: &str, dest: &str, subject: &str, _body: &str) {
     mailer.send(&email).expect("failed to deliver message");
 }
 
-pub fn generate_jwt(username: String, email: String, repo: Vec<UpdateServer>) -> String {
+pub fn generate_jwt(username: String, email: String, repo: Vec<String>) -> String {
     let encoded_pkcs8 = fs::read_to_string("pkey").unwrap();
     let decoded_pkcs8 = general_purpose::STANDARD.decode(encoded_pkcs8).unwrap();
     let encoding_key = EncodingKey::from_ec_der(&decoded_pkcs8);
