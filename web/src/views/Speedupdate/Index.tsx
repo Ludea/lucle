@@ -186,10 +186,6 @@ function Speedupdate() {
       uploadPath: ".",
     };
 
-    if (auth.repositories) {
-      setListRepo(auth.repositories);
-    }
-
     if (currentRepo.size > 0) {
       const current = currentRepo.keys().next().value;
       if (!statusAlreadyStarted) {

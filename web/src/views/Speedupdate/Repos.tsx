@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import Button from "@mui/material/Button";
 import FormGroup from "@mui/material/FormGroup";
 import FormLabel from "@mui/material/FormLabel";
@@ -44,6 +44,12 @@ function ListRepo({
 
   const lucleClient = useContext(LucleRPC);
   const auth = useAuth();
+
+  useEffect(() => {
+    if (auth.repositories) {
+      setListRepo(auth.repositories);
+    }
+  });
 
   const getPlatforms = () => {
     const selectedPlatforms: Platforms[] = [];
@@ -202,16 +208,9 @@ function ListRepo({
                 );
                 let list = new Map<string, string[]>();
                 list = listRepo;
-                const current = new Map<string, string[]>();
-                current.set(path, hosts);
                 list.set(path, hosts);
-                //setCurrentRepo(current);
                 setListRepo(list);
                 //setPlatformsEnum(hostsEnum);
-                localStorage.setItem(
-                  "current_repo",
-                  JSON.stringify({ path, hosts }),
-                );
                 localStorage.setItem(
                   "platformsEnum",
                   JSON.stringify(hostsEnum),
