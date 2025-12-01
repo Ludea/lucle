@@ -239,6 +239,20 @@ impl Lucle for LucleApi {
         }
     }
 
+    async fn is_default_user_created(
+        &self,
+        _request: Request<Empty>,
+    ) -> Result<Response<Empty>, Status> {
+        let reply = Empty {};
+        match diesel::is_default_user_created().await {
+            Ok(()) => Ok(Response::new(reply)),
+            Err(err) => {
+                tracing::error!("{}", err);
+                Err(Status::internal(err.to_string()))
+            }
+        }
+    }
+
     async fn delete_repo(&self, request: Request<UpdateServer>) -> Result<Response<Empty>, Status> {
         let reply = Empty {};
         let inner = request.into_inner();

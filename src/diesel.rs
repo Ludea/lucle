@@ -60,6 +60,23 @@ impl Backend {
     }
 }
 
+pub fn set_pool(db_url: &str) {
+    let pool = AsyncDieselConnectionManager::<AsyncMysqlConnection>::new(db_url);
+    let conn = Pool::builder(pool).build().unwrap();
+    if POOL.set(Mutex::new(conn)).is_err() {
+        tracing::error!("Unable to set pool");
+    }
+}
+
+pub fn get_pool() -> Option<Pool<AsyncMysqlConnection>> {
+    if let Some(mutex) = POOL.get() {
+        let pool = mutex.lock().unwrap();
+        Some(pool.clone())
+    } else {
+        None
+    }
+}
+
 pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Error> {
     match Backend::for_url(database_url) {
         Backend::Pg => {
@@ -106,31 +123,23 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
                             error,
                             url: mysql_url,
                         })?;
-                if let Err(err) = is_table_created().await {
-                    if let Err(err) = query_helper::create_database(&database)
-                        .execute(&mut conn)
-                        .await
-                    {
-                        tracing::error!("Unable to create database: {}", err);
-                        return Err(crate::errors::Error::Query(err));
-                    } else {
-                        conn = AsyncMysqlConnection::establish(database_url)
-                            .await
-                            .map_err(|error| crate::errors::Error::Connection {
-                                error,
-                                url: database_url.to_string(),
-                            })?;
-                        let mut harness = AsyncMigrationHarness::new(conn);
-                        if let Err(err) = harness.run_pending_migrations(MIGRATIONS) {
-                            tracing::error!("Unable to run migrations: {}", err);
-                            return Err(crate::errors::Error::Migration(err));
-                        }
-                    }
-                    return Ok(());
-                } else {
-                    tracing::error!("Unable to verify table: {}", err);
+                if let Err(err) = query_helper::create_database(&database)
+                    .execute(&mut conn)
+                    .await
+                {
+                    tracing::error!("Unable to create database: {}", err);
                     return Err(crate::errors::Error::Query(err));
+                } else if let Some(pool) = get_pool() {
+                    let conn = pool.get().await?;
+                    let mut harness = AsyncMigrationHarness::new(conn);
+                    if let Err(err) = harness.run_pending_migrations(MIGRATIONS) {
+                        tracing::error!("Unable to run migrations: {}", err);
+                        return Err(crate::errors::Error::Migration(err));
+                    }
+                } else {
+                    return Err(crate::errors::Error::GetPool);
                 }
+                return Ok(());
             }
         }
     }
@@ -182,23 +191,6 @@ fn path_from_sqlite_url(database_url: &str) -> Result<std::path::PathBuf, crate:
     } else {
         // assume it's a bare path
         Ok(::std::path::PathBuf::from(database_url))
-    }
-}
-
-pub fn set_pool(db_url: &str) {
-    let pool = AsyncDieselConnectionManager::<AsyncMysqlConnection>::new(db_url);
-    let conn = Pool::builder(pool).build().unwrap();
-    if POOL.set(Mutex::new(conn)).is_err() {
-        tracing::error!("Unable to set pool");
-    }
-}
-
-pub fn get_pool() -> Option<Pool<AsyncMysqlConnection>> {
-    if let Some(mutex) = POOL.get() {
-        let pool = mutex.lock().unwrap();
-        Some(pool.clone())
-    } else {
-        None
     }
 }
 
