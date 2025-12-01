@@ -10,7 +10,7 @@ service Lucle {
   rpc join_update_server (UpdateServer) returns (Empty);
   rpc list_update_server_by_user (Username) returns (ListUpdateServer);
   rpc delete_repo (UpdateServer) returns (Empty);
-  rpc is_database_created (Empty) returns (Empty);
+  rpc is_table_created (Empty) returns (Empty);
   rpc forgot_password (ResetPassword) returns (Empty);
   rpc get_plugins (Plugin) returns (Empty);
 }

@@ -127,6 +127,9 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
                         }
                     }
                     return Ok(());
+                } else {
+                    tracing::error!("Unable to verify table: {}", err);
+                    return Err(crate::errors::Error::Query(err));
                 }
             }
         }
