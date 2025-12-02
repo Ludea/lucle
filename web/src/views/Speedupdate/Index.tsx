@@ -87,7 +87,7 @@ function Speedupdate() {
   );
   const [currentVer, setCurrentVer] = useState<string>("");
   const [size, setSize] = useState<number>();
-  const [version, setVersion] = useState<string>();
+  const [version, setVersion] = useState<string>("");
   const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
     JSON.parse(localStorage.getItem("platformsEnum")),
   );
