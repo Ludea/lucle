@@ -6,6 +6,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Checkbox from "@mui/material/Checkbox";
+import { useNavigate } from "react-router-dom";
 
 //RPC Connect
 import { Repo, Platforms } from "gen/speedupdate_pb";
@@ -25,13 +26,7 @@ const transport = createGrpcWebTransport({
 });
 const client = createClient(Repo, transport);
 
-function ListRepo({
-  selectedRepoName,
-  selectedRepoHosts,
-}: {
-  selectedRepoName: string;
-  selectedRepoHosts: string /*Platforms[]*/;
-}) {
+function ListRepo() {
   const [listRepo, setListRepo] = useState<Map<string, string[]>>(new Map());
   const [error, setError] = useState<string | null>(null);
   const [path, setPath] = useState<string>("");
@@ -44,6 +39,7 @@ function ListRepo({
 
   const lucleClient = useContext(LucleRPC);
   const auth = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (auth.repositories) {
@@ -77,25 +73,11 @@ function ListRepo({
                   const platforms = listRepo.get(repo_name);
                   isInit(client, repo_name, platforms, "game")
                     .then(() => {
-                      const current = new Map<string, string[]>();
-                      const platformInt: Platforms[] = [];
-                      for (const host of platforms) {
-                        if (host === "win64") platformInt.push(Platforms.WIN64);
-                        if (host === "macos_x86_64")
-                          platformInt.push(Platforms.MACOS_X86_64);
-                        if (host === "macos_arm64")
-                          platformInt.push(Platforms.MACOS_ARM64);
-                        if (host === "linux") platformInt.push(Platforms.LINUX);
-                      }
-                      current.set(repo_name, platforms);
-                      selectedRepoName(current);
-                      selectedRepoHosts("platformInt");
-                      //setCurrentRepo(current);
-                      setPlatformsEnum(platformInt);
                       localStorage.setItem(
                         "current_repo",
                         JSON.stringify({ repo_name, platforms }),
                       );
+                      navigate(repo_name);
                     })
                     .catch((err) => {
                       setError(err.rawMessage);
