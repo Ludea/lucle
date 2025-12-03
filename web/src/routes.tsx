@@ -43,7 +43,7 @@ const routes = (isInstalled: boolean) => [
             element: <Dashboard />,
             children: [
               {
-                element: <ListRepo selectedRepoName="" selectedRepoHosts="" />,
+                element: <ListRepo />,
                 path: "list",
               },
               { path: ":repo", element: <Index /> },
