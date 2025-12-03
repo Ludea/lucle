@@ -125,5 +125,5 @@ jobs:
           file: Dockerfile
           context: .
           push: true
-          tags: ludea/lucle:${{ env.VERSION }}
+          tags: ludea/lucle:${{ steps.version.outputs.result }}
           platforms: linux/amd64, linux/arm64
