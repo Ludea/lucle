@@ -99,10 +99,11 @@ jobs:
     needs: [build_aarch64, build_x86_64, frontend]
     steps:
       - uses: actions/checkout@v6
-      - name: extract version without "v"
-        run: |
-          GITHUB_TAG="${{ github.ref_name }}"
-          echo "VERSION=${GITHUB_TAG#v}" >> $GITHUB_ENV
+      - name: Get version
+        id: version
+        uses: mikefarah/yq@v4
+        with:
+          cmd: yq '.package.version' Cargo.toml
       - uses: actions/download-artifact@v6
         with:
           pattern: lucle-*
