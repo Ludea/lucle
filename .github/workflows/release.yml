@@ -35,7 +35,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Get version
-        run: echo "VERSION=$(yq '.package.version' Cargo.toml)" >> $GITHUB_ENV
+        uses: mikefarah/yq@v4
+        with:
+          cmd: echo "VERSION=$(yq '.package.version' Cargo.toml)" >> $GITHUB_ENV
       - name: Build
         run: cargo build --release
       - name: add some suffix into release name
@@ -59,7 +61,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Get version
-        run: echo "VERSION=$(yq '.package.version' Cargo.toml)" >> $GITHUB_ENV
+        uses: mikefarah/yq@v4
+        with:
+          cmd: echo "VERSION=$(yq '.package.version' Cargo.toml)" >> $GITHUB_ENV
       - name: "Build Changelog"
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v6
