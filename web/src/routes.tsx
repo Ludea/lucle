@@ -44,7 +44,7 @@ const routes = (isInstalled: boolean) => [
             children: [
               {
                 element: <ListRepo />,
-                path: "list",
+                path: "/",
               },
               { path: ":repo", element: <Index /> },
               { path: ":repo/game", element: <Speedupdate /> },
