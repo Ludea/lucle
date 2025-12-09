@@ -28,7 +28,7 @@ import BuiltByDevelopers from "components/BuiltByDevelopers";
 import bgImage from "assets/images/bg-presentation.jpg";
 
 function Landing() {
-   const banner = useRef<HTMLDivElement>();
+  const banner = useRef<HTMLDivElement>();
 
   const atOptions = {
     key: import.meta.env.VITE_ST_KEY,
@@ -49,7 +49,7 @@ function Landing() {
       banner.current.append(conf);
       banner.current.append(script);
     }
-  }, [banner]); 
+  }, [banner]);
 
   return (
     <>
@@ -97,7 +97,7 @@ function Landing() {
           </Grid>
         </Container>
       </Box>
-       <div
+      <div
         className="mx-2 my-5 border border-gray-200 justify-center items-center text-white text-center"
         ref={banner}
       ></div>
