@@ -43,11 +43,6 @@ jobs:
     container: ghcr.io/blackdex/rust-musl:aarch64-musl
     steps:
       - uses: actions/checkout@v6
-      - name: Get version
-        id: version
-        uses: mikefarah/yq@v4
-        with:
-          cmd: yq '.package.version' Cargo.toml
       - name: Build
         run: cargo build --release
       - name: add some suffix into release name
