@@ -101,7 +101,7 @@ function Landing() {
         className="mx-2 my-5 border border-gray-200 justify-center items-center text-white text-center"
         ref={banner}
       ></div>
-      <div id={`container-"${import.meta.env.VITE_ST_KEY}`}></div>
+      <div id={`container-${import.meta.env.VITE_ST_KEY}`}></div>
       <Card
         sx={{
           p: 2,
