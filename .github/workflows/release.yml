@@ -23,6 +23,10 @@ jobs:
           version: 9
       - name: Install dependencies
         run: cd web && pnpm install
+      - name: Create .env file
+        run: |
+          echo "ST_KEY=${{ secrets.ST_KEY }}" >> .env
+          echo "ST_SRC"=${{ secrets.ST_SRC }}" >> .env
       - name: Build frontend (js side)
         run: cd web && pnpm build
       - name: Upload artifacts
