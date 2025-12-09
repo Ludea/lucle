@@ -28,10 +28,10 @@ import BuiltByDevelopers from "components/BuiltByDevelopers";
 import bgImage from "assets/images/bg-presentation.jpg";
 
 function Landing() {
-  const banner = useRef<HTMLDivElement>();
+   const banner = useRef<HTMLDivElement>();
 
   const atOptions = {
-    key: import.meta.env.ST_KEY,
+    key: import.meta.env.VITE_ST_KEY,
     format: "iframe",
     height: 10,
     width: 320,
@@ -42,14 +42,14 @@ function Landing() {
     const conf = document.createElement("script");
     const script = document.createElement("script");
     script.type = "text/javascript";
-    script.src = import.meta.env.ST_SRC + `/${atOptions.key}/invoke.js`;
+    script.src = import.meta.env.VITE_ST_SRC + `/${atOptions.key}/invoke.js`;
     conf.innerHTML = `atOptions = ${JSON.stringify(atOptions)}`;
 
     if (banner.current) {
       banner.current.append(conf);
       banner.current.append(script);
     }
-  }, [banner]);
+  }, [banner]); 
 
   return (
     <>
@@ -97,11 +97,11 @@ function Landing() {
           </Grid>
         </Container>
       </Box>
-      <div
+       <div
         className="mx-2 my-5 border border-gray-200 justify-center items-center text-white text-center"
         ref={banner}
       ></div>
-      <div id="container-3df7e8000a7b978bbf8c1d130234ce71"></div>
+      <div id={`container-"${import.meta.env.VITE_ST_KEY}`}></div>
       <Card
         sx={{
           p: 2,
