@@ -68,11 +68,6 @@ jobs:
     container: ghcr.io/blackdex/rust-musl:x86_64-musl
     steps:
       - uses: actions/checkout@v6
-      - name: Get version
-        id: version
-        uses: mikefarah/yq@v4
-        with:
-          cmd: yq '.package.version' Cargo.toml
       - name: "Build Changelog"
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v6
