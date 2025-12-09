@@ -27,8 +27,8 @@ jobs:
         run: cd web && pnpm install
       - name: Create .env file
         run: |
-          echo "VITE_ST_KEY=${{ secrets.ST_KEY }}" >> .env
-          echo "VITE_ST_SRC=${{ secrets.ST_SRC }}" >> .env
+          echo "VITE_ST_KEY=${{ secrets.ST_KEY }}" >> web/.env
+          echo "VITE_ST_SRC=${{ secrets.ST_SRC }}" >> web/.env
       - name: Build frontend (js side)
         run: cd web && pnpm build
       - name: Upload artifacts
