@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 
 import TextField from "@mui/material/TextField";
 import { styled } from "@mui/material/styles";
@@ -6,12 +6,8 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-//GH Api
-import { Octokit } from "@octokit/rest";
-
-const octokit = new Octokit({
-  auth: "",
-});
+import { build_custom_launcher } from "utils/sparusrpc";
+import { SparusRPC } from "context/Sparus";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -26,109 +22,52 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 function Launcher() {
-  const [game, setGame] = useState<String>("");
-  const [updateURL, setUpdateURL] = useState<String>(
+  const [gameName, setGameName] = useState<string>("");
+  const [launcherName, setLauncherName] = useState<string>("");
+  const [configName, setConfigName] = useState<string>("Sparus.json");
+  const [repositoryName, setRepositoryName] = useState<string>("");
+  const [updateURL, setUpdateURL] = useState<string>(
     "https://repo.marlin-atlas.ts.net",
   );
-  const [pluginsURL, setPluginsURL] = useState<String>("");
+  const [pluginsURL, setPluginsURL] = useState<string>("");
   const [disableLauncherCreation, setDisableLauncherCreation] =
     useState<boolean>(false);
-
-  let status: string = "queued";
-
-  const StartandFollowGHAction = async () => {
-    let launcherOptions = {
-      game_name: game,
-      repository_url: updateURL,
-    };
-
-    setDisableLauncherCreation(true);
-
-    octokit.rest.actions.createWorkflowDispatch({
-      owner: "Ludea",
-      repo: "Sparus",
-      workflow_id: "dispatch.yml",
-      ref: "main",
-      inputs: {
-        content: JSON.stringify(launcherOptions),
-      },
-    });
-
-    new Promise((resolve) => setTimeout(resolve, 5000)).then(() =>
-      octokit.rest.actions
-        .listWorkflowRuns({
-          owner: "Ludea",
-          repo: "Sparus",
-          workflow_id: "dispatch.yml",
-        })
-        .then((result) => {
-          while (["queued", "in_progress"].includes(status)) {
-            new Promise((resolve) => setTimeout(resolve, 500)).then(() => {
-              octokit.rest.actions
-                .getWorkflowRun({
-                  owner: "Ludea",
-                  repo: "Sparus",
-                  run_id: result.data.workflow_runs[0].id,
-                })
-                .then((res) => {
-                  status = res.data.status;
-                  if (status === "completed") {
-                    setDisableLauncherCreation(false);
-                    return;
-                  }
-                })
-                .catch(() => setDisableLauncherCreation(false));
-            });
-          }
-        }),
-    );
-  };
-
-  const getWorkflowRun = () => {
-    octokit.rest.actions
-      .listWorkflowRuns({
-        owner: "Ludea",
-        repo: "Sparus",
-        workflow_id: "dispatch.yml",
-      })
-      .then((result) => {
-        while (
-          //result.data.workflow_runs[0].status === "queued" ||
-          result.data.workflow_runs[0].status !== "in_progress"
-        ) {
-          /*          octokit.rest.actions
-            .getWorkflowRun({
-              owner: "Ludea",
-              repo: "Sparus",
-              run_id: result.data.workflow_runs[0].id,
-            })
-            .then((res) => {
-              console.log("12: ", res);
-              setDisableLauncherCreation(false);
-            })
-            .catch(() => setDisableLauncherCreation(false)); */
-        }
-      })
-      .catch(() => setDisableLauncherCreation(false));
-  };
+  const SparusClient = useContext(SparusRPC);
 
   return (
     <div>
-      <Grid container spacing={2}>
+      <Grid container>
         <Grid size={12}>
           <TextField
             margin="normal"
             required
-            id="game"
-            label="Game name"
-            name="game"
-            autoComplete="game"
+            id="launcher"
+            label="Launcher name"
+            name="launcher"
+            autoComplete="launcher"
             sx={{
               width: "30%",
             }}
-            value={game}
+            value={launcherName}
             onChange={(event) => {
-              setGame(event.target.value);
+              setLauncherName(event.target.value);
+            }}
+          />
+        </Grid>
+        <Grid size={12}>
+          <TextField
+            margin="normal"
+            required
+            id="repository"
+            label="Repository name"
+            name="repository"
+            autoComplete="repository"
+            sx={{
+              width: "30%",
+            }}
+            value={repositoryName}
+            onChange={(event) => {
+              setRepositoryName(event.target.value);
             }}
           />
         </Grid>
@@ -167,6 +106,40 @@ function Launcher() {
           />
         </Grid>
         <Grid size={12}>
+          <TextField
+            margin="normal"
+            required
+            id="game"
+            label="Game name"
+            name="game"
+            autoComplete="game"
+            sx={{
+              width: "30%",
+            }}
+            value={gameName}
+            onChange={(event) => {
+              setGameName(event.target.value);
+            }}
+          />
+        </Grid>
+        <Grid size={12}>
+          <TextField
+            margin="normal"
+            required
+            id="config"
+            label="Config file name"
+            name="config"
+            autoComplete="config"
+            sx={{
+              width: "30%",
+            }}
+            value={configName}
+            onChange={(event) => {
+              setConfigName(event.target.value);
+            }}
+          />
+        </Grid>
+        <Grid size={12}>
           <Button
             component="label"
             role={undefined}
@@ -199,7 +172,17 @@ function Launcher() {
         <Button
           disabled={disableLauncherCreation}
           variant="contained"
-          onClick={StartandFollowGHAction}
+          onClick={() =>
+            build_custom_launcher(
+              SparusClient,
+              launcherName,
+              repositoryName,
+              gameName,
+              updateURL,
+              pluginsURL,
+              configName,
+            )
+          }
         >
           Create Launcher
         </Button>

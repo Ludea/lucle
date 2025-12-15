@@ -1,17 +1,20 @@
 use super::diesel;
 use super::utils;
 use crate::DbType;
+use dotenvy::dotenv;
 use email_address_parser::EmailAddress;
 use luclerpc::{
     lucle_server::{Lucle, LucleServer},
     Credentials, Database, DatabaseType, Empty, ListUpdateServer, Platforms, Plugin, ResetPassword,
     UpdateServer, User, UserCreation, Username,
 };
+use octocrab::Octocrab;
 use semver::Version;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use sparus::{
     event_server::{Event, EventServer},
-    Empty as EmptyMessage, Message, Plugins,
+    Empty as EmptySparus, Message, Options, Plugins,
 };
 use std::collections::HashSet;
 use std::{
@@ -19,7 +22,10 @@ use std::{
     io::{BufReader, Cursor},
     pin::Pin,
 };
-use tokio::sync::broadcast;
+use tokio::{
+    sync::broadcast,
+    time::{sleep, Duration},
+};
 use tokio_stream::StreamExt;
 use tokio_stream::{wrappers::BroadcastStream, Stream};
 use tonic::{
@@ -334,7 +340,63 @@ pub struct EventRoute {
 
 #[tonic::async_trait]
 impl Event for EventRoute {
-    async fn send_event(&self, _req: Request<Message>) -> Result<Response<EmptyMessage>, Status> {
+    async fn create_workflow(
+        &self,
+        req: Request<Options>,
+    ) -> Result<Response<EmptySparus>, Status> {
+        let inner = req.into_inner();
+        let launcher_name = inner.launcher_name;
+        let repository_name = inner.repository_name;
+        let game_name = inner.game_name;
+        let speedupdate_server_url = inner.speedupdate_server_url;
+        let plugins_url = inner.plugins_url;
+        let config_file = inner.config_file;
+        let json_config = json!({"game_name":game_name, "repository_url": speedupdate_server_url, "plugins_url": plugins_url});
+
+        dotenv().ok();
+        let octocrab;
+
+        if let Ok(pat) = std::env::var("GH_PAT") {
+            octocrab = match Octocrab::builder().personal_token(pat).build() {
+                Ok(octo) => octo,
+                Err(err) => {
+                    tracing::error!("{}", err.to_string());
+                    return Err(Status::internal(err.to_string()));
+                }
+            }
+        } else {
+            tracing::error!("You must create an .env file with GH_PAT");
+            return Err(Status::internal("You must create an .env file with GH_PAT"));
+        }
+
+        if let Err(err) = octocrab
+            .actions()
+            .create_workflow_dispatch("Ludea", "Sparus", "dispatch.yml", "main")
+            .inputs(json!({"launcher_name": launcher_name, "repository_name": repository_name, "filename": config_file, "content": json_config.to_string()}))
+            .send()
+            .await
+        {
+            tracing::error!("Error on starting workflow: {:?}", err);
+            return Err(Status::internal(err.to_string()));
+        }
+
+        sleep(Duration::from_secs(5)).await;
+        if let Err(err) = octocrab
+            .workflows("Ludea", "Sparus")
+            .list_runs("dispatch.yml")
+            .event("workflow_dispatch")
+            .send()
+            .await
+        {
+            tracing::error!("{}", err);
+            return Err(Status::internal(err.to_string()));
+        }
+
+        let response = EmptySparus {};
+        Ok(Response::new(response))
+    }
+
+    async fn send_event(&self, _req: Request<Message>) -> Result<Response<EmptySparus>, Status> {
         let message = Message {
             plugin: "foo".to_string(),
             event_type: 0,
@@ -349,7 +411,7 @@ impl Event for EventRoute {
                 Ok(())
             }
         });
-        let response = EmptyMessage {};
+        let response = EmptySparus {};
         Ok(Response::new(response))
     }
 

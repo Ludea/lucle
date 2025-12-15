@@ -5,6 +5,7 @@ package sparus;
 service event {
   rpc Sparus (Plugins) returns (stream Message);
   rpc Send_event (Message) returns (Empty);
+  rpc Create_workflow(Options) returns (Empty);
 }
 
 enum EventType {
@@ -23,4 +24,13 @@ message Empty {}
 message Plugins {
   string repository_name = 1;
   map<string, string> list_plugin = 2;
+}
+
+message Options {
+  string launcher_name = 1;
+  string repository_name = 2;
+  string game_name = 3;
+  string speedupdate_server_url = 4;
+  string plugins_url = 5;
+  string config_file = 6;
 }

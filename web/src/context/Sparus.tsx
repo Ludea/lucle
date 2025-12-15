@@ -3,7 +3,7 @@ import { ReactNode, createContext } from "react";
 // RPC Connect
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import { createClient } from "@connectrpc/connect";
-import { Lucle } from "gen/lucle_pb";
+import { event } from "gen/sparus_pb";
 
 const SparusRPC = createContext();
 
@@ -16,9 +16,8 @@ function SparusRPCProvider({
 }) {
   const transport = createGrpcWebTransport({
     baseUrl: `https://web.marlin-atlas.ts.net`,
-    //baseUrl: `http://localhost:8112`,
   });
-  const client = createClient(Lucle, transport);
+  const client = createClient(event, transport);
   return <SparusRPC.Provider value={client}>{children}</SparusRPC.Provider>;
 }
 

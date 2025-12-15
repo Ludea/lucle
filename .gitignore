@@ -20,3 +20,4 @@ web/src/gen/lucle_pb.ts
 plugins/
 .config
 .tls/
+.env
