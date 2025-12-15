@@ -42,7 +42,7 @@
     "sass": "^1.69.7",
     "stylis": "^4.3.1",
     "stylis-plugin-rtl": "^2.1.1",
-    "vite-tsconfig-paths": "^5.0.1"
+    "vite-tsconfig-paths": "^6.0.1"
   },
   "devDependencies": {
     "@bufbuild/protobuf": "^2.2.0",
