@@ -32,7 +32,7 @@ jobs:
       - name: Build frontend (js side)
         run: cd web && pnpm build
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: web
           if-no-files-found: error
@@ -48,7 +48,7 @@ jobs:
       - name: add some suffix into release name
         run: cp target/aarch64-unknown-linux-musl/release/lucle target/aarch64-unknown-linux-musl/release/lucle_linux_arm64
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: lucle-arm64
           if-no-files-found: error
@@ -78,7 +78,7 @@ jobs:
       - name: add some suffix into release name
         run: cp target/x86_64-unknown-linux-musl/release/lucle target/x86_64-unknown-linux-musl/release/lucle_linux_x86_64
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: lucle-amd64
           if-no-files-found: error
