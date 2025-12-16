@@ -26,7 +26,7 @@ jobs:
       - name: Build frontend (js side)
         run: cd web && pnpm build
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: web
           if-no-files-found: error
@@ -40,7 +40,7 @@ jobs:
       - name: Build
         run: cargo build --release
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: lucle-arm64
           if-no-files-found: error
@@ -54,7 +54,7 @@ jobs:
       - name: Build
         run: cargo build --release
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: lucle-amd64
           if-no-files-found: error
