@@ -1,5 +1,6 @@
 use axum::Router;
 use diesel_async::{pooled_connection::deadpool::Pool, AsyncMysqlConnection};
+use dotenvy::dotenv;
 use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -37,6 +38,10 @@ async fn main() {
                 .with_file(false),
         )
         .init();
+
+    if let Err(err) = dotenv() {
+        tracing::error!("Unable to read .env file: {}", err);
+    }
 
     if let Err(err) = utils::create_config_file() {
         tracing::error!("{}", err);

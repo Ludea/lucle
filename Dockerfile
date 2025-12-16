@@ -6,7 +6,6 @@ COPY lucle-$TARGETARCH/lucle .
 RUN chmod +x lucle
 
 COPY web/dist ./web/dist
-COPY pkey .
 
 EXPOSE 8112
 

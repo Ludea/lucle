@@ -59,7 +59,13 @@ pub fn send_mail(from: &str, dest: &str, subject: &str, _body: &str) {
 }
 
 pub fn generate_jwt(username: String, email: String, repo: Vec<String>) -> String {
-    let encoded_pkcs8 = fs::read_to_string("pkey").unwrap();
+    let encoded_pkcs8 = match std::env::var("PKEY") {
+        Ok(pkey) => pkey,
+        Err(err) => {
+            tracing::error!("You have to set PKEY into .env file: {}", err);
+            String::new()
+        }
+    };
     let decoded_pkcs8 = general_purpose::STANDARD.decode(encoded_pkcs8).unwrap();
     let encoding_key = EncodingKey::from_ec_der(&decoded_pkcs8);
 
