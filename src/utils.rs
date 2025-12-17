@@ -1,4 +1,3 @@
-use base64::{engine::general_purpose, Engine as _};
 use jsonwebtoken::{encode, get_current_timestamp, Algorithm, EncodingKey};
 use lettre::{
     message::{header, MultiPart, SinglePart},
@@ -6,6 +5,7 @@ use lettre::{
 };
 use serde::{Deserialize, Serialize};
 use std::{
+    env,
     fs::{self, OpenOptions},
     io::{self, ErrorKind, Read, Write},
 };
@@ -59,15 +59,14 @@ pub fn send_mail(from: &str, dest: &str, subject: &str, _body: &str) {
 }
 
 pub fn generate_jwt(username: String, email: String, repo: Vec<String>) -> String {
-    let encoded_pkcs8 = match std::env::var("PKEY") {
+    let pem = match load_jwt_private_key() {
         Ok(pkey) => pkey,
         Err(err) => {
-            tracing::error!("You have to set PKEY into .env file: {}", err);
+            tracing::error!("Unable to get private key, you have to set JWT_PKEY into .env file or create a key file into /etc/lucle/lucle.key: {}", err);
             String::new()
         }
     };
-    let decoded_pkcs8 = general_purpose::STANDARD.decode(encoded_pkcs8).unwrap();
-    let encoding_key = EncodingKey::from_ec_der(&decoded_pkcs8);
+    let encoding_key = EncodingKey::from_ec_der(pem.as_bytes());
 
     let claims = Claims {
         sub: username,
@@ -149,4 +148,13 @@ password = ""
         }
         Err(err) => Err(io::Error::other(err.to_string())),
     }
+}
+
+pub fn load_jwt_private_key() -> std::io::Result<String> {
+    if let Ok(pkey) = env::var("JWT_PKEY") {
+        if !pkey.trim().is_empty() {
+            return Ok(pkey);
+        }
+    }
+    fs::read_to_string("/etc/lucle/lucle.key")
 }
