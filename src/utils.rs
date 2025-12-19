@@ -8,6 +8,7 @@ use std::{
     env,
     fs::{self, OpenOptions},
     io::{self, ErrorKind, Read, Write},
+    path::Path,
 };
 use tera::{Context, Tera};
 use toml::Table;
@@ -157,4 +158,17 @@ pub fn load_jwt_private_key() -> std::io::Result<String> {
         }
     }
     fs::read_to_string("/etc/lucle/lucle.key")
+}
+
+pub fn has_jwt_private_key() -> Option<()> {
+    let env_set = env::var("JWT_PKEY")
+        .ok()
+        .filter(|v| !v.trim().is_empty())
+        .map(|_| ());
+
+    let dotenv_file_set = Path::new(".env").is_file().then_some(());
+
+    let key_file_set = Path::new("/etc/lucle/lucle.key").is_file().then_some(());
+
+    env_set.or(dotenv_file_set).or(key_file_set)
 }

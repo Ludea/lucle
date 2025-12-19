@@ -39,8 +39,9 @@ async fn main() {
         )
         .init();
 
-    if let Err(err) = dotenv() {
-        tracing::error!("Unable to read .env file: {}", err);
+    dotenv().ok();
+    if utils::has_jwt_private_key().is_none() {
+        tracing::error!("JWT_PKEY not configured. \nYou can create an .env file or set JWT_PKEY environnement variable");
     }
 
     if let Err(err) = utils::create_config_file() {
