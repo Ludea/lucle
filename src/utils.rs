@@ -157,7 +157,7 @@ pub fn load_jwt_private_key() -> std::io::Result<String> {
             return Ok(pkey);
         }
     }
-    fs::read_to_string("/etc/lucle/lucle.key")
+    fs::read_to_string("/etc/lucle/jwt_pkey")
 }
 
 pub fn has_jwt_private_key() -> Option<()> {
@@ -168,7 +168,7 @@ pub fn has_jwt_private_key() -> Option<()> {
 
     let dotenv_file_set = Path::new(".env").is_file().then_some(());
 
-    let key_file_set = Path::new("/etc/lucle/lucle.key").is_file().then_some(());
+    let key_file_set = Path::new("/etc/lucle/jwt_pkey").is_file().then_some(());
 
     env_set.or(dotenv_file_set).or(key_file_set)
 }
