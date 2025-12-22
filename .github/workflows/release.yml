@@ -6,7 +6,7 @@ on:
       - v*.*.*
 
 permissions:
-  contents: write 
+  contents: write
 
 env:
   CARGO_TERM_COLOR: always
@@ -43,6 +43,7 @@ jobs:
     container: ghcr.io/blackdex/rust-musl:aarch64-musl
     steps:
       - uses: actions/checkout@v6
+      - uses: Swatinem/rust-cache@v2
       - name: Build
         run: cargo build --release
       - name: add some suffix into release name
@@ -73,6 +74,7 @@ jobs:
           configuration: ".github/release_note_config.json"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: Swatinem/rust-cache@v2
       - name: Build
         run: cargo build --release
       - name: add some suffix into release name
@@ -88,7 +90,7 @@ jobs:
         with:
           files: target/x86_64-unknown-linux-musl/release/lucle_linux_x86_64
           body: ${{ steps.build_changelog.outputs.changelog }}
-        
+
   build-container:
     runs-on: ubuntu-22.04
     needs: [build_aarch64, build_x86_64, frontend]
