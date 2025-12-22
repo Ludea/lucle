@@ -1,3 +1,4 @@
+use crate::errors::Error;
 use jsonwebtoken::{encode, get_current_timestamp, Algorithm, EncodingKey};
 use lettre::{
     message::{header, MultiPart, SinglePart},
@@ -59,7 +60,7 @@ pub fn send_mail(from: &str, dest: &str, subject: &str, _body: &str) {
     mailer.send(&email).expect("failed to deliver message");
 }
 
-pub fn generate_jwt(username: String, email: String, repo: Vec<String>) -> String {
+pub fn generate_jwt(username: String, email: String, repo: Vec<String>) -> Result<String, Error> {
     let pem = match load_jwt_private_key() {
         Ok(pkey) => pkey,
         Err(err) => {
@@ -76,12 +77,14 @@ pub fn generate_jwt(username: String, email: String, repo: Vec<String>) -> Strin
         scope: repo,
     };
 
-    encode(
+    match encode(
         &jsonwebtoken::Header::new(Algorithm::ES256),
         &claims,
         &encoding_key,
-    )
-    .unwrap()
+    ) {
+        Ok(token) => Ok(token),
+        Err(err) => Err(Error::Jwt(err)),
+    }
 }
 
 pub fn get_config_key(section: &str, key: &str) -> Option<String> {

@@ -672,7 +672,7 @@ pub async fn reset_password(email: String) -> Result<(), Error> {
                     .into_iter()
                     .map(|update_server| update_server.path)
                     .collect();
-                let token = utils::generate_jwt(val.username, val.email.clone(), repo_string);
+                let token = utils::generate_jwt(val.username, val.email.clone(), repo_string)?;
                 if diesel::update(users::table.filter(users::dsl::email.eq(val.email.clone())))
                     .set(users::dsl::reset_token.eq(token))
                     .execute(&mut conn)
@@ -761,7 +761,7 @@ fn login_user(
         .into_iter()
         .map(|update_server| update_server.path)
         .collect();
-    let token = utils::generate_jwt(username.clone(), email, repo_string);
+    let token = utils::generate_jwt(username.clone(), email, repo_string)?;
     Ok(LucleUser {
         username,
         token,
