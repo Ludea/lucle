@@ -26,7 +26,7 @@ toml_edit = "0.24"
 serde = { version = "1.0.0", features = ["derive"] }
 rcgen = "0.14.1"
 rustls-pemfile = "2.0.0"
-octocrab = "0.48"
+octocrab = "0.49"
 argon2 = { version = "0.5.2", features = ["std"] }
 lettre = { version = "0.11.1", default-features = false, features = ["smtp-transport", "pool", "hostname", "builder", "rustls-tls", "file-transport"] }
 email-address-parser = "2.0.0"
