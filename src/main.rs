@@ -43,7 +43,6 @@ async fn main() {
     if utils::has_jwt_private_key().is_none() {
         tracing::error!("JWT_PKEY not configured. You have to create an .env file or set JWT_PKEY environnement variable");
     }
-
     if let Err(err) = utils::create_config_file() {
         tracing::error!("{}", err);
     }

@@ -19,6 +19,8 @@ pub enum Error {
     EmailNotFound,
     #[error("Email not valid")]
     EmailNotValid,
+    #[error("Io error: {0}")]
+    Io(#[from] std::io::Error),
     #[error("Failed to encode private key: {0}")]
     Jwt(#[from] jsonwebtoken::errors::Error),
     #[error("Failed to hash password: {0}")]

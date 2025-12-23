@@ -65,10 +65,17 @@ pub fn generate_jwt(username: String, email: String, repo: Vec<String>) -> Resul
         Ok(pkey) => pkey,
         Err(err) => {
             tracing::error!("Unable to get private key, you have to set JWT_PKEY into .env file or create a key file into /etc/lucle/lucle.key: {}", err);
-            String::new()
-        }
+            Err(Error::Io(err))
+        }?,
     };
-    let encoding_key = EncodingKey::from_ec_der(pem.as_bytes());
+
+    let encoding_key = match EncodingKey::from_ed_pem(pem.as_bytes()) {
+        Ok(encoded_key) => encoded_key,
+        Err(err) => {
+            tracing::error!("Unable to encode pkey: {}", err);
+            Err(Error::Jwt(err))
+        }?,
+    };
 
     let claims = Claims {
         sub: username,
@@ -78,7 +85,7 @@ pub fn generate_jwt(username: String, email: String, repo: Vec<String>) -> Resul
     };
 
     match encode(
-        &jsonwebtoken::Header::new(Algorithm::ES256),
+        &jsonwebtoken::Header::new(Algorithm::EdDSA),
         &claims,
         &encoding_key,
     ) {
