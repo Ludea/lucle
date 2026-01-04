@@ -18,9 +18,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 
 // RPC Connect
-import { createGrpcWebTransport } from "@connectrpc/connect-web";
-import { createClient } from "@connectrpc/connect";
-import { Repo, Platforms, Options, Versions } from "gen/speedupdate_pb";
+import { Platforms, Options, Versions } from "gen/speedupdate_pb";
 
 //components
 import PackagesTable from "views/Speedupdate/PackagesTable";
@@ -33,13 +31,9 @@ import { deleteRepo } from "utils/rpc";
 // Context
 import { useAuth } from "context/Auth";
 import { LucleRPC } from "context/Luclerpc";
+import { SpeedupdateRPC } from "context/Speedupdate";
 
 // import { uploadFile } from "utils/minio";
-
-const transport = createGrpcWebTransport({
-  baseUrl: "https://repo.marlin-atlas.ts.net",
-});
-const client = createClient(Repo, transport);
 
 const DisplaySizeUnit = (TotalSize: number) => {
   if (TotalSize > 0 && TotalSize < 1024) {
@@ -83,6 +77,7 @@ function Speedupdate() {
 
   const auth = useAuth();
   const lucleClient = useContext(LucleRPC);
+  const speedupdateClient = useContext(SpeedupdateRPC);
   const controller = new AbortController();
 
   useEffect(() => {
@@ -105,23 +100,25 @@ function Speedupdate() {
     if (currentRepo.size > 0) {
       const current = currentRepo.keys().next().value;
       if (!statusAlreadyStarted) {
-        status(client, current, platformsEnum, "game", opt).then((value) => {
-          const reader = value.getReader();
-          setStatusAlreadyStarted(true);
-          async function readStream() {
-            let result;
-            while (!(result = await reader.read()).done) {
-              setListVersions(result.value.versions);
-              setListPackages(result.value.packages);
-              setAvailableBinaries(result.value.binaries);
-              setSize(result.value.size);
-              setCurrentVer(result.value.currentVersion);
+        status(speedupdateClient, current, platformsEnum, "game", opt).then(
+          (value) => {
+            const reader = value.getReader();
+            setStatusAlreadyStarted(true);
+            async function readStream() {
+              let result;
+              while (!(result = await reader.read()).done) {
+                setListVersions(result.value.versions);
+                setListPackages(result.value.packages);
+                setAvailableBinaries(result.value.binaries);
+                setSize(result.value.size);
+                setCurrentVer(result.value.currentVersion);
+              }
             }
-          }
-          readStream().catch((err: unknown) => {
-            setError(err);
-          });
-        });
+            readStream().catch((err: unknown) => {
+              setError(err);
+            });
+          },
+        );
 
         const eventSource = new EventSource(
           "https://repo.marlin-atlas.ts.net/" +
@@ -141,7 +138,7 @@ function Speedupdate() {
         };
       }
     }
-  }, [currentRepo, visibleVersions]);
+  }, [currentRepo]);
 
   const uploadFile = () => {
     let platform;
@@ -181,6 +178,7 @@ function Speedupdate() {
       })
       .catch((err: unknown) => {
         setFiles([]);
+        console.log("14: ", err);
         setError(JSON.stringify(err));
       });
   };
@@ -238,8 +236,6 @@ function Speedupdate() {
                 setError(null);
                 setCurrentRepo(new Map());
                 setPlatformsEnum([]);
-                setSelectedVersions([]);
-                setSelectedVersionsValues([]);
                 localStorage.removeItem("platformsEnum");
                 localStorage.removeItem("current_repo");
               }}
@@ -250,7 +246,7 @@ function Speedupdate() {
               size="large"
               onClick={() => {
                 const path = currentRepo.keys().next().value;
-                repoToDelete(client, path)
+                repoToDelete(SpeedupdateClient, path)
                   .then(() => {
                     deleteRepo(lucleClient, path)
                       .then(() => {
@@ -280,8 +276,8 @@ function Speedupdate() {
             </IconButton>
           </Grid>
         </Paper>
-        <VersionsTable client={client} listVersions={listVersions} />
-        <PackagesTable client={client} listPackages={listPackages} />
+        <VersionsTable client={speedupdateClient} listVersions={listVersions} />
+        <PackagesTable client={speedupdateClient} listPackages={listPackages} />
         <BinariesTable availableBinaries={availableBinaries} />
         Upload Binaries
         <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>

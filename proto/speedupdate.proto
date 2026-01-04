@@ -13,6 +13,7 @@ service Repo {
   rpc Unregister_package (Package) returns (Empty);
   rpc Delete_repo (RepositoryPath) returns (Empty);
   rpc Delete_file (FileToDelete) returns (Empty);
+  rpc Has_Launcher_binaries (RepositoryPath) returns (Empty);
 }
 
 enum Platforms {
