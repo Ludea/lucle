@@ -115,7 +115,7 @@ function Speedupdate() {
               }
             }
             readStream().catch((err: unknown) => {
-              setError(err);
+              setError(JSON.stringify(err));
             });
           },
         );
@@ -178,7 +178,6 @@ function Speedupdate() {
       })
       .catch((err: unknown) => {
         setFiles([]);
-        console.log("14: ", err);
         setError(JSON.stringify(err));
       });
   };
