@@ -38,7 +38,7 @@ function VersionsTable({
 
   const visibleVersions = useMemo(
     () =>
-      listVersions.length > 0
+      listVersions
         ? listVersions.slice(
             versionsPage * versionsPerPage,
             versionsPage * versionsPerPage + versionsPerPage,
@@ -298,7 +298,7 @@ function VersionsTable({
           </TableBody>
         </Table>
       </TableContainer>
-      {listVersions.length > 0 ? (
+      {listVersions ? (
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
