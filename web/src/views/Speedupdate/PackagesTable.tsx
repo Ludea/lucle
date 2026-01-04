@@ -21,11 +21,11 @@ import {
 function PackagesTable({
   client,
   listPackages,
-  onError
+  onError,
 }: {
-  client: PromiseClient<typeof Repo>,
-  listPackages: string[],
-  onError: (error: string) => void
+  client: PromiseClient<typeof Repo>;
+  listPackages: string[];
+  onError: (error: string) => void;
 }) {
   const [packagesPage, setPackagesPage] = useState(0);
   const [packagesPerPage, setPackagesPerPage] = useState(5);
