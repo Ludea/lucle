@@ -56,7 +56,7 @@ libsqlite3-sys = { version = "0.35", features = ["bundled"] }
 #pq-sys = { version = "0.6.1", features = ["bundled"] }
 # Wasm runtime
 wasmtime = { version = "41.0.0", features = ["async"] }
-wasmtime-wasi = "40.0.0"
+wasmtime-wasi = "41.0.0"
 
 [build-dependencies]
 tonic-build = "0.14" 
