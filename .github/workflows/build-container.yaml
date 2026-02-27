@@ -67,10 +67,10 @@ jobs:
     needs: [build_aarch64, build_x86_64, frontend]
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: lucle-*
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: web
           path: web/dist
