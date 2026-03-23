@@ -30,7 +30,7 @@ impl WasiView for ComponentRunStates {
 
 pub async fn load_wasm_runtime() -> Result<()> {
     let mut config = Config::new();
-    config.async_support(true).wasm_component_model(true);
+    config.wasm_component_model(true);
     let engine = Engine::new(&config)?;
     let mut linker = Linker::new(&engine);
     wasmtime_wasi::p2::add_to_linker_async(&mut linker)?;
