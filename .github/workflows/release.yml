@@ -20,17 +20,17 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 20
-      - uses: pnpm/action-setup@v4
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          version: 9
+          run-install: true
       - name: Install dependencies
-        run: cd web && pnpm install
+        run: cd web && vp install
       - name: Create .env file
         run: |
           echo "VITE_ST_KEY=${{ secrets.ST_KEY }}" >> web/.env
           echo "VITE_ST_SRC=${{ secrets.ST_SRC }}" >> web/.env
       - name: Build frontend (js side)
-        run: cd web && pnpm build
+        run: cd web && vp build
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:

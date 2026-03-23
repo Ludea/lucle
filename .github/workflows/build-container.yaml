@@ -18,13 +18,11 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 20
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
+      - uses: voidzero-dev/setup-vp@v1
       - name: Install dependencies
-        run: cd web && pnpm install
+        run: cd web && vp install
       - name: Build frontend (js side)
-        run: cd web && pnpm build
+        run: cd web && vp build
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
