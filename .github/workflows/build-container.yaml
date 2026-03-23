@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: cd web && vp install
       - name: Build frontend (js side)
-        run: cd web && vp build
+        run: cd web && vp run build
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
