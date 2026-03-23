@@ -1,8 +1,8 @@
 {
   "name": "lucle",
   "version": "0.2.4",
-  "type": "module",
   "license": "Apache-2.0",
+  "type": "module",
   "scripts": {
     "buf:generate": "vp exec buf generate ../proto",
     "check": "vp run buf:generate && vp check",
@@ -45,9 +45,9 @@
   "devDependencies": {
     "@bufbuild/protobuf": "^2.2.0",
     "@bufbuild/protoc-gen-es": "^2.2.0",
+    "@types/prop-types": "^15.7.5",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
-    "@types/prop-types": "^15.7.5",
     "@types/regenerator-runtime": "^0",
     "@vitejs/plugin-react": "^6.0.0",
     "typescript": "^5.3.3",
