@@ -29,9 +29,7 @@ function VersionsTable({
   const [description, setDescription] = useState<string>("");
   const [versionsPerPage, setVersionsPerPage] = useState(5);
   const [versionsPage, setVersionsPage] = useState(0);
-  const [selectedVersions, setSelectedVersions] = useState<readonly number[]>(
-    [],
-  );
+  const [selectedVersions, setSelectedVersions] = useState<readonly number[]>([]);
 
   const isVersionsSelected = (id: number) => selectedVersions.includes(id);
   const numVersionsSelected = selectedVersions.length;
@@ -82,10 +80,7 @@ function VersionsTable({
 
     setSelectedVersions(newSelected);
     if (newSelected.includes(id)) {
-      setSelectedVersionsValues((previous_version) => [
-        ...previous_version,
-        version.revision,
-      ]);
+      setSelectedVersionsValues((previous_version) => [...previous_version, version.revision]);
     } else {
       setSelectedVersionsValues((previous_version) =>
         previous_version.filter((ver) => ver !== version.revision),
@@ -101,29 +96,16 @@ function VersionsTable({
           pr: { xs: 1, sm: 1 },
           ...(numVersionsSelected > 0 && {
             bgcolor: (theme) =>
-              alpha(
-                theme.palette.primary.main,
-                theme.palette.action.activatedOpacity,
-              ),
+              alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
           }),
         }}
       >
         {numVersionsSelected > 0 ? (
-          <Typography
-            sx={{ flex: "1 1 100%" }}
-            color="inherit"
-            variant="subtitle1"
-            component="div"
-          >
+          <Typography sx={{ flex: "1 1 100%" }} color="inherit" variant="subtitle1" component="div">
             {numVersionsSelected} selected
           </Typography>
         ) : (
-          <Typography
-            sx={{ flex: "1 1 100%" }}
-            variant="h6"
-            id="tableTitle"
-            component="div"
-          >
+          <Typography sx={{ flex: "1 1 100%" }} variant="h6" id="tableTitle" component="div">
             Versions
           </Typography>
         )}
@@ -134,13 +116,7 @@ function VersionsTable({
                 const repo_name = currentRepo.keys().next().value;
                 const platforms = currentRepo.get(repo_name);
                 onError(null);
-                setCurrentVersion(
-                  client,
-                  repo_name,
-                  selectedVersionsValues[0],
-                  platforms,
-                  "game",
-                )
+                setCurrentVersion(client, repo_name, selectedVersionsValues[0], platforms, "game")
                   .then(() => {
                     setSelectedVersions([]);
                     setSelectedVersionsValues([]);
@@ -173,38 +149,36 @@ function VersionsTable({
           </TableHead>
           <TableBody>
             {visibleVersions
-              ? visibleVersions.map(
-                  (current_version: Versions, index: number) => {
-                    const isItemSelected = isVersionsSelected(index + 1);
-                    const labelId = `enhanced-table-checkbox-${index}`;
-                    return (
-                      <TableRow
-                        hover
-                        onClick={() => {
-                          versionsSelection(index + 1, current_version);
-                        }}
-                        role="checkbox"
-                        aria-checked={isItemSelected}
-                        tabIndex={-1}
-                        key={index + 1}
-                        selected={isItemSelected}
-                        sx={{ cursor: "pointer" }}
-                      >
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            color="primary"
-                            checked={isItemSelected}
-                            inputProps={{
-                              "aria-labelledby": labelId,
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>{current_version.revision}</TableCell>
-                        <TableCell>{current_version.description}</TableCell>
-                      </TableRow>
-                    );
-                  },
-                )
+              ? visibleVersions.map((current_version: Versions, index: number) => {
+                  const isItemSelected = isVersionsSelected(index + 1);
+                  const labelId = `enhanced-table-checkbox-${index}`;
+                  return (
+                    <TableRow
+                      hover
+                      onClick={() => {
+                        versionsSelection(index + 1, current_version);
+                      }}
+                      role="checkbox"
+                      aria-checked={isItemSelected}
+                      tabIndex={-1}
+                      key={index + 1}
+                      selected={isItemSelected}
+                      sx={{ cursor: "pointer" }}
+                    >
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          color="primary"
+                          checked={isItemSelected}
+                          inputProps={{
+                            "aria-labelledby": labelId,
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>{current_version.revision}</TableCell>
+                      <TableCell>{current_version.description}</TableCell>
+                    </TableRow>
+                  );
+                })
               : null}
             <TableRow>
               <TableCell colSpan={3}>

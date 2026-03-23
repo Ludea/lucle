@@ -35,8 +35,8 @@ function Information() {
             1,679,477+ web developers
           </Typography>
           <Typography variant="body1" color="text" mb={2}>
-            Many Fortune 500 companies, startups, universities and governmental
-            institutions love Creative Tim&apos;s products.
+            Many Fortune 500 companies, startups, universities and governmental institutions love
+            Creative Tim&apos;s products.
           </Typography>
         </Grid>
         <Grid container spacing={3} sx={{ mt: 8 }}>
@@ -69,40 +69,16 @@ function Information() {
         <Divider sx={{ my: 6 }} />
         <Grid container spacing={3} justifyContent="center">
           <Grid size={{ xs: 6, md: 4, lg: 2 }}>
-            <Box
-              component="img"
-              src={appleLogo}
-              alt="Apple"
-              width="100%"
-              opacity={0.6}
-            />
+            <Box component="img" src={appleLogo} alt="Apple" width="100%" opacity={0.6} />
           </Grid>
           <Grid size={{ xs: 6, md: 4, lg: 2 }}>
-            <Box
-              component="img"
-              src={facebookLogo}
-              alt="Facebook"
-              width="100%"
-              opacity={0.6}
-            />
+            <Box component="img" src={facebookLogo} alt="Facebook" width="100%" opacity={0.6} />
           </Grid>
           <Grid size={{ xs: 6, md: 4, lg: 2 }}>
-            <Box
-              component="img"
-              src={nasaLogo}
-              alt="Nasa"
-              width="100%"
-              opacity={0.6}
-            />
+            <Box component="img" src={nasaLogo} alt="Nasa" width="100%" opacity={0.6} />
           </Grid>
           <Grid size={{ xs: 6, md: 4, lg: 2 }}>
-            <Box
-              component="img"
-              src={vodafoneLogo}
-              alt="Vodafone"
-              width="100%"
-              opacity={0.6}
-            />
+            <Box component="img" src={vodafoneLogo} alt="Vodafone" width="100%" opacity={0.6} />
           </Grid>
           <Grid size={{ xs: 6, md: 4, lg: 2 }}>
             <Box

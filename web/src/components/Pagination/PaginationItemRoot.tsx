@@ -50,9 +50,7 @@ export default styled(MDButton)(({ theme, ownerState }) => {
 
     "&:hover, &:focus, &:active": {
       transform: "none",
-      boxShadow:
-        (variant !== "gradient" || variant !== "contained") &&
-        "none !important",
+      boxShadow: (variant !== "gradient" || variant !== "contained") && "none !important",
       opacity: "1 !important",
     },
 

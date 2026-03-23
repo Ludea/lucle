@@ -24,8 +24,7 @@ function ExampleCard({ image, name = "", count = 0, pro = false }) {
         transition: "transform 200ms ease-out",
 
         "&:hover": {
-          transform:
-            "perspective(999px) rotateX(7deg) translate3d(0px, -4px, 5px)",
+          transform: "perspective(999px) rotateX(7deg) translate3d(0px, -4px, 5px)",
         },
       }}
     >
@@ -39,13 +38,7 @@ function ExampleCard({ image, name = "", count = 0, pro = false }) {
             xmlns="http://www.w3.org/2000/svg"
             xmlnsXlink="http://www.w3.org/1999/xlink"
           >
-            <g
-              id="lock-black"
-              stroke="none"
-              strokeWidth="1"
-              fill="none"
-              fillRule="evenodd"
-            >
+            <g id="lock-black" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
               <circle id="Oval" fill="#1F2937" cx="12" cy="12" r="12" />
               <g
                 id="padlock"
@@ -59,14 +52,7 @@ function ExampleCard({ image, name = "", count = 0, pro = false }) {
           </svg>
         </Box>
       )}
-      <Box
-        component="img"
-        src={image}
-        alt={name}
-        width="100%"
-        my="auto"
-        opacity={pro ? 0.6 : 1}
-      />
+      <Box component="img" src={image} alt={name} width="100%" my="auto" opacity={pro ? 0.6 : 1} />
     </Box>
   );
 

@@ -55,9 +55,7 @@ function Speedupdate() {
   const [statusAlreadyStarted, setStatusAlreadyStarted] = useState(false);
   const [uploadProgression, setUploadProgression] = useState<string>("");
   const [uploadBinariesHost, setUploadBinariesHost] = useState<number>(0);
-  const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(
-    new Map(),
-  );
+  const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(new Map());
   const [currentVer, setCurrentVer] = useState<string>("");
   const [size, setSize] = useState<number>();
   const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
@@ -67,9 +65,7 @@ function Speedupdate() {
   const [listRepo, setListRepo] = useState<Map<string, string[]>>(new Map());
   const [listPackages, setListPackages] = useState<string[]>([]);
   const [availableBinaries, setAvailableBinaries] = useState<string[]>([]);
-  const [selectedVersionsValues, setSelectedVersionsValues] = useState<
-    string[]
-  >([]);
+  const [selectedVersionsValues, setSelectedVersionsValues] = useState<string[]>([]);
   const [buildPath, setBuildPath] = useState<string>("");
   const [uploadPath, setUploadPath] = useState<string>("");
   const [files, setFiles] = useState();
@@ -85,10 +81,7 @@ function Speedupdate() {
     if (savedCurrentRepo) {
       const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
       const mapCurrentRepo = new Map();
-      mapCurrentRepo.set(
-        parsedCurrentRepo.repo_name,
-        parsedCurrentRepo.platforms,
-      );
+      mapCurrentRepo.set(parsedCurrentRepo.repo_name, parsedCurrentRepo.platforms);
       if (currentRepo.size === 0) setCurrentRepo(mapCurrentRepo);
     }
 
@@ -100,31 +93,26 @@ function Speedupdate() {
     if (currentRepo.size > 0) {
       const current = currentRepo.keys().next().value;
       if (!statusAlreadyStarted) {
-        status(speedupdateClient, current, platformsEnum, "game", opt).then(
-          (value) => {
-            const reader = value.getReader();
-            setStatusAlreadyStarted(true);
-            async function readStream() {
-              let result;
-              while (!(result = await reader.read()).done) {
-                setListVersions(result.value.versions);
-                setListPackages(result.value.packages);
-                setAvailableBinaries(result.value.binaries);
-                setSize(result.value.size);
-                setCurrentVer(result.value.currentVersion);
-              }
+        status(speedupdateClient, current, platformsEnum, "game", opt).then((value) => {
+          const reader = value.getReader();
+          setStatusAlreadyStarted(true);
+          async function readStream() {
+            let result;
+            while (!(result = await reader.read()).done) {
+              setListVersions(result.value.versions);
+              setListPackages(result.value.packages);
+              setAvailableBinaries(result.value.binaries);
+              setSize(result.value.size);
+              setCurrentVer(result.value.currentVersion);
             }
-            readStream().catch((err: unknown) => {
-              setError(JSON.stringify(err));
-            });
-          },
-        );
+          }
+          readStream().catch((err: unknown) => {
+            setError(JSON.stringify(err));
+          });
+        });
 
         const eventSource = new EventSource(
-          "https://repo.marlin-atlas.ts.net/" +
-            current +
-            "/game" +
-            "/progression",
+          "https://repo.marlin-atlas.ts.net/" + current + "/game" + "/progression",
         );
         eventSource.onmessage = (event) => {
           setUploadProgression(event.data);
@@ -161,17 +149,10 @@ function Speedupdate() {
     for (let i = 0; i < files.length; i++) {
       formData.append("files[]", files[i]);
     }
-    fetch(
-      "https://repo.marlin-atlas.ts.net/" +
-        current_repo +
-        "/binaries" +
-        "/" +
-        platform,
-      {
-        method: "POST",
-        body: formData,
-      },
-    )
+    fetch("https://repo.marlin-atlas.ts.net/" + current_repo + "/binaries" + "/" + platform, {
+      method: "POST",
+      body: formData,
+    })
       .then(() => {
         setFiles([]);
         setKey((prev) => prev + 1);
@@ -189,12 +170,8 @@ function Speedupdate() {
       <Box sx={{ width: "100%" }}>
         <Paper sx={{ width: "100%", mb: 2 }}>
           <Grid container>
-            <Grid size={12}>
-              Current version: {currentVer ? currentVer : "-"}
-            </Grid>
-            <Grid size={12}>
-              Total packages size: {size ? size + DisplaySizeUnit(size) : "-"}
-            </Grid>
+            <Grid size={12}>Current version: {currentVer ? currentVer : "-"}</Grid>
+            <Grid size={12}>Total packages size: {size ? size + DisplaySizeUnit(size) : "-"}</Grid>
             Options:
             <Grid size={12}>
               Build path:{" "}

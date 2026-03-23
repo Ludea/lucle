@@ -19,8 +19,7 @@ const imagesPrefix =
 export default [
   {
     title: "Design Blocks",
-    description:
-      "A selection of 45 page sections that fit perfectly in any combination",
+    description: "A selection of 45 page sections that fit perfectly in any combination",
     items: [
       {
         image: `${imagesPrefix}/headers.jpg`,
@@ -134,8 +133,7 @@ export default [
   },
   {
     title: "Input Areas",
-    description:
-      "50+ elements that you need for text manipulation and insertion",
+    description: "50+ elements that you need for text manipulation and insertion",
     items: [
       {
         image: `${imagesPrefix}/newsletters.jpg`,
@@ -165,8 +163,7 @@ export default [
   },
   {
     title: "Attention Catchers",
-    description:
-      "20+ Fully coded components that popup from different places of the screen",
+    description: "20+ Fully coded components that popup from different places of the screen",
     items: [
       {
         image: `${imagesPrefix}/alerts.jpg`,
@@ -196,8 +193,7 @@ export default [
   },
   {
     title: "Elements",
-    description:
-      "80+ carefully crafted small elements that come with multiple colors and shapes",
+    description: "80+ carefully crafted small elements that come with multiple colors and shapes",
     items: [
       {
         image: `${imagesPrefix}/buttons.jpg`,

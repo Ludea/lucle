@@ -21,19 +21,17 @@ import PropTypes from "prop-types";
 // Custom styles for SocialButton
 import SocialButtonRoot from "components/SocialButton/SocialButtonRoot";
 
-const SocialButton = forwardRef(
-  ({ color, size, iconOnly, circular, children }, ref) => (
-    <SocialButtonRoot
-      ref={ref}
-      variant="contained"
-      color="primary"
-      size={size}
-      ownerState={{ color, size, iconOnly, circular }}
-    >
-      {children}
-    </SocialButtonRoot>
-  ),
-);
+const SocialButton = forwardRef(({ color, size, iconOnly, circular, children }, ref) => (
+  <SocialButtonRoot
+    ref={ref}
+    variant="contained"
+    color="primary"
+    size={size}
+    ownerState={{ color, size, iconOnly, circular }}
+  >
+    {children}
+  </SocialButtonRoot>
+));
 
 SocialButton.displayName = "SocialButton";
 

@@ -10,12 +10,7 @@ export const checkIfInstalled = async (client: any) =>
       });
   });
 
-export const createDB = async (
-  client: any,
-  db: number,
-  db_name: string,
-  infos_connection: any,
-) =>
+export const createDB = async (client: any, db: number, db_name: string, infos_connection: any) =>
   new Promise((resolve, reject) => {
     client
       .create_db({
@@ -38,11 +33,7 @@ export const forgotPassword = async (client: any, user_mail: string) => {
   if (error) throw error;
 };
 
-export const connection = async (
-  client: any,
-  login: string,
-  user_password: string,
-) =>
+export const connection = async (client: any, login: string, user_password: string) =>
   new Promise((resolve, reject) => {
     client
       .login({

@@ -9,13 +9,7 @@ interface dbInfos {
   password: string;
 }
 
-function DatabaseInfo({
-  dbInfos,
-  setDBInfos,
-}: {
-  dbInfos: dbInfos;
-  setDBInfos: any;
-}) {
+function DatabaseInfo({ dbInfos, setDBInfos }: { dbInfos: dbInfos; setDBInfos: any }) {
   const handleChange = (event) => {
     const { id, value } = event.target;
     setDBInfos({
@@ -34,12 +28,7 @@ function DatabaseInfo({
       }}
     >
       <Box sx={{ mt: 1 }}>
-        <TextField
-          margin="normal"
-          id="dbName"
-          label="Database name"
-          onChange={handleChange}
-        />
+        <TextField margin="normal" id="dbName" label="Database name" onChange={handleChange} />
         <TextField
           required
           margin="normal"

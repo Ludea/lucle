@@ -26,12 +26,9 @@ function Launcher() {
   const [launcherName, setLauncherName] = useState<string>("");
   const [configName, setConfigName] = useState<string>("Sparus.json");
   const [repositoryName, setRepositoryName] = useState<string>("");
-  const [updateURL, setUpdateURL] = useState<string>(
-    "https://repo.marlin-atlas.ts.net",
-  );
+  const [updateURL, setUpdateURL] = useState<string>("https://repo.marlin-atlas.ts.net");
   const [pluginsURL, setPluginsURL] = useState<string>("");
-  const [disableLauncherCreation, setDisableLauncherCreation] =
-    useState<boolean>(false);
+  const [disableLauncherCreation, setDisableLauncherCreation] = useState<boolean>(false);
   const SparusClient = useContext(SparusRPC);
 
   return (

@@ -22,20 +22,7 @@ import PropTypes from "prop-types";
 import BadgeRoot from "components/Badge/BadgeRoot";
 
 const Badge = forwardRef(
-  (
-    {
-      color,
-      variant,
-      size,
-      circular,
-      indicator,
-      border,
-      container,
-      children,
-      ...rest
-    },
-    ref,
-  ) => (
+  ({ color, variant, size, circular, indicator, border, container, children, ...rest }, ref) => (
     <BadgeRoot
       {...rest}
       ownerState={{

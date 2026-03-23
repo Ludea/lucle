@@ -50,10 +50,9 @@ function Download() {
               UI Kit for ReactJS &amp; MUI?
             </Typography>
             <Typography variant="body2" color="white" mb={6}>
-              Cause if you do, it can be yours for FREE. Hit the button below to
-              navigate to Creative Tim where you can find the Design System in
-              HTML. Start a new project or give an old Bootstrap project a new
-              look!
+              Cause if you do, it can be yours for FREE. Hit the button below to navigate to
+              Creative Tim where you can find the Design System in HTML. Start a new project or give
+              an old Bootstrap project a new look!
             </Typography>
             <Button
               variant="gradient"

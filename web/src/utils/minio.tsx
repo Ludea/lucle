@@ -29,14 +29,8 @@ export const uploadFile = async () => {
     example: 5678,
   };
 
-  minioClient
-    .fPutObject(bucket, destinationObject, sourceFile, metaData)
-    .then((value) => {
-      console.log(`output : ${value}`);
-    });
-  console.log(
-    `File ${sourceFile} uploaded as object ${destinationObject} in bucket ${
-      bucket
-    }`,
-  );
+  minioClient.fPutObject(bucket, destinationObject, sourceFile, metaData).then((value) => {
+    console.log(`output : ${value}`);
+  });
+  console.log(`File ${sourceFile} uploaded as object ${destinationObject} in bucket ${bucket}`);
 };

@@ -46,9 +46,7 @@ export default function App() {
     <ThemeProvider theme={darkMode ? themeDark : theme}>
       <CssBaseline />
       <AuthProvider>
-        {isInstalled !== undefined ? (
-          <LucleRoutes isInstalled={isInstalled} />
-        ) : null}
+        {isInstalled !== undefined ? <LucleRoutes isInstalled={isInstalled} /> : null}
       </AuthProvider>
     </ThemeProvider>
   );

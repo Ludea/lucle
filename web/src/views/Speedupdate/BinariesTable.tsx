@@ -10,9 +10,7 @@ import TablePagination from "@mui/material/TablePagination";
 function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
   const [binariesPerPage, setBinariesPerPage] = useState(5);
   const [binariesPage, setBinariesPage] = useState(0);
-  const [selectedBinaries, setSelectedBinaries] = useState<readonly number[]>(
-    [],
-  );
+  const [selectedBinaries, setSelectedBinaries] = useState<readonly number[]>([]);
   const numBinariesSelected = selectedBinaries.length;
 
   const visibleBinaries = useMemo(
@@ -35,10 +33,7 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
             pr: { xs: 1, sm: 1 },
             ...(numBinariesSelected > 0 && {
               bgcolor: (theme) =>
-                alpha(
-                  theme.palette.primary.main,
-                  theme.palette.action.activatedOpacity,
-                ),
+                alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
             }),
           }}
         >
@@ -52,12 +47,7 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
               {numBinariesSelected} selected
             </Typography>
           ) : (
-            <Typography
-              sx={{ flex: "1 1 100%" }}
-              variant="h6"
-              id="tableTitle"
-              component="div"
-            >
+            <Typography sx={{ flex: "1 1 100%" }} variant="h6" id="tableTitle" component="div">
               Binaries
             </Typography>
           )}

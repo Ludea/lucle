@@ -23,13 +23,7 @@ import Icon from "@mui/material/Icon";
 import Box from "components/Box";
 import Typography from "components/Typography";
 
-function RotatingCardFront({
-  color = "info",
-  image,
-  icon = "",
-  title,
-  description,
-}) {
+function RotatingCardFront({ color = "info", image, icon = "", title, description }) {
   return (
     <Box
       display="flex"
@@ -41,19 +35,10 @@ function RotatingCardFront({
       position="relative"
       zIndex={2}
       sx={{
-        backgroundImage: ({
-          palette: { gradients },
-          functions: { linearGradient, rgba },
-        }) =>
+        backgroundImage: ({ palette: { gradients }, functions: { linearGradient, rgba } }) =>
           `${linearGradient(
-            rgba(
-              gradients[color] ? gradients[color].main : gradients.info.main,
-              0.85,
-            ),
-            rgba(
-              gradients[color] ? gradients[color].main : gradients.info.main,
-              0.85,
-            ),
+            rgba(gradients[color] ? gradients[color].main : gradients.info.main, 0.85),
+            rgba(gradients[color] ? gradients[color].main : gradients.info.main, 0.85),
           )}, url(${image})`,
         backgroundSize: "cover",
         backfaceVisibility: "hidden",

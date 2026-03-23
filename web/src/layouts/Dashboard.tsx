@@ -36,11 +36,7 @@ import brandDark from "assets/images/logo-ct-dark.png";
 import { Routes, Route } from "react-router-dom";
 
 // Material Dashboard 2 React contexts
-import {
-  useMaterialUIController,
-  setMiniSidenav,
-  setOpenConfigurator,
-} from "context";
+import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 
 // Material Dashboard 2 React routes
 import adminroutes from "adminRoutes";
@@ -87,8 +83,7 @@ function Dashboard() {
   };
 
   // Change the openConfigurator state
-  const handleConfiguratorOpen = () =>
-    setOpenConfigurator(dispatch, !openConfigurator);
+  const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
 
   // Setting page scroll to 0 when changing the route
   useEffect(() => {
@@ -104,14 +99,7 @@ function Dashboard() {
       }
 
       if (route.route) {
-        return (
-          <Route
-            exact
-            path={route.route}
-            element={route.component}
-            key={route.key}
-          />
-        );
+        return <Route exact path={route.route} element={route.component} key={route.key} />;
       }
 
       return null;
@@ -151,11 +139,7 @@ function Dashboard() {
               <>
                 <Sidenav
                   color={sidenavColor}
-                  brand={
-                    (transparentSidenav && !darkMode) || whiteSidenav
-                      ? brandDark
-                      : brandWhite
-                  }
+                  brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
                   brandName="Lucle 2"
                   routes={adminroutes}
                   onMouseEnter={handleOnMouseEnter}
@@ -177,11 +161,7 @@ function Dashboard() {
             <>
               <Sidenav
                 color={sidenavColor}
-                brand={
-                  (transparentSidenav && !darkMode) || whiteSidenav
-                    ? brandDark
-                    : brandWhite
-                }
+                brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
                 brandName="Lucle"
                 routes={adminroutes}
                 onMouseEnter={handleOnMouseEnter}

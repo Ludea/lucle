@@ -44,14 +44,7 @@ function Configurator() {
     darkMode,
   } = controller;
   const [disabled, setDisabled] = useState(false);
-  const sidenavColors = [
-    "primary",
-    "dark",
-    "info",
-    "success",
-    "warning",
-    "error",
-  ];
+  const sidenavColors = ["primary", "dark", "info", "success", "warning", "error"];
 
   // Use the useEffect hook to change the button state for the sidenav type based on window size.
   useEffect(() => {
@@ -112,15 +105,11 @@ function Configurator() {
     palette: { white, gradients, background },
   }) => ({
     height: pxToRem(39),
-    background: darkMode
-      ? white.main
-      : linearGradient(gradients.dark.main, gradients.dark.state),
+    background: darkMode ? white.main : linearGradient(gradients.dark.main, gradients.dark.state),
     color: darkMode ? background.sidenav : white.main,
 
     "&:hover, &:focus, &:focus:not(:hover)": {
-      background: darkMode
-        ? white.main
-        : linearGradient(gradients.dark.main, gradients.dark.state),
+      background: darkMode ? white.main : linearGradient(gradients.dark.main, gradients.dark.state),
       color: darkMode ? background.sidenav : white.main,
     },
   });
@@ -189,14 +178,8 @@ function Configurator() {
                     easing: transitions.easing.sharp,
                     duration: transitions.duration.shorter,
                   }),
-                  backgroundImage: ({
-                    functions: { linearGradient },
-                    palette: { gradients },
-                  }) =>
-                    linearGradient(
-                      gradients[color].main,
-                      gradients[color].state,
-                    ),
+                  backgroundImage: ({ functions: { linearGradient }, palette: { gradients } }) =>
+                    linearGradient(gradients[color].main, gradients[color].state),
 
                   "&:not(:last-child)": {
                     mr: 1,
@@ -283,12 +266,7 @@ function Configurator() {
           <Switch checked={fixedNavbar} onChange={handleFixedNavbar} />
         </Box>
         <Divider />
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          lineHeight={1}
-        >
+        <Box display="flex" justifyContent="space-between" alignItems="center" lineHeight={1}>
           <Typography variant="h6">Light / Dark</Typography>
 
           <Switch checked={darkMode} onChange={handleDarkMode} />

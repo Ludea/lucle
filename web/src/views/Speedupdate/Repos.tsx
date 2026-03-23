@@ -52,8 +52,7 @@ function ListRepo() {
     const hosts = Object.keys(checked).filter((key) => checked[key] === true);
     for (const host of hosts) {
       if (host === "win64") selectedPlatforms.push(Platforms.WIN64);
-      if (host === "macos_x86_64")
-        selectedPlatforms.push(Platforms.MACOS_X86_64);
+      if (host === "macos_x86_64") selectedPlatforms.push(Platforms.MACOS_X86_64);
       if (host === "macos_arm64") selectedPlatforms.push(Platforms.MACOS_ARM64);
       if (host === "linux") selectedPlatforms.push(Platforms.LINUX);
     }
@@ -63,31 +62,26 @@ function ListRepo() {
   return (
     <div>
       {listRepo.size > 0
-        ? Array.from(listRepo.keys()).map(
-            (repo_name: string, index: number) => (
-              <Button
-                key={index}
-                variant="contained"
-                onClick={() => {
-                  setError(null);
-                  const platforms = listRepo.get(repo_name);
-                  isInit(client, repo_name, platforms, "game")
-                    .then(() => {
-                      localStorage.setItem(
-                        "current_repo",
-                        JSON.stringify({ repo_name, platforms }),
-                      );
-                      navigate(repo_name);
-                    })
-                    .catch((err) => {
-                      setError(err.rawMessage);
-                    });
-                }}
-              >
-                {repo_name}
-              </Button>
-            ),
-          )
+        ? Array.from(listRepo.keys()).map((repo_name: string, index: number) => (
+            <Button
+              key={index}
+              variant="contained"
+              onClick={() => {
+                setError(null);
+                const platforms = listRepo.get(repo_name);
+                isInit(client, repo_name, platforms, "game")
+                  .then(() => {
+                    localStorage.setItem("current_repo", JSON.stringify({ repo_name, platforms }));
+                    navigate(repo_name);
+                  })
+                  .catch((err) => {
+                    setError(err.rawMessage);
+                  });
+              }}
+            >
+              {repo_name}
+            </Button>
+          ))
         : null}
       <Grid container>
         <Grid>
@@ -185,31 +179,20 @@ function ListRepo() {
               .then(() => {
                 setPath("");
                 const hostsEnum = getPlatforms();
-                const hosts = Object.keys(checked).filter(
-                  (key) => checked[key] === true,
-                );
+                const hosts = Object.keys(checked).filter((key) => checked[key] === true);
                 let list = new Map<string, string[]>();
                 list = listRepo;
                 list.set(path, hosts);
                 setListRepo(list);
                 //setPlatformsEnum(hostsEnum);
-                localStorage.setItem(
-                  "platformsEnum",
-                  JSON.stringify(hostsEnum),
-                );
-                localStorage.setItem(
-                  "repositories",
-                  JSON.stringify(Object.fromEntries(list)),
-                );
+                localStorage.setItem("platformsEnum", JSON.stringify(hostsEnum));
+                localStorage.setItem("repositories", JSON.stringify(Object.fromEntries(list)));
                 const hosts_string = getPlatforms();
-                registerUpdateServer(
-                  lucleClient,
-                  auth.username,
-                  path,
-                  hosts_string,
-                ).catch((err) => {
-                  setError(err.rawMessage);
-                });
+                registerUpdateServer(lucleClient, auth.username, path, hosts_string).catch(
+                  (err) => {
+                    setError(err.rawMessage);
+                  },
+                );
               })
               .catch((err) => {
                 setError(err.rawMessage);

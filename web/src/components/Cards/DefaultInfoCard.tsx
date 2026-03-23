@@ -32,11 +32,7 @@ function DefaultInfoCard({
   small = false,
 }) {
   return (
-    <Box
-      lineHeight={1}
-      p={direction === "center" ? 2 : 0}
-      textAlign={direction}
-    >
+    <Box lineHeight={1} p={direction === "center" ? 2 : 0} textAlign={direction}>
       {typeof icon === "string" ? (
         <Typography
           display="block"
