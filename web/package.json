@@ -50,7 +50,7 @@
     "@types/react-dom": "^19.0.2",
     "@types/regenerator-runtime": "^0",
     "@vitejs/plugin-react": "^6.0.0",
-    "typescript": "^5.3.3",
+    "typescript": "^6.0.2",
     "vite-plus": "^0.1.13"
   },
   "packageManager": "pnpm@10.32.1"
