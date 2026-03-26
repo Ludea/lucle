@@ -1,5 +1,3 @@
-import Config from "chart.js/dist/core/core.config";
-
 export const send_event_allo = async (client: any) =>
   new Promise((resolve, reject) => {
     client

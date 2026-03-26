@@ -23,13 +23,13 @@ const { md } = boxShadows;
 const { borderRadius } = borders;
 
 const tableContainer = {
-  /*  styleOverrides: {
+  styleOverrides: {
     root: {
       backgroundColor: white.main,
       boxShadow: md,
       borderRadius: borderRadius.xl,
     },
-  }, */
+  },
 };
 
 export default tableContainer;

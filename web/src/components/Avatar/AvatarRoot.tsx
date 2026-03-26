@@ -6,8 +6,8 @@ export default styled(Avatar)(({ theme, ownerState }) => {
   const { palette, functions, typography, boxShadows } = theme;
   const { shadow, bgColor, size } = ownerState;
 
-  const { gradients, transparent, white } = palette;
-  const { pxToRem, linearGradient } = functions;
+  const { transparent, white } = palette;
+  const { pxToRem } = functions;
   const { size: fontSize, fontWeightRegular } = typography;
 
   // backgroundImage value

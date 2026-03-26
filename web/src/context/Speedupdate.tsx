@@ -3,7 +3,7 @@ import { ReactNode, createContext } from "react";
 // RPC Connect
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import { createClient } from "@connectrpc/connect";
-import { Repo, Platforms, Options, Versions } from "gen/speedupdate_pb";
+import { Repo } from "gen/speedupdate_pb";
 
 const SpeedupdateRPC = createContext();
 

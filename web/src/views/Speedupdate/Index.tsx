@@ -18,7 +18,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 
 // RPC Connect
-import { Platforms, Options, Versions } from "gen/speedupdate_pb";
+import { Platforms, Options } from "gen/speedupdate_pb";
 
 //components
 import PackagesTable from "views/Speedupdate/PackagesTable";
@@ -29,7 +29,6 @@ import { repoToDelete, status } from "utils/speedupdaterpc";
 import { deleteRepo } from "utils/rpc";
 
 // Context
-import { useAuth } from "context/Auth";
 import { LucleRPC } from "context/Luclerpc";
 import { SpeedupdateRPC } from "context/Speedupdate";
 
@@ -65,13 +64,11 @@ function Speedupdate() {
   const [listRepo, setListRepo] = useState<Map<string, string[]>>(new Map());
   const [listPackages, setListPackages] = useState<string[]>([]);
   const [availableBinaries, setAvailableBinaries] = useState<string[]>([]);
-  const [selectedVersionsValues, setSelectedVersionsValues] = useState<string[]>([]);
   const [buildPath, setBuildPath] = useState<string>("");
   const [uploadPath, setUploadPath] = useState<string>("");
   const [files, setFiles] = useState();
   const [error, setError] = useState<string | null>(null);
 
-  const auth = useAuth();
   const lucleClient = useContext(LucleRPC);
   const speedupdateClient = useContext(SpeedupdateRPC);
   const controller = new AbortController();

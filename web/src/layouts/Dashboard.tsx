@@ -1,10 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 
-// @mui material components
-import Icon from "@mui/material/Icon";
-
 // Material Dashboard 2 React components
-import Box from "components/Box";
 import { ThemeProvider } from "@mui/material/styles";
 
 // Material Dashboard 2 React example components
@@ -36,7 +32,7 @@ import brandDark from "assets/images/logo-ct-dark.png";
 import { Routes, Route } from "react-router-dom";
 
 // Material Dashboard 2 React contexts
-import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
+import { useMaterialUIController, setMiniSidenav } from "context";
 
 // Material Dashboard 2 React routes
 import adminroutes from "adminRoutes";
@@ -47,7 +43,6 @@ function Dashboard() {
     miniSidenav,
     direction,
     layout,
-    openConfigurator,
     sidenavColor,
     transparentSidenav,
     whiteSidenav,
@@ -82,9 +77,6 @@ function Dashboard() {
     }
   };
 
-  // Change the openConfigurator state
-  const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
-
   // Setting page scroll to 0 when changing the route
   useEffect(() => {
     document.body.setAttribute("dir", direction);
@@ -104,30 +96,6 @@ function Dashboard() {
 
       return null;
     });
-
-  const configsButton = (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      width="3.25rem"
-      height="3.25rem"
-      bgColor="white"
-      shadow="sm"
-      borderRadius="50%"
-      position="fixed"
-      right="2rem"
-      bottom="2rem"
-      zIndex={99}
-      color="dark"
-      sx={{ cursor: "pointer" }}
-      onClick={handleConfiguratorOpen}
-    >
-      <Icon fontSize="small" color="inherit">
-        settings
-      </Icon>
-    </Box>
-  );
 
   return (
     <DashboardLayout>
