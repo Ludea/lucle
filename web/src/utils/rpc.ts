@@ -1,29 +1,10 @@
-export const checkIfInstalled = async (client: any) =>
-  new Promise((resolve, reject) => {
-    client
-      .is_database_created()
-      .then(() => {
-        resolve();
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
+export const checkIfInstalled = async (client: any) => client.is_database_created();
 
 export const createDB = async (client: any, db: number, db_name: string, infos_connection: any) =>
-  new Promise((resolve, reject) => {
-    client
-      .create_db({
-        dbType: db,
-        dbName: infos_connection.dbName,
-        dbConnection: infos_connection,
-      })
-      .then(() => {
-        resolve();
-      })
-      .catch((err) => {
-        reject(err);
-      });
+  client.create_db({
+    dbType: db,
+    dbName: infos_connection.dbName,
+    dbConnection: infos_connection,
   });
 
 export const forgotPassword = async (client: any, user_mail: string) => {
@@ -55,22 +36,13 @@ export const createUser = async (
   user_mail: string,
   role: string,
 ) =>
-  new Promise((resolve, reject) => {
-    client
-      .create_user({
-        // TODO: delete this var
-        database_path: "lucle.db",
-        username: login,
-        password: user_password,
-        email: user_mail,
-        role,
-      })
-      .then(() => {
-        resolve();
-      })
-      .catch((err) => {
-        reject(err);
-      });
+  client.create_user({
+    // TODO: delete this var
+    database_path: "lucle.db",
+    username: login,
+    password: user_password,
+    email: user_mail,
+    role,
   });
 
 export const registerUpdateServer = async (
@@ -79,19 +51,10 @@ export const registerUpdateServer = async (
   repo: string,
   platforms: any,
 ) =>
-  new Promise((resolve, reject) => {
-    client
-      .register_update_server({
-        path: repo,
-        username,
-        platforms,
-      })
-      .then(() => {
-        resolve();
-      })
-      .catch((err) => {
-        reject(err);
-      });
+  client.register_update_server({
+    path: repo,
+    username,
+    platforms,
   });
 
 export const listRepositories = async (client: any, username: string) =>
@@ -109,15 +72,6 @@ export const listRepositories = async (client: any, username: string) =>
   });
 
 export const deleteRepo = async (client: any, path: string) =>
-  new Promise((resolve, reject) => {
-    client
-      .delete_repo({
-        path,
-      })
-      .then(() => {
-        resolve();
-      })
-      .catch((err) => {
-        reject(err);
-      });
+  client.delete_repo({
+    path,
   });
