@@ -6,4 +6,14 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
+  fmt: {
+    ignorePatterns: ["dist/**"],
+  },
+  lint: {
+    ignorePatterns: ["dist/**"],
+    options: {
+      typeAware: true,
+      typeCheck: true,
+    },
+  },
 });
