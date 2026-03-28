@@ -60,7 +60,7 @@ export default styled(Typography)(({ theme, ownerState }) => {
     verticalAlign,
     textDecoration: "none",
     color: colorValue,
-    fontWeight: fontWeights[fontWeight] && fontWeights[fontWeight],
+    fontWeight: fontWeights[fontWeight],
     ...(textGradient && gradientStyles()),
   };
 });
