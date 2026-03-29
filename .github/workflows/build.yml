@@ -23,14 +23,13 @@ jobs:
           node-version: 20
       - uses: voidzero-dev/setup-vp@v1
         with:
+          working-directory: web
           run-install: true
       - uses: Swatinem/rust-cache@v2
-      - name: Install dependencies
-        run: cd web && vp install
       - name: Check
-        run: cd web && vp run check
-      - name: Build frontend (js side)
-        run: cd web && vp run build
+        run: vp run check
+      - name: Build frontend
+        run: cvp run build
       - name: fmt
         run: cargo fmt --all -- --check
       - name: Clippy

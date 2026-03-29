@@ -22,15 +22,14 @@ jobs:
           node-version: 20
       - uses: voidzero-dev/setup-vp@v1
         with:
+          working-directory: web
           run-install: true
-      - name: Install dependencies
-        run: cd web && vp install
       - name: Create .env file
         run: |
           echo "VITE_ST_KEY=${{ secrets.ST_KEY }}" >> web/.env
           echo "VITE_ST_SRC=${{ secrets.ST_SRC }}" >> web/.env
-      - name: Build frontend (js side)
-        run: cd web && vp build
+      - name: Build frontend
+        run: vp run build
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:

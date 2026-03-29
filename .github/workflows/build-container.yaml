@@ -19,10 +19,11 @@ jobs:
         with:
           node-version: 20
       - uses: voidzero-dev/setup-vp@v1
-      - name: Install dependencies
-        run: cd web && vp install
-      - name: Build frontend (js side)
-        run: cd web && vp run build
+        with:
+          working-directory: web
+          run-install: true
+      - name: Build frontend 
+        run: vp run build
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
