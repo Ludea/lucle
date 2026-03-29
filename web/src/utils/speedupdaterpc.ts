@@ -5,59 +5,36 @@ const setHeaders = (): Headers => {
   return headers;
 };
 
-export const init = async (client: any, path: string, platforms: any) =>
-  new Promise((resolve, reject) => {
-    let headers = setHeaders();
-    const subPath = Object.keys(platforms).filter((key) => platforms[key] === true);
-    for (const folder of subPath) {
-      client
-        .init(
-          {
-            path: path.concat("/game/", folder),
-          },
-          { headers },
-        )
-        .then(() => {
-          resolve();
-        })
-        .catch((error: any) => {
-          reject(error);
-        });
-      client
-        .init(
-          {
-            path: path.concat("/launcher/", folder),
-          },
-          { headers },
-        )
-        .then(() => {
-          resolve();
-        })
-        .catch((error: any) => {
-          reject(error);
-        });
-    }
-  });
+export const init = async (client: any, path: string, platforms: any) => {
+  let headers = setHeaders();
+  const subPath = Object.keys(platforms).filter((key) => platforms[key] === true);
+  for (const folder of subPath) {
+    client.init(
+      {
+        path: path.concat("/game/", folder),
+      },
+      { headers },
+    );
+    client.init(
+      {
+        path: path.concat("/launcher/", folder),
+      },
+      { headers },
+    );
+  }
+};
 
-export const isInit = async (client: any, path: string, platforms: any, type: string) =>
-  new Promise((resolve, reject) => {
-    let headers = setHeaders();
-    for (const folder of platforms) {
-      client
-        .is_init(
-          {
-            path: path.concat("/", type, "/", folder),
-          },
-          { headers },
-        )
-        .then(() => {
-          resolve();
-        })
-        .catch((error: string) => {
-          reject(error);
-        });
-    }
-  });
+export const isInit = async (client: any, path: string, platforms: any, type: string) => {
+  let headers = setHeaders();
+  for (const folder of platforms) {
+    client.is_init(
+      {
+        path: path.concat("/", type, "/", folder),
+      },
+      { headers },
+    );
+  }
+};
 
 export const setCurrentVersion = async (
   client: any,
@@ -65,26 +42,18 @@ export const setCurrentVersion = async (
   version: string,
   platforms: any,
   type: string,
-) =>
-  new Promise((resolve, reject) => {
-    let headers = setHeaders();
-    for (const folder of platforms) {
-      client
-        .set_current_version(
-          {
-            path: path.concat("/", type, "/", folder),
-            version,
-          },
-          { headers },
-        )
-        .then(() => {
-          resolve();
-        })
-        .catch((error: string) => {
-          reject(error);
-        });
-    }
-  });
+) => {
+  let headers = setHeaders();
+  for (const folder of platforms) {
+    client.set_current_version(
+      {
+        path: path.concat("/", type, "/", folder),
+        version,
+      },
+      { headers },
+    );
+  }
+};
 
 export const registerVersion = async (
   client: any,
@@ -93,27 +62,19 @@ export const registerVersion = async (
   description: string,
   platforms: any,
   type: string,
-) =>
-  new Promise((resolve, reject) => {
-    let headers = setHeaders();
-    for (const folder of platforms) {
-      client
-        .register_version(
-          {
-            path: path.concat("/", type, "/", folder),
-            version,
-            description,
-          },
-          { headers },
-        )
-        .then(() => {
-          resolve();
-        })
-        .catch((error: string) => {
-          reject(error);
-        });
-    }
-  });
+) => {
+  let headers = setHeaders();
+  for (const folder of platforms) {
+    client.register_version(
+      {
+        path: path.concat("/", type, "/", folder),
+        version,
+        description,
+      },
+      { headers },
+    );
+  }
+};
 
 export const unregisterVersion = async (
   client: any,
@@ -121,26 +82,18 @@ export const unregisterVersion = async (
   version: string,
   platforms: any,
   type: string,
-) =>
-  new Promise((resolve, reject) => {
-    let headers = setHeaders();
-    for (const folder of platforms) {
-      client
-        .unregister_version(
-          {
-            path: path.concat("/", type, "/", folder),
-            version,
-          },
-          { headers },
-        )
-        .then(() => {
-          resolve();
-        })
-        .catch((error: string) => {
-          reject(error);
-        });
-    }
-  });
+) => {
+  let headers = setHeaders();
+  for (const folder of platforms) {
+    client.unregister_version(
+      {
+        path: path.concat("/", type, "/", folder),
+        version,
+      },
+      { headers },
+    );
+  }
+};
 
 export const registerPackage = async (
   client: any,
@@ -148,26 +101,18 @@ export const registerPackage = async (
   name: string,
   platforms: any,
   type: string,
-) =>
-  new Promise((resolve, reject) => {
-    let headers = setHeaders();
-    for (const folder of platforms) {
-      client
-        .register_package(
-          {
-            path: path.concat("/", type, "/", folder),
-            name,
-          },
-          { headers },
-        )
-        .then(() => {
-          resolve();
-        })
-        .catch((error: string) => {
-          reject(error);
-        });
-    }
-  });
+) => {
+  let headers = setHeaders();
+  for (const folder of platforms) {
+    client.register_package(
+      {
+        path: path.concat("/", type, "/", folder),
+        name,
+      },
+      { headers },
+    );
+  }
+};
 
 export const unregisterPackage = async (
   client: any,
@@ -175,61 +120,30 @@ export const unregisterPackage = async (
   name: string,
   platforms: any,
   type: string,
-) =>
-  new Promise((resolve, reject) => {
-    let headers = setHeaders();
-    for (const folder of platforms) {
-      client
-        .unregister_package(
-          {
-            path: path.concat("/", type, "/", folder),
-            name,
-          },
-          { headers },
-        )
-        .then(() => {
-          resolve();
-        })
-        .catch((error: string) => {
-          reject(error);
-        });
-    }
-  });
-
-export const repoToDelete = async (client: any, path: string) => {
-  new Promise((resolve, reject) => {
-    let headers = setHeaders();
-    client
-      .delete_repo({ path: path })
-      .then(
-        () => {
-          resolve();
-        },
-        { headers },
-      )
-      .catch((error: string) => {
-        reject(error);
-      });
-  });
+) => {
+  let headers = setHeaders();
+  for (const folder of platforms) {
+    client.unregister_package(
+      {
+        path: path.concat("/", type, "/", folder),
+        name,
+      },
+      { headers },
+    );
+  }
 };
 
-export const fileToDelete = async (client: any, file: string, platforms: any, type: string) =>
-  new Promise((resolve, reject) => {
-    let headers = setHeaders();
-    for (const folder of platforms) {
-      client
-        .delete_file({ file: folder.concat("/", type, "/", file) })
-        .then(
-          () => {
-            resolve();
-          },
-          { headers },
-        )
-        .catch((error: string) => {
-          reject(error);
-        });
-    }
-  });
+export const repoToDelete = async (client: any, path: string) => {
+  let headers = setHeaders();
+  client.delete_repo({ path: path }, { headers });
+};
+
+export const fileToDelete = async (client: any, file: string, platforms: any, type: string) => {
+  let headers = setHeaders();
+  for (const folder of platforms) {
+    client.delete_file({ file: folder.concat("/", type, "/", file) }, { headers });
+  }
+};
 
 export const compareStatus = (oldStatus: any, newStatus: any) => {
   if (oldStatus.currentVersion !== newStatus.currentVersion) return false;

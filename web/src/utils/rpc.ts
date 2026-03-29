@@ -15,18 +15,9 @@ export const forgotPassword = async (client: any, user_mail: string) => {
 };
 
 export const connection = async (client: any, login: string, user_password: string) =>
-  new Promise((resolve, reject) => {
-    client
-      .login({
-        usernameOrEmail: login,
-        password: user_password,
-      })
-      .then((user) => {
-        resolve(user);
-      })
-      .catch((err) => {
-        reject(err);
-      });
+  client.login({
+    usernameOrEmail: login,
+    password: user_password,
   });
 
 export const createUser = async (
@@ -58,17 +49,8 @@ export const registerUpdateServer = async (
   });
 
 export const listRepositories = async (client: any, username: string) =>
-  new Promise((resolve, reject) => {
-    client
-      .list_update_server_by_user({
-        username,
-      })
-      .then((list) => {
-        resolve(list);
-      })
-      .catch((err) => {
-        reject(err);
-      });
+  client.list_update_server_by_user({
+    username,
   });
 
 export const deleteRepo = async (client: any, path: string) =>
