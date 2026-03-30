@@ -23,7 +23,7 @@ jobs:
           working-directory: web
           run-install: true
       - name: Build frontend 
-        run: vp run build
+        run: cd web && vp run build
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:

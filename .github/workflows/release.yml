@@ -29,7 +29,7 @@ jobs:
           echo "VITE_ST_KEY=${{ secrets.ST_KEY }}" >> web/.env
           echo "VITE_ST_SRC=${{ secrets.ST_SRC }}" >> web/.env
       - name: Build frontend
-        run: vp run build
+        run: cd web && vp run build
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
