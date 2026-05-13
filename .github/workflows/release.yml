@@ -54,7 +54,7 @@ jobs:
           if-no-files-found: error
           path: target/aarch64-unknown-linux-musl/release/lucle
       - name: Upload artifacts on release page
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: target/aarch64-unknown-linux-musl/release/lucle_linux_arm64
 
@@ -85,7 +85,7 @@ jobs:
           if-no-files-found: error
           path: target/x86_64-unknown-linux-musl/release/lucle
       - name: Upload artifacts on release page
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: target/x86_64-unknown-linux-musl/release/lucle_linux_x86_64
           body: ${{ steps.build_changelog.outputs.changelog }}
