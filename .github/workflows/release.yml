@@ -15,7 +15,7 @@ jobs:
   frontend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: setup node
         uses: actions/setup-node@v6
         with:
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ghcr.io/blackdex/rust-musl:aarch64-musl
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: Swatinem/rust-cache@v2
       - name: Build
         run: cargo build --release
@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ghcr.io/blackdex/rust-musl:x86_64-musl
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: "Build Changelog"
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v6
@@ -94,7 +94,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [build_aarch64, build_x86_64, frontend]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: extract version without "v"
         run: |
           GITHUB_TAG="${{ github.ref_name }}"
