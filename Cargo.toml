@@ -30,7 +30,7 @@ octocrab = "0.54"
 argon2 = { version = "0.5.2", features = ["std"] }
 lettre = { version = "0.11.1", default-features = false, features = ["smtp-transport", "pool", "hostname", "builder", "rustls-tls", "file-transport"] }
 email-address-parser = "2.0.0"
-tera = "1.19.1"
+tera = "2.0.0"
 hyper-util = "0.1.1"
 time = "0.3.30"
 jsonwebtoken = { version = "10.0.0", features = ["rust_crypto"] }

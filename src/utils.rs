@@ -25,13 +25,9 @@ struct Claims {
 
 pub fn send_mail(from: &str, dest: &str, subject: &str, _body: &str) {
     let context = Context::new();
-    let tera = match Tera::new("templates") {
-        Ok(t) => t,
-        Err(e) => {
-            println!("Parsing error(s): {e}");
-            ::std::process::exit(1);
-        }
-    };
+    let mut tera = Tera::default();
+    tera.add_raw_templates(vec![("email.html", include_str!("templates/email.html"))])
+        .unwrap();
 
     let rendered_content = tera.render("email.html", &context).unwrap();
 
