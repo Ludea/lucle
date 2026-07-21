@@ -4,9 +4,13 @@ import TextField from "@mui/material/TextField";
 import { styled } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-import { build_custom_launcher } from "utils/sparusrpc";
+import { build_custom_launcher, send_event_all } from "utils/sparusrpc";
 import { SparusRPC } from "context/Sparus";
 
 const VisuallyHiddenInput = styled("input")({
@@ -29,6 +33,8 @@ function Launcher() {
   const [updateURL, setUpdateURL] = useState<string>("https://repo.marlin-atlas.ts.net");
   const [pluginsURL, setPluginsURL] = useState<string>("");
   const [disableLauncherCreation, setDisableLauncherCreation] = useState<boolean>(false);
+  const [selectedEvent, setSelectedEvent] = useState<number>(0);
+  const [pluginName, setPluginName] = useState<string>("");
   const SparusClient = useContext(SparusRPC);
 
   return (
@@ -42,9 +48,6 @@ function Launcher() {
             label="Launcher name"
             name="launcher"
             autoComplete="launcher"
-            sx={{
-              width: "30%",
-            }}
             value={launcherName}
             onChange={(event) => {
               setLauncherName(event.target.value);
@@ -59,9 +62,6 @@ function Launcher() {
             label="Repository name"
             name="repository"
             autoComplete="repository"
-            sx={{
-              width: "30%",
-            }}
             value={repositoryName}
             onChange={(event) => {
               setRepositoryName(event.target.value);
@@ -76,9 +76,6 @@ function Launcher() {
             label="Url of the update server"
             name="update_server"
             autoComplete="update_server"
-            sx={{
-              width: "30%",
-            }}
             value={updateURL}
             onChange={(event) => {
               setUpdateURL(event.target.value);
@@ -93,9 +90,6 @@ function Launcher() {
             label="Url of the plugins"
             name="plugin_url"
             autoComplete="plugin_url"
-            sx={{
-              width: "30%",
-            }}
             value={pluginsURL}
             onChange={(event) => {
               setPluginsURL(event.target.value);
@@ -110,9 +104,6 @@ function Launcher() {
             label="Game name"
             name="game"
             autoComplete="game"
-            sx={{
-              width: "30%",
-            }}
             value={gameName}
             onChange={(event) => {
               setGameName(event.target.value);
@@ -127,9 +118,6 @@ function Launcher() {
             label="Config file name"
             name="config"
             autoComplete="config"
-            sx={{
-              width: "30%",
-            }}
             value={configName}
             onChange={(event) => {
               setConfigName(event.target.value);
@@ -183,7 +171,41 @@ function Launcher() {
         >
           Create Launcher
         </Button>
-      </Grid>
+	<Grid size={12}>
+        <FormControl>
+        <Select
+          labelId="select-event"
+          id="select-event"
+          value={selectedEvent}
+          label="Send Event"
+          onChange={(event) => setSelectedEvent(event.target.value)}
+        >
+          <MenuItem value={0}>Install Plugin</MenuItem>
+          <MenuItem value={1}>Update Plugin</MenuItem>
+          <MenuItem value={2}>Remove Plugin</MenuItem>
+          <MenuItem value={3}>Update Frontend</MenuItem>
+        </Select>
+      </FormControl>
+	<TextField
+            margin="normal"
+            id="plugin_name"
+            label="Plugin name"
+            name="plugin"
+            value={pluginName}
+            onChange={(event) => {
+              setPluginName(event.target.value);
+            }}
+          />
+	<Button
+          variant="contained"
+          onClick={() =>
+		send_event_all(SparusClient, selectedEvent, pluginName)
+          }
+        >
+          Send event
+        </Button>
+	</Grid>
+   </Grid>
     </div>
   );
 }

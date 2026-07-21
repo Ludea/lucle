@@ -396,11 +396,8 @@ impl Event for EventRoute {
         Ok(Response::new(response))
     }
 
-    async fn send_event(&self, _req: Request<Message>) -> Result<Response<EmptySparus>, Status> {
-        let message = Message {
-            plugin: "foo".to_string(),
-            event_type: 0,
-        };
+    async fn send_event_all(&self, req: Request<Message>) -> Result<Response<EmptySparus>, Status> {
+        let message = req.into_inner();
 
         let tx_cloned = self.tx.clone();
 
