@@ -19,7 +19,10 @@ function BuiltByDevelopers() {
       my={2}
       py={6}
       sx={{
-        backgroundImage: ({ functions: { linearGradient, rgba }, palette: { gradients } }) =>
+        backgroundImage: ({
+          functions: { linearGradient, rgba },
+          palette: { gradients },
+        }) =>
           `${linearGradient(
             rgba(gradients.dark.main, 0.8),
             rgba(gradients.dark.state, 0.8),
@@ -37,9 +40,9 @@ function BuiltByDevelopers() {
             Complex Documentation
           </Typography>
           <Typography variant="body1" color="white" opacity={0.8} mb={2}>
-            From colors, cards, typography to complex elements, you will find the full
-            documentation. Play with the utility classes and you will create unlimited combinations
-            for our components.
+            From colors, cards, typography to complex elements, you will find
+            the full documentation. Play with the utility classes and you will
+            create unlimited combinations for our components.
           </Typography>
           <Typography
             component="a"

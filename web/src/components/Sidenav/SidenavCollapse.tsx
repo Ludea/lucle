@@ -38,7 +38,13 @@ import { useMaterialUIController } from "context";
 
 function SidenavCollapse({ icon, name, active = false }) {
   const [controller] = useMaterialUIController();
-  const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
+  const {
+    miniSidenav,
+    transparentSidenav,
+    whiteSidenav,
+    darkMode,
+    sidenavColor,
+  } = controller;
 
   return (
     <ListItem component="li">

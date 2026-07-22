@@ -22,7 +22,19 @@ import PropTypes from "prop-types";
 import BoxRoot from "components/Box/BoxRoot";
 
 const Box = forwardRef(
-  ({ variant, bgColor, color, opacity, borderRadius, shadow, coloredShadow, ...rest }, ref) => (
+  (
+    {
+      variant,
+      bgColor,
+      color,
+      opacity,
+      borderRadius,
+      shadow,
+      coloredShadow,
+      ...rest
+    },
+    ref,
+  ) => (
     <BoxRoot
       {...rest}
       ref={ref}

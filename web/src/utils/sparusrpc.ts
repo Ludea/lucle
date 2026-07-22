@@ -1,4 +1,8 @@
-export const send_event_all = async (client: any, event: number, plugin_name?: string) =>
+export const send_event_all = async (
+  client: any,
+  event: number,
+  plugin_name?: string,
+) =>
   client.send_event_all({
     event_type: event,
     plugin: plugin_name,

@@ -37,7 +37,11 @@ function Login() {
       });
   };
 
-  const handleSignin = (username: string, password: string, remember: boolean) => {
+  const handleSignin = (
+    username: string,
+    password: string,
+    remember: boolean,
+  ) => {
     setError("");
     if (remember) {
       localStorage.setItem("username", username);

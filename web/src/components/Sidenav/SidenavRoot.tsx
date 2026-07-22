@@ -19,7 +19,8 @@ import { styled } from "@mui/material/styles";
 
 export default styled(Drawer)(({ theme, ownerState }) => {
   const { palette, boxShadows, transitions, breakpoints, functions } = theme;
-  const { transparentSidenav, whiteSidenav, miniSidenav, darkMode } = ownerState;
+  const { transparentSidenav, whiteSidenav, miniSidenav, darkMode } =
+    ownerState;
 
   const sidebarWidth = 250;
   const { transparent, gradients, white, background } = palette;

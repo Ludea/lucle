@@ -37,10 +37,11 @@ const menuItem = {
       color: rgba(white.main, 0.8),
       transition: "background-color 300ms ease, color 300ms ease",
 
-      "&:hover, &:focus, &.Mui-selected, &.Mui-selected:hover, &.Mui-selected:focus": {
-        backgroundColor: dark.main,
-        color: white.main,
-      },
+      "&:hover, &:focus, &.Mui-selected, &.Mui-selected:hover, &.Mui-selected:focus":
+        {
+          backgroundColor: dark.main,
+          color: white.main,
+        },
     },
   },
 };
