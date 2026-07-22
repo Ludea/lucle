@@ -8,7 +8,11 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
+// Icons
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+
+//Components
+import Options from "components/Speedupdate/Options";
 
 import { build_custom_launcher, send_event_all } from "utils/sparusrpc";
 import { SparusRPC } from "context/Sparus";
@@ -30,9 +34,12 @@ function Launcher() {
   const [launcherName, setLauncherName] = useState<string>("");
   const [configName, setConfigName] = useState<string>("Sparus.json");
   const [repositoryName, setRepositoryName] = useState<string>("");
-  const [updateURL, setUpdateURL] = useState<string>("https://repo.marlin-atlas.ts.net");
+  const [updateURL, setUpdateURL] = useState<string>(
+    "https://repo.marlin-atlas.ts.net",
+  );
   const [pluginsURL, setPluginsURL] = useState<string>("");
-  const [disableLauncherCreation, setDisableLauncherCreation] = useState<boolean>(false);
+  const [disableLauncherCreation, setDisableLauncherCreation] =
+    useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<number>(0);
   const [pluginName, setPluginName] = useState<string>("");
   const SparusClient = useContext(SparusRPC);
@@ -171,22 +178,22 @@ function Launcher() {
         >
           Create Launcher
         </Button>
-	<Grid size={12}>
-        <FormControl>
-        <Select
-          labelId="select-event"
-          id="select-event"
-          value={selectedEvent}
-          label="Send Event"
-          onChange={(event) => setSelectedEvent(event.target.value)}
-        >
-          <MenuItem value={0}>Install Plugin</MenuItem>
-          <MenuItem value={1}>Update Plugin</MenuItem>
-          <MenuItem value={2}>Remove Plugin</MenuItem>
-          <MenuItem value={3}>Update Frontend</MenuItem>
-        </Select>
-      </FormControl>
-	<TextField
+        <Grid size={12}>
+          <FormControl>
+            <Select
+              labelId="select-event"
+              id="select-event"
+              value={selectedEvent}
+              label="Send Event"
+              onChange={(event) => setSelectedEvent(event.target.value)}
+            >
+              <MenuItem value={0}>Install Plugin</MenuItem>
+              <MenuItem value={1}>Update Plugin</MenuItem>
+              <MenuItem value={2}>Remove Plugin</MenuItem>
+              <MenuItem value={3}>Update Frontend</MenuItem>
+            </Select>
+          </FormControl>
+          <TextField
             margin="normal"
             id="plugin_name"
             label="Plugin name"
@@ -196,16 +203,17 @@ function Launcher() {
               setPluginName(event.target.value);
             }}
           />
-	<Button
-          variant="contained"
-          onClick={() =>
-		send_event_all(SparusClient, selectedEvent, pluginName)
-          }
-        >
-          Send event
-        </Button>
-	</Grid>
-   </Grid>
+          <Button
+            variant="contained"
+            onClick={() =>
+              send_event_all(SparusClient, selectedEvent, pluginName)
+            }
+          >
+            Send event
+          </Button>
+        </Grid>
+      </Grid>
+      <Options binaryType={"launcher"} />
     </div>
   );
 }
