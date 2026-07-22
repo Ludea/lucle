@@ -26,11 +26,7 @@ export default function OptionsMenu() {
   };
   return (
     <React.Fragment>
-      <MenuButton
-        aria-label="Open menu"
-        onClick={handleClick}
-        sx={{ borderColor: "transparent" }}
-      >
+      <MenuButton aria-label="Open menu" onClick={handleClick} sx={{ borderColor: "transparent" }}>
         <MoreVertRoundedIcon />
       </MenuButton>
       <Menu

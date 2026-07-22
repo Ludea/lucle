@@ -27,9 +27,7 @@ function Options({ binaryType }: { binaryType: string }) {
   );
   const [buildPath, setBuildPath] = useState<string>("");
   const [uploadPath, setUploadPath] = useState<string>("");
-  const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(
-    new Map(),
-  );
+  const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(new Map());
   const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
@@ -41,10 +39,7 @@ function Options({ binaryType }: { binaryType: string }) {
     if (savedCurrentRepo) {
       const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
       const mapCurrentRepo = new Map();
-      mapCurrentRepo.set(
-        parsedCurrentRepo.repo_name,
-        parsedCurrentRepo.platforms,
-      );
+      mapCurrentRepo.set(parsedCurrentRepo.repo_name, parsedCurrentRepo.platforms);
       if (currentRepo.size === 0) setCurrentRepo(mapCurrentRepo);
     }
 
@@ -56,32 +51,26 @@ function Options({ binaryType }: { binaryType: string }) {
     if (currentRepo.size > 0) {
       const current = currentRepo.keys().next().value;
       if (!statusAlreadyStarted) {
-        status(speedupdateClient, current, platformsEnum, binaryType, opt).then(
-          (value) => {
-            const reader = value.getReader();
-            setStatusAlreadyStarted(true);
-            async function readStream() {
-              let result;
-              while (!(result = await reader.read()).done) {
-                setListVersions(result.value.versions);
-                setListPackages(result.value.packages);
-                setAvailableBinaries(result.value.binaries);
-                setSize(result.value.size);
-                setCurrentVer(result.value.currentVersion);
-              }
+        status(speedupdateClient, current, platformsEnum, binaryType, opt).then((value) => {
+          const reader = value.getReader();
+          setStatusAlreadyStarted(true);
+          async function readStream() {
+            let result;
+            while (!(result = await reader.read()).done) {
+              setListVersions(result.value.versions);
+              setListPackages(result.value.packages);
+              setAvailableBinaries(result.value.binaries);
+              setSize(result.value.size);
+              setCurrentVer(result.value.currentVersion);
             }
-            readStream().catch((err: unknown) => {
-              setError(JSON.stringify(err));
-            });
-          },
-        );
+          }
+          readStream().catch((err: unknown) => {
+            setError(JSON.stringify(err));
+          });
+        });
 
         const eventSource = new EventSource(
-          "https://repo.marlin-atlas.ts.net/" +
-            current +
-            "/" +
-            binaryType +
-            "/progression",
+          "https://repo.marlin-atlas.ts.net/" + current + "/" + binaryType + "/progression",
         );
         eventSource.onmessage = (event) => {
           setUploadProgression(event.data);
@@ -101,9 +90,7 @@ function Options({ binaryType }: { binaryType: string }) {
     <Paper sx={{ width: "100%", mb: 2 }}>
       <Grid container>
         <Grid size={12}>Current version: {currentVer ? currentVer : "-"}</Grid>
-        <Grid size={12}>
-          Total packages size: {size ? size + DisplaySizeUnit(size) : "-"}
-        </Grid>
+        <Grid size={12}>Total packages size: {size ? size + DisplaySizeUnit(size) : "-"}</Grid>
         Options:
         <Grid size={12}>
           Build path:{" "}
@@ -165,10 +152,7 @@ function Options({ binaryType }: { binaryType: string }) {
                     list.delete(path);
                     setListRepo(list);
                     setPlatformsEnum([]);
-                    localStorage.setItem(
-                      "repositories",
-                      JSON.stringify(Object.fromEntries(list)),
-                    );
+                    localStorage.setItem("repositories", JSON.stringify(Object.fromEntries(list)));
                     localStorage.removeItem("platformsEnum");
                     localStorage.removeItem("current_repo");
                   })

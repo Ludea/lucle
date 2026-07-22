@@ -31,13 +31,7 @@ import menuItem from "components/NotificationItem/styles";
 
 const NotificationItem = forwardRef(({ icon, title, ...rest }, ref) => (
   <MenuItem {...rest} ref={ref} sx={(theme) => menuItem(theme)}>
-    <Box
-      component={Link}
-      py={0.5}
-      display="flex"
-      alignItems="center"
-      lineHeight={1}
-    >
+    <Box component={Link} py={0.5} display="flex" alignItems="center" lineHeight={1}>
       <Typography variant="body1" color="secondary" lineHeight={0.75}>
         {icon}
       </Typography>

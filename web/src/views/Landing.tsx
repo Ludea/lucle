@@ -65,12 +65,7 @@ function Landing() {
         }}
       >
         <Container>
-          <Grid
-            container
-            size={{ xs: 12, lg: 7 }}
-            justifyContent="center"
-            mx="auto"
-          >
+          <Grid container size={{ xs: 12, lg: 7 }} justifyContent="center" mx="auto">
             <Typography
               variant="h1"
               color="white"
@@ -91,8 +86,8 @@ function Landing() {
               px={{ xs: 6, lg: 12 }}
               mt={1}
             >
-              Free & Open Source Web UI Kit built over ReactJS &amp; MUI. Join
-              over 1.6 million developers around the world.
+              Free & Open Source Web UI Kit built over ReactJS &amp; MUI. Join over 1.6 million
+              developers around the world.
             </Typography>
           </Grid>
         </Container>
@@ -108,8 +103,7 @@ function Landing() {
           mx: { xs: 2, lg: 3 },
           mt: -8,
           mb: 4,
-          backgroundColor: ({ palette: { white }, functions: { rgba } }) =>
-            rgba(white.main, 0.8),
+          backgroundColor: ({ palette: { white }, functions: { rgba } }) => rgba(white.main, 0.8),
           backdropFilter: "saturate(200%) blur(30px)",
           boxShadow: ({ boxShadows: { xxl } }) => xxl,
         }}
@@ -132,8 +126,7 @@ function Landing() {
                 description="Check the possible ways of working with our product and the necessary files for building your own project."
                 action={{
                   type: "external",
-                  route:
-                    "https://www.creative-tim.com/learning-lab/react/overview/material-kit/",
+                  route: "https://www.creative-tim.com/learning-lab/react/overview/material-kit/",
                   label: "Let's start",
                 }}
               />
@@ -146,8 +139,7 @@ function Landing() {
                 description="Get inspiration and have an overview about the plugins that we used to create the Material Kit."
                 action={{
                   type: "external",
-                  route:
-                    "https://www.creative-tim.com/learning-lab/react/overview/datepicker/",
+                  route: "https://www.creative-tim.com/learning-lab/react/overview/datepicker/",
                   label: "Read more",
                 }}
               />
@@ -160,8 +152,7 @@ function Landing() {
                 description="Material Kit is giving you a lot of pre-made components, that will help you to build UI's faster."
                 action={{
                   type: "external",
-                  route:
-                    "https://www.creative-tim.com/learning-lab/react/alerts/material-kit/",
+                  route: "https://www.creative-tim.com/learning-lab/react/alerts/material-kit/",
                   label: "Read more",
                 }}
               />

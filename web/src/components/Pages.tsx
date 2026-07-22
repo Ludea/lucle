@@ -66,15 +66,9 @@ function Pages() {
               <Typography variant="h3" fontWeight="bold" mb={1}>
                 Presentation Pages for Company, Landing Pages, Blogs and Support
               </Typography>
-              <Typography
-                variant="body2"
-                fontWeight="regular"
-                color="secondary"
-                mb={1}
-                pr={2}
-              >
-                These is just a small selection of the multiple possibitilies
-                you have. Focus on the business, not on the design.
+              <Typography variant="body2" fontWeight="regular" color="secondary" mb={1} pr={2}>
+                These is just a small selection of the multiple possibitilies you have. Focus on the
+                business, not on the design.
               </Typography>
             </Box>
           </Grid>

@@ -12,11 +12,7 @@ import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
 
 // api
-import {
-  registerPackage,
-  unregisterPackage,
-  fileToDelete,
-} from "utils/speedupdaterpc";
+import { registerPackage, unregisterPackage, fileToDelete } from "utils/speedupdaterpc";
 
 function PackagesTable({
   client,
@@ -30,12 +26,8 @@ function PackagesTable({
   const [packagesPage, setPackagesPage] = useState(0);
   const [packagesPerPage, setPackagesPerPage] = useState(5);
   const [canBePublished, setCanBePublished] = useState<boolean[]>([]);
-  const [selectedPackages, setSelectedPackages] = useState<readonly number[]>(
-    [],
-  );
-  const [selectedPackagesValues, setSelectedPackagesValues] = useState<
-    string[]
-  >([]);
+  const [selectedPackages, setSelectedPackages] = useState<readonly number[]>([]);
+  const [selectedPackagesValues, setSelectedPackagesValues] = useState<string[]>([]);
   const isPackagesSelected = (id: number) => selectedPackages.includes(id);
   const numPackagesSelected = selectedPackages.length;
 
@@ -66,9 +58,7 @@ function PackagesTable({
       newPublished = newPublished.concat(canBePublished.slice(1));
     } else if (selectedIndex === selectedPackages.length - 1) {
       newSelected = newSelected.concat(selectedPackages.slice(0, -1));
-      packagesValues = packagesValues.concat(
-        selectedPackagesValues.slice(0, -1),
-      );
+      packagesValues = packagesValues.concat(selectedPackagesValues.slice(0, -1));
       newPublished = newPublished.concat(canBePublished.slice(0, -1));
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
@@ -87,11 +77,9 @@ function PackagesTable({
     const repo_name = currentRepo.keys().next().value;
     const platforms = currentRepo.get(repo_name);
     selectedPackagesValues.forEach((pack) => {
-      registerPackage(client, repo_name, pack, platforms, "game").catch(
-        (err) => {
-          onError(err);
-        },
-      );
+      registerPackage(client, repo_name, pack, platforms, "game").catch((err) => {
+        onError(err);
+      });
     });
     setSelectedPackages([]);
     setSelectedPackagesValues([]);
@@ -103,11 +91,9 @@ function PackagesTable({
     const repo_name = currentRepo.keys().next().value;
     const platforms = currentRepo.get(repo_name);
     selectedPackagesValues.forEach((pack) => {
-      unregisterPackage(client, repo_name, pack, platforms, "game").catch(
-        (err) => {
-          onError(err.rawMessage);
-        },
-      );
+      unregisterPackage(client, repo_name, pack, platforms, "game").catch((err) => {
+        onError(err.rawMessage);
+      });
     });
     setSelectedPackages([]);
     setSelectedPackagesValues([]);
@@ -120,21 +106,15 @@ function PackagesTable({
     const platforms = currentRepo.get(repo_name);
     selectedPackages.forEach((row) => {
       if (listPackages[row].published) {
-        unregisterPackage(
-          client,
-          repo_name,
-          listPackages[row].name,
-          platforms,
-          "game",
-        ).catch((err) => {
-          onError(err.rawMessage);
-        });
+        unregisterPackage(client, repo_name, listPackages[row].name, platforms, "game").catch(
+          (err) => {
+            onError(err.rawMessage);
+          },
+        );
       }
-      fileToDelete(client, listPackages[row].name, platforms, "game").catch(
-        (err) => {
-          onError(err.rawMessage);
-        },
-      );
+      fileToDelete(client, listPackages[row].name, platforms, "game").catch((err) => {
+        onError(err.rawMessage);
+      });
       setSelectedPackages([]);
     });
   };
@@ -148,10 +128,7 @@ function PackagesTable({
             pr: { xs: 1, sm: 1 },
             ...(numPackagesSelected > 0 && {
               bgcolor: (theme) =>
-                alpha(
-                  theme.palette.primary.main,
-                  theme.palette.action.activatedOpacity,
-                ),
+                alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
             }),
           }}
         >
@@ -165,12 +142,7 @@ function PackagesTable({
               {numPackagesSelected} selected
             </Typography>
           ) : (
-            <Typography
-              sx={{ flex: "1 1 100%" }}
-              variant="h6"
-              id="tableTitle"
-              component="div"
-            >
+            <Typography sx={{ flex: "1 1 100%" }} variant="h6" id="tableTitle" component="div">
               Packages
             </Typography>
           )}

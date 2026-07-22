@@ -24,13 +24,7 @@ function DesignBlocks() {
           <Typography variant="h3" fontWeight="bold" mb={1}>
             {title}
           </Typography>
-          <Typography
-            variant="body2"
-            fontWeight="regular"
-            color="secondary"
-            mb={1}
-            pr={2}
-          >
+          <Typography variant="body2" fontWeight="regular" color="secondary" mb={1} pr={2}>
             {description}
           </Typography>
         </Box>
@@ -73,8 +67,8 @@ function DesignBlocks() {
             Huge collection of sections
           </Typography>
           <Typography variant="body1" color="text">
-            We have created multiple options for you to put together and
-            customise into pixel perfect pages.
+            We have created multiple options for you to put together and customise into pixel
+            perfect pages.
           </Typography>
         </Grid>
       </Container>

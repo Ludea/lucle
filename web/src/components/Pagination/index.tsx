@@ -12,43 +12,38 @@ import PaginationItemRoot from "components/Pagination/PaginationItemRoot";
 // The Pagination main context
 const Context = createContext();
 
-const Pagination = forwardRef(
-  ({ item, variant, color, size, active, children }, ref) => {
-    const context = useContext(Context);
-    const paginationSize = context ? context.size : null;
+const Pagination = forwardRef(({ item, variant, color, size, active, children }, ref) => {
+  const context = useContext(Context);
+  const paginationSize = context ? context.size : null;
 
-    const value = useMemo(
-      () => ({ variant, color, size }),
-      [variant, color, size],
-    );
+  const value = useMemo(() => ({ variant, color, size }), [variant, color, size]);
 
-    return (
-      <Context.Provider value={value}>
-        {item ? (
-          <PaginationItemRoot
-            ref={ref}
-            variant={active ? context.variant : "outlined"}
-            color={active ? context.color : "secondary"}
-            iconOnly
-            circular
-            ownerState={{ variant, active, paginationSize }}
-          >
-            {children}
-          </PaginationItemRoot>
-        ) : (
-          <Box
-            display="flex"
-            justifyContent="flex-end"
-            alignItems="center"
-            sx={{ listStyle: "none" }}
-          >
-            {children}
-          </Box>
-        )}
-      </Context.Provider>
-    );
-  },
-);
+  return (
+    <Context.Provider value={value}>
+      {item ? (
+        <PaginationItemRoot
+          ref={ref}
+          variant={active ? context.variant : "outlined"}
+          color={active ? context.color : "secondary"}
+          iconOnly
+          circular
+          ownerState={{ variant, active, paginationSize }}
+        >
+          {children}
+        </PaginationItemRoot>
+      ) : (
+        <Box
+          display="flex"
+          justifyContent="flex-end"
+          alignItems="center"
+          sx={{ listStyle: "none" }}
+        >
+          {children}
+        </Box>
+      )}
+    </Context.Provider>
+  );
+});
 
 // Setting default values for the props of MDPagination
 Pagination.defaultProps = {

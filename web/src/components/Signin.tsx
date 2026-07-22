@@ -8,12 +8,8 @@ import Grid from "@mui/material/Grid";
 import { Link } from "react-router-dom";
 
 function Signin({ onSignin, error }: { onSignin: void; error: string }) {
-  const [username, setUsername] = useState<string>(
-    localStorage.getItem("username") || "",
-  );
-  const [password, setPassword] = useState<string>(
-    localStorage.getItem("password") || "",
-  );
+  const [username, setUsername] = useState<string>(localStorage.getItem("username") || "");
+  const [password, setPassword] = useState<string>(localStorage.getItem("password") || "");
   const [remember, setRemember] = useState<boolean>(false);
   const [emptyUsername, setEmptyUsername] = useState<boolean>(false);
   const [emptyPassword, setEmptyPassword] = useState<boolean>(false);

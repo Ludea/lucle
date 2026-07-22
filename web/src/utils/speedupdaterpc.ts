@@ -7,9 +7,7 @@ const setHeaders = (): Headers => {
 
 export const init = async (client: any, path: string, platforms: any) => {
   let headers = setHeaders();
-  const subPath = Object.keys(platforms).filter(
-    (key) => platforms[key] === true,
-  );
+  const subPath = Object.keys(platforms).filter((key) => platforms[key] === true);
   for (const folder of subPath) {
     client.init(
       {
@@ -26,12 +24,7 @@ export const init = async (client: any, path: string, platforms: any) => {
   }
 };
 
-export const isInit = async (
-  client: any,
-  path: string,
-  platforms: any,
-  type: string,
-) => {
+export const isInit = async (client: any, path: string, platforms: any, type: string) => {
   let headers = setHeaders();
   for (const folder of platforms) {
     client.is_init(
@@ -145,41 +138,24 @@ export const repoToDelete = async (client: any, path: string) => {
   client.delete_repo({ path: path }, { headers });
 };
 
-export const fileToDelete = async (
-  client: any,
-  file: string,
-  platforms: any,
-  type: string,
-) => {
+export const fileToDelete = async (client: any, file: string, platforms: any, type: string) => {
   let headers = setHeaders();
   for (const folder of platforms) {
-    client.delete_file(
-      { file: folder.concat("/", type, "/", file) },
-      { headers },
-    );
+    client.delete_file({ file: folder.concat("/", type, "/", file) }, { headers });
   }
 };
 
 export const compareStatus = (oldStatus: any, newStatus: any) => {
   if (oldStatus.currentVersion !== newStatus.currentVersion) return false;
   if (oldStatus.versions.revision !== newStatus.versions.revision) return false;
-  if (oldStatus.versions.description !== newStatus.versions.description)
-    return false;
+  if (oldStatus.versions.description !== newStatus.versions.description) return false;
   if (oldStatus.packages.length !== newStatus.packages.length) return false;
-  if (oldStatus.availablePackages.length !== newStatus.availablePackages.length)
-    return false;
-  if (oldStatus.availableBinaries.length !== newStatus.availableBinaries.length)
-    return false;
+  if (oldStatus.availablePackages.length !== newStatus.availablePackages.length) return false;
+  if (oldStatus.availableBinaries.length !== newStatus.availableBinaries.length) return false;
   return true;
 };
 
-export async function status(
-  client: any,
-  path: string,
-  platforms: any,
-  type: string,
-  opt: any,
-) {
+export async function status(client: any, path: string, platforms: any, type: string, opt: any) {
   return new ReadableStream({
     async start(controller) {
       let headers = setHeaders();

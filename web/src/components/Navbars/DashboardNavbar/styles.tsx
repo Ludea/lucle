@@ -13,8 +13,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 function navbar(theme, ownerState) {
-  const { palette, boxShadows, functions, transitions, breakpoints, borders } =
-    theme;
+  const { palette, boxShadows, functions, transitions, breakpoints, borders } = theme;
   const { transparentNavbar, absolute, light, darkMode } = ownerState;
 
   const { dark, white, text, transparent, background } = palette;
@@ -24,10 +23,7 @@ function navbar(theme, ownerState) {
 
   return {
     boxShadow: transparentNavbar || absolute ? "none" : navbarBoxShadow,
-    backdropFilter:
-      transparentNavbar || absolute
-        ? "none"
-        : `saturate(200%) blur(${pxToRem(30)})`,
+    backdropFilter: transparentNavbar || absolute ? "none" : `saturate(200%) blur(${pxToRem(30)})`,
     backgroundColor:
       transparentNavbar || absolute
         ? `${transparent.main} !important`
@@ -135,10 +131,4 @@ const navbarMobileMenu = ({ breakpoints }) => ({
   },
 });
 
-export {
-  navbar,
-  navbarContainer,
-  navbarRow,
-  navbarIconButton,
-  navbarMobileMenu,
-};
+export { navbar, navbarContainer, navbarRow, navbarIconButton, navbarMobileMenu };

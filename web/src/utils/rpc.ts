@@ -1,12 +1,6 @@
-export const checkIfInstalled = async (client: any) =>
-  client.is_database_created();
+export const checkIfInstalled = async (client: any) => client.is_database_created();
 
-export const createDB = async (
-  client: any,
-  db: number,
-  db_name: string,
-  infos_connection: any,
-) =>
+export const createDB = async (client: any, db: number, db_name: string, infos_connection: any) =>
   client.create_db({
     dbType: db,
     dbName: infos_connection.dbName,
@@ -20,11 +14,7 @@ export const forgotPassword = async (client: any, user_mail: string) => {
   if (error) throw error;
 };
 
-export const connection = async (
-  client: any,
-  login: string,
-  user_password: string,
-) =>
+export const connection = async (client: any, login: string, user_password: string) =>
   client.login({
     usernameOrEmail: login,
     password: user_password,

@@ -19,15 +19,7 @@ import { styled } from "@mui/material/styles";
 
 export default styled(Box)(({ theme, ownerState }) => {
   const { palette, functions, borders, boxShadows } = theme;
-  const {
-    variant,
-    bgColor,
-    color,
-    opacity,
-    borderRadius,
-    shadow,
-    coloredShadow,
-  } = ownerState;
+  const { variant, bgColor, color, opacity, borderRadius, shadow, coloredShadow } = ownerState;
 
   const { gradients, grey, white } = palette;
   const { linearGradient } = functions;
@@ -92,9 +84,7 @@ export default styled(Box)(({ theme, ownerState }) => {
       ? linearGradient(gradients[bgColor].main, gradients[bgColor].state)
       : white.main;
   } else if (validColors.find((el) => el === bgColor)) {
-    backgroundValue = palette[bgColor]
-      ? palette[bgColor].main
-      : greyColors[bgColor];
+    backgroundValue = palette[bgColor] ? palette[bgColor].main : greyColors[bgColor];
   } else {
     backgroundValue = bgColor;
   }

@@ -14,10 +14,7 @@ interface SideMenuMobileProps {
   toggleDrawer: (newOpen: boolean) => () => void;
 }
 
-export default function SideMenuMobile({
-  open,
-  toggleDrawer,
-}: SideMenuMobileProps) {
+export default function SideMenuMobile({ open, toggleDrawer }: SideMenuMobileProps) {
   return (
     <Drawer
       anchor="right"
@@ -38,10 +35,7 @@ export default function SideMenuMobile({
         }}
       >
         <Stack direction="row" sx={{ p: 2, pb: 0, gap: 1 }}>
-          <Stack
-            direction="row"
-            sx={{ gap: 1, alignItems: "center", flexGrow: 1, p: 1 }}
-          >
+          <Stack direction="row" sx={{ gap: 1, alignItems: "center", flexGrow: 1, p: 1 }}>
             <Avatar
               sizes="small"
               alt="Riley Carter"
@@ -62,11 +56,7 @@ export default function SideMenuMobile({
           <Divider />
         </Stack>
         <Stack sx={{ p: 2 }}>
-          <Button
-            variant="outlined"
-            fullWidth
-            startIcon={<LogoutRoundedIcon />}
-          >
+          <Button variant="outlined" fullWidth startIcon={<LogoutRoundedIcon />}>
             Logout
           </Button>
         </Stack>

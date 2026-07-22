@@ -20,11 +20,7 @@ function RotatingCard({ children }) {
   };
 
   return (
-    <Box
-      sx={{ perspective: "50rem" }}
-      onMouseEnter={rotate180}
-      onMouseLeave={rotate0}
-    >
+    <Box sx={{ perspective: "50rem" }} onMouseEnter={rotate180} onMouseLeave={rotate0}>
       <Card
         sx={{
           backgroundColor: "transparent",

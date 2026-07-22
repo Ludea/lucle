@@ -7,13 +7,7 @@ import { event } from "gen/sparus_pb";
 
 const SparusRPC = createContext();
 
-function SparusRPCProvider({
-  children,
-  url,
-}: {
-  children: ReactNode;
-  url: string;
-}) {
+function SparusRPCProvider({ children, url }: { children: ReactNode; url: string }) {
   const transport = createGrpcWebTransport({
     baseUrl: `https://web.marlin-atlas.ts.net`,
   });

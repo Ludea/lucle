@@ -6,12 +6,7 @@ import { dataDisplayCustomizations } from "shared-theme/customizations/dataDispl
 import { feedbackCustomizations } from "shared-theme/customizations/feedback";
 import { navigationCustomizations } from "shared-theme/customizations/navigation";
 import { surfacesCustomizations } from "shared-theme/customizations/surfaces";
-import {
-  colorSchemes,
-  typography,
-  shadows,
-  shape,
-} from "shared-theme/themePrimitives";
+import { colorSchemes, typography, shadows, shape } from "shared-theme/themePrimitives";
 
 interface AppThemeProps {
   children: React.ReactNode;

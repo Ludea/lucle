@@ -50,37 +50,13 @@ export function IndiaFlag() {
     <SvgIcon>
       <svg width="24" height="24" fill="none">
         <g clipPath="url(#a)">
-          <mask
-            id="b"
-            maskUnits="userSpaceOnUse"
-            x="-4"
-            y="0"
-            width="32"
-            height="24"
-          >
+          <mask id="b" maskUnits="userSpaceOnUse" x="-4" y="0" width="32" height="24">
             <path d="M-4 0h32v24H-4V0Z" fill="#fff" />
           </mask>
           <g mask="url(#b)">
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M-4 0v24h32V0H-4Z"
-              fill="#F7FCFF"
-            />
-            <mask
-              id="c"
-              maskUnits="userSpaceOnUse"
-              x="-4"
-              y="0"
-              width="32"
-              height="24"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M-4 0v24h32V0H-4Z"
-                fill="#fff"
-              />
+            <path fillRule="evenodd" clipRule="evenodd" d="M-4 0v24h32V0H-4Z" fill="#F7FCFF" />
+            <mask id="c" maskUnits="userSpaceOnUse" x="-4" y="0" width="32" height="24">
+              <path fillRule="evenodd" clipRule="evenodd" d="M-4 0v24h32V0H-4Z" fill="#fff" />
             </mask>
             <g mask="url(#c)" fillRule="evenodd" clipRule="evenodd">
               <path d="M-4 0v8h32V0H-4Z" fill="#FF8C1A" />
@@ -111,12 +87,7 @@ export function UsaFlag() {
     <SvgIcon>
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <g clipPath="url(#clip0_983_1725)">
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M-4 0H28V24H-4V0Z"
-            fill="#F7FCFF"
-          />
+          <path fillRule="evenodd" clipRule="evenodd" d="M-4 0H28V24H-4V0Z" fill="#F7FCFF" />
           <path
             fillRule="evenodd"
             clipRule="evenodd"
@@ -135,24 +106,9 @@ export function UsaFlag() {
             d="M-4 7.33325V9.33325H28V7.33325H-4Z"
             fill="#E31D1C"
           />
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M-4 22V24H28V22H-4Z"
-            fill="#E31D1C"
-          />
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M-4 11V13H28V11H-4Z"
-            fill="#E31D1C"
-          />
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M-4 0V2H28V0H-4Z"
-            fill="#E31D1C"
-          />
+          <path fillRule="evenodd" clipRule="evenodd" d="M-4 22V24H28V22H-4Z" fill="#E31D1C" />
+          <path fillRule="evenodd" clipRule="evenodd" d="M-4 11V13H28V11H-4Z" fill="#E31D1C" />
+          <path fillRule="evenodd" clipRule="evenodd" d="M-4 0V2H28V0H-4Z" fill="#E31D1C" />
           <path
             fillRule="evenodd"
             clipRule="evenodd"
@@ -181,12 +137,7 @@ export function BrazilFlag() {
     <SvgIcon>
       <svg width="24" height="25" viewBox="0 0 24 25" fill="none">
         <g clipPath="url(#clip0_983_1741)">
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M-4 0.5V24.5H28V0.5H-4Z"
-            fill="#009933"
-          />
+          <path fillRule="evenodd" clipRule="evenodd" d="M-4 0.5V24.5H28V0.5H-4Z" fill="#009933" />
           <path
             fillRule="evenodd"
             clipRule="evenodd"
@@ -292,12 +243,7 @@ export function GlobeFlag() {
         </g>
         <defs>
           <clipPath id="clip0_986_1789">
-            <rect
-              width="24"
-              height="24"
-              fill="white"
-              transform="translate(0 0.5)"
-            />
+            <rect width="24" height="24" fill="white" transform="translate(0 0.5)" />
           </clipPath>
         </defs>
       </svg>

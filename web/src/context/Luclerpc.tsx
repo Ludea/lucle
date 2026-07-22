@@ -7,13 +7,7 @@ import { Lucle } from "gen/lucle_pb";
 
 const LucleRPC = createContext();
 
-function LucleRPCProvider({
-  children,
-  url,
-}: {
-  children: ReactNode;
-  url: string;
-}) {
+function LucleRPCProvider({ children, url }: { children: ReactNode; url: string }) {
   const transport = createGrpcWebTransport({
     baseUrl: `https://web.marlin-atlas.ts.net`,
   });
