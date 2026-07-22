@@ -4,7 +4,7 @@ package sparus;
 
 service event {
   rpc Sparus (Plugins) returns (stream Message);
-  rpc Send_event (Message) returns (Empty);
+  rpc Send_event_all (Message) returns (Empty);
   rpc Create_workflow(Options) returns (Empty);
 }
 

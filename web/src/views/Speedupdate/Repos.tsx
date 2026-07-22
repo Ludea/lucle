@@ -72,9 +72,10 @@ function ListRepo() {
                 isInit(client, repo_name, platforms, "game")
                   .then(() => {
                     localStorage.setItem("current_repo", JSON.stringify({ repo_name, platforms }));
-                    navigate(repo_name);
+                    navigate(repo_name + "/game");
                   })
                   .catch((err) => {
+		console.log("13: ", err);
                     setError(err.rawMessage);
                   });
               }}

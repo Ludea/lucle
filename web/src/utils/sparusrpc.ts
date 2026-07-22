@@ -1,6 +1,7 @@
-export const send_event_allo = async (client: any) =>
-  client.send_event({
-    plugin: "test",
+export const send_event_all = async (client: any, event: number, plugin_name?: string) =>
+  client.send_event_all({
+    event_type: event,
+    plugin: plugin_name,
   });
 
 export const build_custom_launcher = async (
