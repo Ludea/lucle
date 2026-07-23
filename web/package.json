@@ -29,7 +29,7 @@
     "chroma-js": "^3.1.1",
     "dayjs": "^1.11.21",
     "minio": "^8.0.0",
-    "mui2-file-dropzone": "6.3.0",
+    "mui2-file-dropzone": "7.1.1",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.2.0",
