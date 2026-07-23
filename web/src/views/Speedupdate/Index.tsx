@@ -12,7 +12,7 @@ import Select from "@mui/material/Select";
 import IconButton from "@mui/material/IconButton";
 import { DropzoneArea } from "mui2-file-dropzone";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, To, NavigateOptions } from "react-router-dom";
 
 // Icons
 import WarningIcon from "@mui/icons-material/Warning";
@@ -33,6 +33,13 @@ import { deleteRepo } from "utils/rpc";
 // Context
 import { LucleRPC } from "context/Luclerpc";
 import { SpeedupdateRPC } from "context/Speedupdate";
+
+declare module "react-router-dom" {
+  interface NavigateFunction {
+    (to: To, options?: NavigateOptions): void;
+    (delta: number): void;
+  }
+}
 
 // import { uploadFile } from "utils/minio";
 
