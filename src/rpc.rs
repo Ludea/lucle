@@ -18,16 +18,20 @@ use sparus::{
 };
 use std::collections::HashSet;
 use std::{
+    collections::HashMap,
     fs::{self, File},
     io::{BufReader, Cursor},
     pin::Pin,
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Arc,
+    },
 };
 use tokio::{
-    sync::broadcast,
+    sync::{mpsc, Mutex},
     time::{sleep, Duration},
 };
-use tokio_stream::StreamExt;
-use tokio_stream::{wrappers::BroadcastStream, Stream};
+use tokio_stream::{wrappers::ReceiverStream, Stream};
 use tonic::{
     service::{AxumRouter, RoutesBuilder},
     Request, Response, Status,
@@ -333,9 +337,21 @@ impl Lucle for LucleApi {
 }
 type SparusResult<T> = Result<Response<T>, Status>;
 type ResponseStream = Pin<Box<dyn Stream<Item = Result<Message, Status>> + Send>>;
+static CLIENT_ID: AtomicU64 = AtomicU64::new(0);
+
+type ClientId = u64;
+type ClientRegistry = Arc<Mutex<HashMap<ClientId, mpsc::Sender<Result<Message, Status>>>>>;
 
 pub struct EventRoute {
-    tx: broadcast::Sender<Message>,
+    clients: ClientRegistry,
+}
+
+impl EventRoute {
+    pub fn new() -> Self {
+        Self {
+            clients: Arc::new(Mutex::new(HashMap::new())),
+        }
+    }
 }
 
 #[tonic::async_trait]
@@ -399,15 +415,11 @@ impl Event for EventRoute {
     async fn send_event_all(&self, req: Request<Message>) -> Result<Response<EmptySparus>, Status> {
         let message = req.into_inner();
 
-        let tx_cloned = self.tx.clone();
+        let clients = self.clients.lock().await;
+        for tx in clients.values() {
+            let _ = tx.send(Ok(message.clone())).await;
+        }
 
-        tokio::spawn(async move {
-            if let Err(err) = tx_cloned.send(message) {
-                Err(Status::internal(err.to_string()))
-            } else {
-                Ok(())
-            }
-        });
         let response = EmptySparus {};
         Ok(Response::new(response))
     }
@@ -419,72 +431,102 @@ impl Event for EventRoute {
         let plugin_list_from_client = inner.list_plugin;
         let repo_name = inner.repository_name;
 
-        let plugin_name_from_client: HashSet<_> = plugin_list_from_client.keys().cloned().collect();
-        let registered_plugins = diesel::list_plugin_by_repository(repo_name)
-            .await
-            .unwrap_or_else(|err| {
-                tracing::error!("{}", err);
-                Vec::new()
-            });
-        let registered_plugins_hashset: HashSet<_> = registered_plugins.iter().cloned().collect();
+        let client_id = CLIENT_ID.fetch_add(1, Ordering::Relaxed);
+        let (tx, rx) = mpsc::channel(32);
 
-        let diff: Vec<String> = plugin_name_from_client
-            .difference(&registered_plugins_hashset)
-            .cloned()
-            .collect();
+        self.clients.lock().await.insert(client_id, tx.clone());
 
-        let common_plugin: Vec<String> = registered_plugins_hashset
-            .intersection(&plugin_name_from_client)
-            .cloned()
-            .collect();
+        let clients_cleanup = self.clients.clone();
+        
+        let tx_cloned = tx.clone();
+        tokio::spawn(async move {
+            tx_cloned.closed().await;
+            clients_cleanup.lock().await.remove(&client_id);
+        });
 
-        match diesel::get_plugin_version(common_plugin).await {
-            Ok(registered_plugin_with_version) => {
-                for (registered_plugin, registered_version) in registered_plugin_with_version {
-                    if let Some(version_from_client) =
-                        plugin_list_from_client.get(&registered_plugin)
-                    {
-                        let registered_semver = Version::parse(&registered_version).unwrap();
-                        let semver_from_client = Version::parse(version_from_client).unwrap();
-                        if registered_semver.gt(&semver_from_client) {
-                            let message = Message {
-                                plugin: registered_plugin,
-                                event_type: 1,
-                            };
-                            let tx_cloned = self.tx.clone();
-                            tokio::spawn(async move {
-                                if let Err(err) = tx_cloned.send(message) {
-                                    Err(Status::internal(err.to_string()))
-                                } else {
-                                    Ok(())
+        let tx_init = tx.clone();
+        tokio::spawn(async move {
+            let plugin_name_from_client: HashSet<_> =
+                plugin_list_from_client.keys().cloned().collect();
+
+            let registered_plugins = diesel::list_plugin_by_repository(repo_name)
+                .await
+                .unwrap_or_else(|err| {
+                    tracing::error!("{}", err);
+                    Vec::new()
+                });
+
+            let registered_plugins_hashset: HashSet<_> =
+                registered_plugins.iter().cloned().collect();
+
+            let diff: Vec<String> = plugin_name_from_client
+                .difference(&registered_plugins_hashset)
+                .cloned()
+                .collect();
+
+            let common_plugin: Vec<String> = registered_plugins_hashset
+                .intersection(&plugin_name_from_client)
+                .cloned()
+                .collect();
+
+            match diesel::get_plugin_version(common_plugin).await {
+                Ok(registered_plugin_with_version) => {
+                    for (registered_plugin, registered_version) in registered_plugin_with_version {
+                        if let Some(version_from_client) =
+                            plugin_list_from_client.get(&registered_plugin)
+                        {
+                            let registered_semver = match Version::parse(&registered_version) {
+                                Ok(v) => v,
+                                Err(err) => {
+                                    let _ =
+                                        tx_init.send(Err(Status::internal(err.to_string()))).await;
+                                    return;
                                 }
-                            });
+                            };
+                            let semver_from_client = match Version::parse(version_from_client) {
+                                Ok(v) => v,
+                                Err(err) => {
+                                    let _ =
+                                        tx_init.send(Err(Status::internal(err.to_string()))).await;
+                                    return;
+                                }
+                            };
+                            if registered_semver.gt(&semver_from_client) {
+                                if tx_init
+                                    .send(Ok(Message {
+                                        plugin: registered_plugin,
+                                        event_type: 1,
+                                    }))
+                                    .await
+                                    .is_err()
+                                {
+                                    return;
+                                }
+                            }
                         }
                     }
                 }
-            }
-            Err(err) => return Err(Status::internal(err.to_string())),
-        }
-        for plugin in diff {
-            let message = Message {
-                plugin,
-                event_type: 2,
-            };
-
-            let tx_cloned = self.tx.clone();
-            tokio::spawn(async move {
-                if let Err(err) = tx_cloned.send(message) {
-                    return Err(Status::internal(err.to_string()));
+                Err(err) => {
+                    let _ = tx_init.send(Err(Status::internal(err.to_string()))).await;
+                    return;
                 }
-                Ok(())
-            });
-        }
+            }
 
-        let rx = self.tx.subscribe();
-        let output_stream = BroadcastStream::new(rx).map(|res| match res {
-            Ok(out) => Ok(out),
-            Err(err) => Err(Status::internal(err.to_string())),
+            for plugin in diff {
+                if tx_init
+                    .send(Ok(Message {
+                        plugin,
+                        event_type: 2,
+                    }))
+                    .await
+                    .is_err()
+                {
+                    return;
+                }
+            }
         });
+
+        let output_stream = ReceiverStream::new(rx);
         Ok(Response::new(Box::pin(output_stream)))
     }
 }
@@ -493,8 +535,7 @@ pub fn rpc_api(_db: DbType) -> AxumRouter {
     let api = LucleApi::default();
     let api = LucleServer::new(api);
 
-    let (tx, _rx) = broadcast::channel(128);
-    let event_route = EventRoute { tx };
+    let event_route = EventRoute::new();
     let event_route = EventServer::new(event_route);
 
     let mut routes = RoutesBuilder::default();
