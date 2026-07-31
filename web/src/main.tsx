@@ -3,7 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "App";
 
 // Material Dashboard 2 React Context Provider
-import { MaterialUIControllerProvider } from "context";
+//import { MaterialUIControllerProvider } from "context";
 
 // Context
 import { LucleRPCProvider } from "context/Luclerpc";
@@ -17,14 +17,12 @@ const root = createRoot(container);
 
 root.render(
   <BrowserRouter>
-    <MaterialUIControllerProvider>
-      <LucleRPCProvider>
-        <SparusRPCProvider>
-          <SpeedupdateRPCProvider>
-            <App />
-          </SpeedupdateRPCProvider>
-        </SparusRPCProvider>
-      </LucleRPCProvider>
-    </MaterialUIControllerProvider>
+    <LucleRPCProvider>
+      <SparusRPCProvider>
+        <SpeedupdateRPCProvider>
+          <App />
+        </SpeedupdateRPCProvider>
+      </SparusRPCProvider>
+    </LucleRPCProvider>
   </BrowserRouter>,
 );

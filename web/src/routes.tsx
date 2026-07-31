@@ -1,10 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom";
 
-import Landing from "views/Landing";
+import Landing from "layouts/Landing";
 import Install from "layouts/Install";
 import ForgotPassword from "views/ForgotPassword";
 import Index from "views/AdminIndex";
-import Speedupdate from "views/Speedupdate/Index";
+import Game from "views/Speedupdate/Game";
 import Login from "views/Login";
 import Launcher from "views/Speedupdate/Launcher";
 import Dashboard from "layouts/Dashboard";
@@ -44,7 +44,7 @@ const routes = (isInstalled: boolean) => [
             element: <Dashboard />,
             children: [
               { index: true, element: <ListRepo /> },
-              { path: ":repo/game", element: <Speedupdate /> },
+              { path: ":repo/game", element: <Game /> },
               { path: ":repo/launcher", element: <Launcher /> },
             ],
           },

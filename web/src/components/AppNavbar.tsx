@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import SideMenuMobile from "components/SideMenuMobile";
-import MenuButton from "./MenuButton";
+import MenuButton from "components/MenuButton";
 import ColorModeIconDropdown from "shared-theme/ColorModeIconDropdown";
 
 const Toolbar = styled(MuiToolbar)({
