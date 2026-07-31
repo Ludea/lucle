@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 
-import { useRoutes } from "react-router-dom";
+import { useRoutes } from "react-router";
 
 // RPC Components
 import { checkIfInstalled } from "utils/rpc";

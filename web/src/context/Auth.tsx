@@ -1,5 +1,5 @@
 import { useContext, createContext, useState, ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 // Context
 import { LucleRPC } from "context/Luclerpc";

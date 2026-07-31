@@ -12,7 +12,7 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 function Signin({ onSignin, error }: { onSignin: void; error: string }) {
   const [username, setUsername] = useState<string>(localStorage.getItem("username") || "");

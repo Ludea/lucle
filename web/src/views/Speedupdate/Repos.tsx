@@ -7,7 +7,7 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Checkbox from "@mui/material/Checkbox";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 //RPC Connect
 import { Repo, Platforms } from "gen/speedupdate_pb";

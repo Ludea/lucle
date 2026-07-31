@@ -12,7 +12,7 @@ import Select from "@mui/material/Select";
 import IconButton from "@mui/material/IconButton";
 import { DropzoneArea } from "mui2-file-dropzone";
 
-import { useNavigate, To, NavigateOptions } from "react-router-dom";
+import { useNavigate, To, NavigateOptions } from "react-router";
 
 // Icons
 import WarningIcon from "@mui/icons-material/Warning";

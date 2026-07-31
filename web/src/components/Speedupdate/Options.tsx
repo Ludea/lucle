@@ -16,7 +16,7 @@ import { SpeedupdateRPC } from "context/Speedupdate";
 import { repoToDelete, status } from "utils/speedupdaterpc";
 import { deleteRepo } from "utils/rpc";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 function Options({ binaryType }: { binaryType: string }) {
   const [statusAlreadyStarted, setStatusAlreadyStarted] = useState(false);

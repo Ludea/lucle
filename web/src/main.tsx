@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router";
 import App from "App";
 
 // Material Dashboard 2 React Context Provider
@@ -9,8 +9,6 @@ import App from "App";
 import { LucleRPCProvider } from "context/Luclerpc";
 import { SparusRPCProvider } from "context/Sparus";
 import { SpeedupdateRPCProvider } from "context/Speedupdate";
-
-import "regenerator-runtime";
 
 const container = document.getElementById("root");
 const root = createRoot(container);

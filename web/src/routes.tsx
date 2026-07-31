@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router";
 
 import Landing from "layouts/Landing";
 import Install from "layouts/Install";
