@@ -16,6 +16,7 @@ import Features from "components/Features";
 import Showcase from "components/Showcase";
 import Highlights from "components/Highlights";
 import Footer from "components/Footer";
+import Download from "components/Download";
 
 function SparusThemeProvider({ children }: { children: ReactNode }) {
   const [apiTheme, setApiTheme] = useState<ApiTheme>({});
@@ -49,6 +50,8 @@ export default function Landing() {
       <AppBar />
       <main>
         <Hero />
+        <Divider />
+        <Download />
         <Divider />
         <Features />
         <Divider />

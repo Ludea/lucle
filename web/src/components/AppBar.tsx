@@ -34,6 +34,7 @@ function SparusIcon() {
 const GITHUB_URL = 'https://github.com/Ludea/Sparus';
 
 const NAV_LINKS = [
+  { label: 'Download',   href: '#download' },
   { label: 'Features',   href: '#features' },
   { label: 'Showcase',   href: '#showcase' },
   { label: 'Highlights', href: '#highlights' },
