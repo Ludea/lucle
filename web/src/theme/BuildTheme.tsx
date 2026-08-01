@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from "@mui/material/styles";
 
 export interface LayoutTokens {
   maxWidth: number;
@@ -40,43 +40,43 @@ export interface ApiTheme {
 }
 
 export function buildTheme(api: ApiTheme) {
-  const primaryMain  = api.palette?.primary?.main  ?? '#5B8CFF';
-  const primaryDark  = api.palette?.primary?.dark  ?? '#2A3F7A';
-  const successMain  = api.palette?.success?.main  ?? '#3DD68C';
-  const borderRadius = api.shape?.borderRadius      ?? 8;
-  const spacingUnit  = api.spacing                  ?? 8;
-  const displayFont  = api.typography?.fontFamilyDisplay ?? "'Space Grotesk', sans-serif";
-  const bodyFont     = api.typography?.fontFamily        ?? "'Inter', sans-serif";
+  const primaryMain = api.palette?.primary?.main ?? "#5B8CFF";
+  const primaryDark = api.palette?.primary?.dark ?? "#2A3F7A";
+  const successMain = api.palette?.success?.main ?? "#3DD68C";
+  const borderRadius = api.shape?.borderRadius ?? 8;
+  const spacingUnit = api.spacing ?? 8;
+  const displayFont = api.typography?.fontFamilyDisplay ?? "'Space Grotesk', sans-serif";
+  const bodyFont = api.typography?.fontFamily ?? "'Inter', sans-serif";
 
   return createTheme({
     cssVariables: {
-      colorSchemeSelector: 'data-mui-color-scheme',
-      cssVarPrefix: 'sparus',
+      colorSchemeSelector: "data-mui-color-scheme",
+      cssVarPrefix: "sparus",
     },
-    defaultColorScheme: 'dark',
+    defaultColorScheme: "dark",
     colorSchemes: {
       dark: {
         palette: {
-          primary:    { main: primaryMain, dark: primaryDark },
-          success:    { main: successMain },
+          primary: { main: primaryMain, dark: primaryDark },
+          success: { main: successMain },
           background: {
-            default: api.palette?.background?.default ?? '#0D0F14',
-            paper:   api.palette?.background?.paper   ?? '#161A24',
+            default: api.palette?.background?.default ?? "#0D0F14",
+            paper: api.palette?.background?.paper ?? "#161A24",
           },
-          divider: api.palette?.divider ?? '#1E2535',
+          divider: api.palette?.divider ?? "#1E2535",
           text: {
-            primary:   api.palette?.text?.primary   ?? '#E8ECF4',
-            secondary: api.palette?.text?.secondary ?? '#7A85A0',
+            primary: api.palette?.text?.primary ?? "#E8ECF4",
+            secondary: api.palette?.text?.secondary ?? "#7A85A0",
           },
         },
       },
       light: {
         palette: {
-          primary:    { main: primaryMain, dark: primaryDark },
-          success:    { main: successMain },
-          background: { default: '#F5F7FA', paper: '#FFFFFF' },
-          divider:    '#E0E4ED',
-          text:       { primary: '#0D0F14', secondary: '#5A6478' },
+          primary: { main: primaryMain, dark: primaryDark },
+          success: { main: successMain },
+          background: { default: "#F5F7FA", paper: "#FFFFFF" },
+          divider: "#E0E4ED",
+          text: { primary: "#0D0F14", secondary: "#5A6478" },
         },
       },
     },
@@ -84,22 +84,27 @@ export function buildTheme(api: ApiTheme) {
     spacing: spacingUnit,
     typography: {
       fontFamily: bodyFont,
-      h1: { fontFamily: displayFont, fontWeight: 700, lineHeight: 1.08, letterSpacing: '-0.03em' },
-      h2: { fontFamily: displayFont, fontWeight: 700, lineHeight: 1.15, letterSpacing: '-0.025em' },
-      h3: { fontFamily: displayFont, fontWeight: 600, lineHeight: 1.25, letterSpacing: '-0.01em' },
+      h1: { fontFamily: displayFont, fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.03em" },
+      h2: { fontFamily: displayFont, fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.025em" },
+      h3: { fontFamily: displayFont, fontWeight: 600, lineHeight: 1.25, letterSpacing: "-0.01em" },
       h6: { fontFamily: displayFont, fontWeight: 600 },
-      overline: { fontFamily: displayFont, fontWeight: 700, letterSpacing: '0.1em', fontSize: '0.72rem' },
+      overline: {
+        fontFamily: displayFont,
+        fontWeight: 700,
+        letterSpacing: "0.1em",
+        fontSize: "0.72rem",
+      },
       body1: { lineHeight: 1.6 },
       body2: { lineHeight: 1.65 },
-      button: { fontWeight: 600, textTransform: 'none' },
+      button: { fontWeight: 600, textTransform: "none" },
     },
     components: {
       MuiButton: {
         styleOverrides: {
           root: { borderRadius },
           containedPrimary: {
-            '&:hover': { opacity: 0.88, transform: 'translateY(-1px)' },
-            transition: 'opacity 0.2s, transform 0.2s',
+            "&:hover": { opacity: 0.88, transform: "translateY(-1px)" },
+            transition: "opacity 0.2s, transform 0.2s",
           },
         },
       },
@@ -107,7 +112,7 @@ export function buildTheme(api: ApiTheme) {
         styleOverrides: {
           root: ({ theme }) => ({
             border: `1px solid ${theme.palette.divider}`,
-            backgroundImage: 'none',
+            backgroundImage: "none",
           }),
         },
       },
@@ -118,7 +123,7 @@ export function buildTheme(api: ApiTheme) {
       },
       MuiTab: {
         styleOverrides: {
-          root: { textTransform: 'none', fontWeight: 500, minHeight: 36 },
+          root: { textTransform: "none", fontWeight: 500, minHeight: 36 },
         },
       },
       MuiDrawer: {

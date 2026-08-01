@@ -1,15 +1,10 @@
 import { useEffect, useState, useMemo, ReactNode } from "react";
 
-import Divider from '@mui/material/Divider';
-import {
-  ThemeProvider,
-  createTheme,
-  useTheme,
-  useColorScheme,
-} from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
+import Divider from "@mui/material/Divider";
+import { ThemeProvider, createTheme, useTheme, useColorScheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 
-import { buildTheme, DEFAULT_LAYOUT, LayoutContext, ApiTheme } from 'context/Theme';
+import { buildTheme, DEFAULT_LAYOUT, LayoutContext, ApiTheme } from "context/Theme";
 import AppBar from "components/AppBar";
 import Hero from "components/Hero";
 import Features from "components/Features";
@@ -20,14 +15,17 @@ import Download from "components/Download";
 
 function SparusThemeProvider({ children }: { children: ReactNode }) {
   const [apiTheme, setApiTheme] = useState<ApiTheme>({});
-  const [layout, setLayout]     = useState<LayoutTokens>(DEFAULT_LAYOUT);
+  const [layout, setLayout] = useState<LayoutTokens>(DEFAULT_LAYOUT);
 
   useEffect(() => {
-    fetch('/api/theme')
-      .then(r => { if (!r.ok) throw new Error(); return r.json() as Promise<ApiTheme>; })
-      .then(data => {
+    fetch("/api/theme")
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json() as Promise<ApiTheme>;
+      })
+      .then((data) => {
         setApiTheme(data);
-        if (data.layout) setLayout(prev => ({ ...prev, ...data.layout }));
+        if (data.layout) setLayout((prev) => ({ ...prev, ...data.layout }));
       })
       .catch(() => {});
   }, []);

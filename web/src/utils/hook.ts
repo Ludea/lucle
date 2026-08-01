@@ -11,8 +11,8 @@ export function useIsMobile(): boolean {
   useEffect(() => {
     const fn = () => setMobile(window.innerWidth < mobileBreakpoint);
     fn();
-    window.addEventListener('resize', fn, { passive: true });
-    return () => window.removeEventListener('resize', fn);
+    window.addEventListener("resize", fn, { passive: true });
+    return () => window.removeEventListener("resize", fn);
   }, [mobileBreakpoint]);
 
   return mobile;

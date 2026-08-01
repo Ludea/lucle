@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 
-import Box from '@mui/material/Box';
-import { useLayout, useIsMobile } from 'utils/hook';
+import Box from "@mui/material/Box";
+import { useLayout, useIsMobile } from "utils/hook";
 
 interface SectionProps {
   id?: string;
@@ -20,7 +20,7 @@ export default function Section({ id, children }: SectionProps) {
         py: `${layout.sectionPadding}px`,
         px: `${isMobile ? layout.mobilePadding : layout.desktopPadding}px`,
         maxWidth: layout.maxWidth,
-        mx: 'auto',
+        mx: "auto",
       }}
     >
       {children}

@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-import Typography from '@mui/material/Typography';
+import Typography from "@mui/material/Typography";
 
 export default function SectionLabel({ children }: { children: ReactNode }) {
   return (

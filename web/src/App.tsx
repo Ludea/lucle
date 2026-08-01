@@ -26,9 +26,9 @@ export default function App() {
   }, []);
 
   return (
-      <AuthProvider>
-        {isInstalled !== undefined ? <LucleRoutes isInstalled={isInstalled} /> : null}
-      </AuthProvider>
+    <AuthProvider>
+      {isInstalled !== undefined ? <LucleRoutes isInstalled={isInstalled} /> : null}
+    </AuthProvider>
   );
 }
 
