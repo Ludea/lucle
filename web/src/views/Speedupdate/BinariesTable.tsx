@@ -11,6 +11,8 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
   const [binariesPerPage, setBinariesPerPage] = useState(5);
   const [binariesPage, setBinariesPage] = useState(0);
   const [selectedBinaries, setSelectedBinaries] = useState<readonly number[]>([]);
+
+  const isBinarySelected = (id: number) => selectedBibaries.includes(id);
   const numBinariesSelected = selectedBinaries.length;
 
   const visibleBinaries = useMemo(
@@ -23,6 +25,32 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
         : null,
     [availableBinaries, binariesPage, binariesPerPage],
   );
+
+  const BinariesSelection = (id: number, bin: string) => {
+    const selectedIndex = selectedBinaries.indexOf(id);
+    let newSelected: readonly number[] = [];
+    let newPublished: readonly boolean[] = [];
+    let binariesValues: readonly string[] = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selectedBinaries, id);
+      binariesValues = binariesValues.concat(selectedBinariesValues, bin);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selectedBinaries.slice(1));
+      binariesValues = binariesValues.concat(selectedBinariesValues.slice(1));
+    } else if (selectedIndex === selectedBinaries.length - 1) {
+      newSelected = newSelected.concat(selectedBinaries.slice(0, -1));
+      binariesValues = binariesValues.concat(selectedBinariesValues.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selectedBinaries.slice(0, selectedIndex),
+        selectedBinaries.slice(selectedIndex + 1),
+      );
+    }
+
+    setSelectedBinaries(newSelected);
+    setSelectedBinariesValues(packagesValues);
+  };
 
   return (
     <Box>
@@ -61,18 +89,25 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
         </Toolbar>
         <TableContainer>
           <Table sx={{ width: "100%" }}>
-            {visibleBinaries
+            <TableHead>
+              <TableRow>
+                <TableCell />
+                <TableCell>Name</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {visibleBinaries
               ? visibleBinaries.map((binary, index) => {
                   const isItemSelected = isBinariesSelected(index + 1);
                   const labelId = `enhanced-table-checkbox-${index}`;
                   return (
                     <TableRow
                       hover
-                      // onClick={() =>
-                      //  versionsSelection(index + 1, current_version)
-                      // }
                       role="checkbox"
                       aria-checked={isItemSelected}
+                      onClick={() => {
+                          packagesSelection(index, binary);
+                        }}
                       tabIndex={-1}
                       key={index + 1}
                       selected={isItemSelected}
@@ -92,6 +127,7 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
                   );
                 })
               : null}
+            </TableBody>
           </Table>
         </TableContainer>
         <TablePagination
