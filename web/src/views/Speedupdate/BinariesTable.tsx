@@ -97,36 +97,36 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
             </TableHead>
             <TableBody>
               {visibleBinaries
-              ? visibleBinaries.map((binary, index) => {
-                  const isItemSelected = isBinariesSelected(index + 1);
-                  const labelId = `enhanced-table-checkbox-${index}`;
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      onClick={() => {
+                ? visibleBinaries.map((binary, index) => {
+                    const isItemSelected = isBinariesSelected(index + 1);
+                    const labelId = `enhanced-table-checkbox-${index}`;
+                    return (
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        aria-checked={isItemSelected}
+                        onClick={() => {
                           packagesSelection(index, binary);
                         }}
-                      tabIndex={-1}
-                      key={index + 1}
-                      selected={isItemSelected}
-                      sx={{ cursor: "pointer" }}
-                    >
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            "aria-labelledby": labelId,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>{binary}</TableCell>
-                    </TableRow>
-                  );
-                })
-              : null}
+                        tabIndex={-1}
+                        key={index + 1}
+                        selected={isItemSelected}
+                        sx={{ cursor: "pointer" }}
+                      >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            color="primary"
+                            checked={isItemSelected}
+                            inputProps={{
+                              "aria-labelledby": labelId,
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>{binary}</TableCell>
+                      </TableRow>
+                    );
+                  })
+                : null}
             </TableBody>
           </Table>
         </TableContainer>
