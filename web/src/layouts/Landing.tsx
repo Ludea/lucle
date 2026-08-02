@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, ReactNode } from "react";
 
 import Divider from "@mui/material/Divider";
-import { ThemeProvider, createTheme, useTheme, useColorScheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 
 import { buildTheme, DEFAULT_LAYOUT, LayoutContext, ApiTheme } from "context/Theme";

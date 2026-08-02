@@ -3,7 +3,6 @@ import { Navigate, Outlet } from "react-router";
 import Landing from "layouts/Landing";
 import Install from "layouts/Install";
 import ForgotPassword from "views/ForgotPassword";
-import Index from "views/AdminIndex";
 import Game from "views/Speedupdate/Game";
 import Login from "views/Login";
 import Launcher from "views/Speedupdate/Launcher";

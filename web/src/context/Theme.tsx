@@ -1,6 +1,5 @@
-import { ReactNode, createContext, useState, useMemo, useEffect } from "react";
-import { createTheme, ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
+import { createContext } from "react";
+import { createTheme } from "@mui/material/styles";
 
 export interface LayoutTokens {
   maxWidth: number;
