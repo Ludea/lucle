@@ -107,7 +107,7 @@ function Options({ binaryType }: { binaryType: string }) {
         <Grid size={12}>
           Upload path:{" "}
           <TextField
-            value={buildPath}
+            value={uploadPath}
             id="upload-path"
             label=""
             variant="standard"
