@@ -29,7 +29,6 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
   const binariesSelection = (id: number, bin: string) => {
     const selectedIndex = selectedBinaries.indexOf(id);
     let newSelected: readonly number[] = [];
-    let binariesValues: readonly string[] = [];
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selectedBinaries, id);
