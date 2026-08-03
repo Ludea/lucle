@@ -18,7 +18,7 @@ import { deleteRepo } from "utils/rpc";
 
 import { useNavigate } from "react-router";
 
-function Options({ binaryType }: { binaryType: string }) {
+function SpeedupdateOptions({ binaryType }: { binaryType: string }) {
   const [statusAlreadyStarted, setStatusAlreadyStarted] = useState(false);
   const [currentVer, setCurrentVer] = useState<string>("");
   const [size, setSize] = useState<number>();
@@ -172,4 +172,4 @@ function Options({ binaryType }: { binaryType: string }) {
   );
 }
 
-export default Options;
+export default SpeedupdateOptions;

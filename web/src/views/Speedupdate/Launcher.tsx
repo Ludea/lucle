@@ -12,7 +12,7 @@ import Select from "@mui/material/Select";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 //Components
-import Options from "components/Speedupdate/Options";
+import speedupdateOptions from "components/Speedupdate/Options";
 
 import { build_custom_launcher, send_event_all } from "utils/sparusrpc";
 import { SparusRPC } from "context/Sparus";
@@ -42,7 +42,6 @@ function Launcher() {
   const SparusClient = useContext(SparusRPC);
 
   return (
-    <div>
       <Grid container>
         <Grid size={12}>
           <TextField
@@ -208,8 +207,7 @@ function Launcher() {
           </Button>
         </Grid>
       </Grid>
-      <Options binaryType={"launcher"} />
-    </div>
+      <SpeedupdateOptions binaryType={"launcher"} />
   );
 }
 

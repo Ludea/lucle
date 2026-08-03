@@ -26,7 +26,9 @@ import { Platforms, Options } from "gen/speedupdate_pb";
 import PackagesTable from "views/Speedupdate/PackagesTable";
 import BinariesTable from "views/Speedupdate/BinariesTable";
 import VersionsTable from "views/Speedupdate/VersionsTable";
-// apia
+import speedupdateOptions from "components/Speedupdate/Options";
+
+// api
 import { repoToDelete, status } from "utils/speedupdaterpc";
 import { deleteRepo } from "utils/rpc";
 
@@ -58,7 +60,7 @@ const DisplaySizeUnit = (TotalSize: number) => {
   }
 };
 
-function Speedupdate() {
+function Game() {
   const [key, setKey] = useState();
   const [statusAlreadyStarted, setStatusAlreadyStarted] = useState(false);
   const [uploadProgression, setUploadProgression] = useState<string>("");
@@ -169,97 +171,12 @@ function Speedupdate() {
         setError(JSON.stringify(err));
       });
   };
-
-  let speedupdatecomponent;
-
-  if (currentRepo.size > 0) {
-    speedupdatecomponent = (
+ 
+  return (
+    <>
+    {currentRepo.size > 0 ? (
       <Box sx={{ width: "100%" }}>
-        <Paper sx={{ width: "100%", mb: 2 }}>
-          <Grid container>
-            <Grid size={12}>Current version: {currentVer ? currentVer : "-"}</Grid>
-            <Grid size={12}>Total packages size: {size ? size + DisplaySizeUnit(size) : "-"}</Grid>
-            Options:
-            <Grid size={12}>
-              Build path:{" "}
-              <TextField
-                value={buildPath}
-                id="build-path"
-                label=""
-                variant="standard"
-                onChange={(event) => {
-                  setBuildPath(event.target.value);
-                }}
-              />
-            </Grid>
-            <Grid size={12}>
-              Upload path:{" "}
-              <TextField
-                value={buildPath}
-                id="upload-path"
-                label=""
-                variant="standard"
-                onChange={(event) => {
-                  setUploadPath(event.target.value);
-                }}
-              />
-            </Grid>
-            <Grid size={12}>
-              {error !== null ? (
-                <div>
-                  <WarningIcon />
-                  {error}
-                </div>
-              ) : null}
-            </Grid>
-            <IconButton
-              size="large"
-              onClick={() => {
-                controller.abort();
-                setError(null);
-                setCurrentRepo(new Map());
-                setPlatformsEnum([]);
-                localStorage.removeItem("platformsEnum");
-                localStorage.removeItem("current_repo");
-                navigate("/dashboard");
-              }}
-            >
-              <ExitToAppIcon />
-            </IconButton>
-            <IconButton
-              size="large"
-              onClick={() => {
-                const path = currentRepo.keys().next().value;
-                repoToDelete(SpeedupdateClient, path)
-                  .then(() => {
-                    deleteRepo(lucleClient, path)
-                      .then(() => {
-                        setError(null);
-                        setCurrentRepo(new Map());
-                        const list = listRepo;
-                        list.delete(path);
-                        setListRepo(list);
-                        setPlatformsEnum([]);
-                        localStorage.setItem(
-                          "repositories",
-                          JSON.stringify(Object.fromEntries(list)),
-                        );
-                        localStorage.removeItem("platformsEnum");
-                        localStorage.removeItem("current_repo");
-                      })
-                      .catch((err: unknown) => {
-                        setError(err.rawMessage);
-                      });
-                  })
-                  .catch((err: unknown) => {
-                    setError(err.rawMessage);
-                  });
-              }}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </Grid>
-        </Paper>
+        <SpeedupdateOptions binaryType={"game"} />
         <VersionsTable client={speedupdateClient} listVersions={listVersions} />
         <PackagesTable client={speedupdateClient} listPackages={listPackages} />
         <BinariesTable availableBinaries={availableBinaries} />
@@ -308,9 +225,9 @@ function Speedupdate() {
           </Grid>
         </Grid>
       </Box>
-    );
-  }
-  return <div> {speedupdatecomponent} </div>;
+    ) : null
 }
+    </>);
+  }
 
-export default Speedupdate;
+export default Game;
