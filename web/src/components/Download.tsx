@@ -75,7 +75,11 @@ function Download() {
         <CardContent sx={{ p: 4 }}>
           {/* Primary — detected OS */}
           <Box sx={{ mb: 4 }}>
-            <Typography variant="overline" color="text.secondary" sx={{ display: "block", mb: 1.5 }}>
+            <Typography
+              variant="overline"
+              color="text.secondary"
+              sx={{ display: "block", mb: 1.5 }}
+            >
               {detectedOS !== "unknown" ? "Recommended for your system" : "Download"}
             </Typography>
 
@@ -120,7 +124,11 @@ function Download() {
 
           {/* Secondary — other OS */}
           <Box>
-            <Typography variant="overline" color="text.secondary" sx={{ display: "block", mb: 1.5 }}>
+            <Typography
+              variant="overline"
+              color="text.secondary"
+              sx={{ display: "block", mb: 1.5 }}
+            >
               Other platforms
             </Typography>
             <Stack spacing={1}>
