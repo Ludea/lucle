@@ -42,6 +42,7 @@ function Launcher() {
   const SparusClient = useContext(SparusRPC);
 
   return (
+    <>
       <Grid container>
         <Grid size={12}>
           <TextField
@@ -208,7 +209,7 @@ function Launcher() {
         </Grid>
       </Grid>
       <SpeedupdateOptions binaryType={"launcher"} />
-        </Grid>
+      </>   
   );
 }
 
