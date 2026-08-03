@@ -44,7 +44,7 @@ export default function BottomSheet({ open, onClose }: BottomSheetProps) {
       anchor="bottom"
       open={open}
       onClose={onClose}
-      PaperProps={{ sx: { maxHeight: "85vh" } }}
+      slotProps={{ sx: { maxHeight: "85vh" } }}
     >
       {/* Handle */}
       <Box
@@ -70,7 +70,7 @@ export default function BottomSheet({ open, onClose }: BottomSheetProps) {
             >
               <ListItemText
                 primary={label}
-                primaryTypographyProps={{ variant: "h6", fontSize: 18 }}
+                slotsProps={{ variant: "h6", fontSize: 18 }}
               />
             </ListItemButton>
           </ListItem>
