@@ -171,63 +171,63 @@ function Game() {
         setError(JSON.stringify(err));
       });
   };
- 
+
   return (
     <>
-    {currentRepo.size > 0 ? (
-      <Box sx={{ width: "100%" }}>
-        <SpeedupdateOptions binaryType={"game"} />
-        <VersionsTable client={speedupdateClient} listVersions={listVersions} />
-        <PackagesTable client={speedupdateClient} listPackages={listPackages} />
-        <BinariesTable availableBinaries={availableBinaries} />
-        Upload Binaries
-        <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-          <InputLabel id="hosts">Hosts</InputLabel>
-          <Select
-            labelId="demo-simple-select-standard-label"
-            id="demo-simple-select-standard"
-            value={uploadBinariesHost}
-            onChange={(event) => {
-              setUploadBinariesHost(event.target.value);
+      {currentRepo.size > 0 ? (
+        <Box sx={{ width: "100%" }}>
+          <SpeedupdateOptions binaryType={"game"} />
+          <VersionsTable client={speedupdateClient} listVersions={listVersions} />
+          <PackagesTable client={speedupdateClient} listPackages={listPackages} />
+          <BinariesTable availableBinaries={availableBinaries} />
+          Upload Binaries
+          <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+            <InputLabel id="hosts">Hosts</InputLabel>
+            <Select
+              labelId="demo-simple-select-standard-label"
+              id="demo-simple-select-standard"
+              value={uploadBinariesHost}
+              onChange={(event) => {
+                setUploadBinariesHost(event.target.value);
+              }}
+              label="Hosts"
+            >
+              <MenuItem value={0}>Win64</MenuItem>
+              <MenuItem value={1}>Macos x86_64</MenuItem>
+              <MenuItem value={2}>Macos aarch64</MenuItem>
+              <MenuItem value={3}>Linux</MenuItem>
+            </Select>
+          </FormControl>
+          <DropzoneArea
+            key={key}
+            fileObjects={files}
+            onChange={(newFile) => {
+              setFiles(newFile);
             }}
-            label="Hosts"
+          />
+          <Grid
+            container
+            sx={{
+              alignItems: "center",
+            }}
           >
-            <MenuItem value={0}>Win64</MenuItem>
-            <MenuItem value={1}>Macos x86_64</MenuItem>
-            <MenuItem value={2}>Macos aarch64</MenuItem>
-            <MenuItem value={3}>Linux</MenuItem>
-          </Select>
-        </FormControl>
-        <DropzoneArea
-          key={key}
-          fileObjects={files}
-          onChange={(newFile) => {
-            setFiles(newFile);
-          }}
-        />
-        <Grid
-          container
-          sx={{
-            alignItems: "center",
-          }}
-        >
-          <Grid size={9}>
-            {uploadProgression ? (
-              <LinearProgress variant="determinate" value={uploadProgression} />
-            ) : null}
+            <Grid size={9}>
+              {uploadProgression ? (
+                <LinearProgress variant="determinate" value={uploadProgression} />
+              ) : null}
+            </Grid>
+            <Grid size={1}>
+              {!uploadProgression ? (
+                <Button color="primary" onClick={uploadFile}>
+                  Submit
+                </Button>
+              ) : null}
+            </Grid>
           </Grid>
-          <Grid size={1}>
-            {!uploadProgression ? (
-              <Button color="primary" onClick={uploadFile}>
-                Submit
-              </Button>
-            ) : null}
-          </Grid>
-        </Grid>
-      </Box>
-    ) : null
+        </Box>
+      ) : null}
+    </>
+  );
 }
-    </>);
-  }
 
 export default Game;

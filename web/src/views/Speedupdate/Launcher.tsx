@@ -209,7 +209,7 @@ function Launcher() {
         </Grid>
       </Grid>
       <SpeedupdateOptions binaryType={"launcher"} />
-      </>   
+    </>
   );
 }
 
