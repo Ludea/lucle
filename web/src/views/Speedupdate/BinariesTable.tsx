@@ -26,10 +26,9 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
     [availableBinaries, binariesPage, binariesPerPage],
   );
 
-  const BinariesSelection = (id: number, bin: string) => {
+  const binariesSelection = (id: number, bin: string) => {
     const selectedIndex = selectedBinaries.indexOf(id);
     let newSelected: readonly number[] = [];
-    let newPublished: readonly boolean[] = [];
     let binariesValues: readonly string[] = [];
 
     if (selectedIndex === -1) {
@@ -98,7 +97,7 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
             <TableBody>
               {visibleBinaries
                 ? visibleBinaries.map((binary, index) => {
-                    const isItemSelected = isBinariesSelected(index + 1);
+                    const isItemSelected = isBinarySelected(index + 1);
                     const labelId = `enhanced-table-checkbox-${index}`;
                     return (
                       <TableRow
@@ -106,7 +105,7 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
                         role="checkbox"
                         aria-checked={isItemSelected}
                         onClick={() => {
-                          packagesSelection(index, binary);
+                          binariesSelection(index, binary);
                         }}
                         tabIndex={-1}
                         key={index + 1}
