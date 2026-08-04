@@ -12,7 +12,7 @@ import Select from "@mui/material/Select";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 //Components
-import speedupdateOptions from "components/Speedupdate/Options";
+import SpeedupdateOptions from "components/Speedupdate/Options";
 
 import { build_custom_launcher, send_event_all } from "utils/sparusrpc";
 import { SparusRPC } from "context/Sparus";

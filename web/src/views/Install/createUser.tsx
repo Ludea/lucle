@@ -15,10 +15,10 @@ export default function CreateDefaultUser({
   password: any;
   confirmPassword: any;
   email: any;
-  passwordStrengh;
-  onCreatingUser;
+  passwordStrengh: (score: number) => void;
+  onCreatingUser?: any;
 }) {
-  const [passwd, setPasswd] = useState();
+  const [passwd, setPasswd] = useState<string>("");
   return (
     <Box
       component="form"

@@ -9,7 +9,7 @@ import { connection } from "utils/rpc";
 
 import { Platforms } from "gen/speedupdate_pb";
 
-const AuthContext = createContext();
+const AuthContext = createContext<any>(undefined);
 
 function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -21,7 +21,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const client = useContext(LucleRPC);
 
-  const Login = async (credentials) =>
+  const Login = async (credentials: { username: string; password: string }) =>
     new Promise((resolve, reject) => {
       connection(client, credentials.username, credentials.password)
         .then((user) => {

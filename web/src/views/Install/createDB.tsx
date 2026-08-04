@@ -37,7 +37,7 @@ function CreateDB({
       {selectedDB === 2 ? <TextField id="filled-basic" label="Filled" variant="filled" /> : null}
 
       {selectedDB !== 2 ? (
-        <DatabaseInfo setDBInfos={(infos) => setDBInfos(infos)} dbInfos={dbInfos} />
+        <DatabaseInfo setDBInfos={(infos: any) => setDBInfos(infos)} dbInfos={dbInfos} />
       ) : null}
     </Box>
   );

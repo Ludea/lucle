@@ -61,10 +61,8 @@ function Features() {
                 }}
               >
                 <CardContent sx={{ p: 4 }}>
-                  <Typography fontSize={28} mb={2}>
-                    {f.icon}
-                  </Typography>
-                  <Typography variant="h3" fontSize={17} mb={1.25}>
+                  <Typography sx={{ fontSize: 28, mb: 2 }}>{f.icon}</Typography>
+                  <Typography variant="h3" sx={{ fontSize: 17, mb: 1.25 }}>
                     {f.title}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">

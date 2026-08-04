@@ -88,7 +88,7 @@ function Hero() {
             rel="noopener noreferrer"
             variant="contained"
             size="large"
-            startIcon={<GitHubIcon size={18} />}
+            startIcon={<GitHubIcon sx={{ fontSize: 18 }} />}
             sx={{ px: 3.5, py: 1.625 }}
           >
             View on GitHub

@@ -11,19 +11,40 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 
 //Context
 import { SpeedupdateRPC } from "context/Speedupdate";
+import { LucleRPC } from "context/Luclerpc";
 
 // api
 import { repoToDelete, status } from "utils/speedupdaterpc";
 import { deleteRepo } from "utils/rpc";
+import { OptionsSchema, Platforms } from "gen/speedupdate_pb";
+import { create } from "@bufbuild/protobuf";
 
 import { useNavigate } from "react-router";
+
+// Kept local rather than shared with Game.tsx (which defines the same helper
+// but never calls it) to avoid introducing new cross-file coupling here.
+const DisplaySizeUnit = (TotalSize: number) => {
+  if (TotalSize > 0 && TotalSize < 1024) {
+    return "B";
+  }
+  if (TotalSize < 1024 * 1024) {
+    return "kB";
+  }
+  if (TotalSize < 1024 * 1024 * 1024) {
+    return "MB";
+  }
+  if (TotalSize < 1024 * 1024 * 1024 * 1024) {
+    return "GB";
+  }
+  return "TB";
+};
 
 function SpeedupdateOptions({ binaryType }: { binaryType: string }) {
   const [statusAlreadyStarted, setStatusAlreadyStarted] = useState(false);
   const [currentVer, setCurrentVer] = useState<string>("");
   const [size, setSize] = useState<number>();
   const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
-    JSON.parse(localStorage.getItem("platformsEnum")),
+    JSON.parse(localStorage.getItem("platformsEnum") ?? "[]"),
   );
   const [buildPath, setBuildPath] = useState<string>("");
   const [uploadPath, setUploadPath] = useState<string>("");
@@ -32,6 +53,7 @@ function SpeedupdateOptions({ binaryType }: { binaryType: string }) {
 
   const navigate = useNavigate();
   const speedupdateClient = useContext(SpeedupdateRPC);
+  const lucleClient = useContext(LucleRPC);
   const controller = new AbortController();
 
   useEffect(() => {
@@ -43,13 +65,13 @@ function SpeedupdateOptions({ binaryType }: { binaryType: string }) {
       if (currentRepo.size === 0) setCurrentRepo(mapCurrentRepo);
     }
 
-    const opt: Options = {
+    const opt = create(OptionsSchema, {
       buildPath: ".",
       uploadPath: ".",
-    };
+    });
 
     if (currentRepo.size > 0) {
-      const current = currentRepo.keys().next().value;
+      const current = currentRepo.keys().next().value as string;
       if (!statusAlreadyStarted) {
         status(speedupdateClient, current, platformsEnum, binaryType, opt).then((value) => {
           const reader = value.getReader();
@@ -57,9 +79,6 @@ function SpeedupdateOptions({ binaryType }: { binaryType: string }) {
           async function readStream() {
             let result;
             while (!(result = await reader.read()).done) {
-              setListVersions(result.value.versions);
-              setListPackages(result.value.packages);
-              setAvailableBinaries(result.value.binaries);
               setSize(result.value.size);
               setCurrentVer(result.value.currentVersion);
             }
@@ -68,20 +87,6 @@ function SpeedupdateOptions({ binaryType }: { binaryType: string }) {
             setError(JSON.stringify(err));
           });
         });
-
-        const eventSource = new EventSource(
-          "https://repo.marlin-atlas.ts.net/" + current + "/" + binaryType + "/progression",
-        );
-        eventSource.onmessage = (event) => {
-          setUploadProgression(event.data);
-          if (event.data === "100") {
-            setUploadProgression(null);
-            setFiles(null);
-          }
-        };
-        eventSource.onerror = (error) => {
-          setError(error);
-        };
       }
     }
   }, [currentRepo]);
@@ -141,27 +146,27 @@ function SpeedupdateOptions({ binaryType }: { binaryType: string }) {
         <IconButton
           size="large"
           onClick={() => {
-            const path = currentRepo.keys().next().value;
-            repoToDelete(SpeedupdateClient, path)
+            const path = currentRepo.keys().next().value as string;
+            repoToDelete(speedupdateClient, path)
               .then(() => {
                 deleteRepo(lucleClient, path)
                   .then(() => {
                     setError(null);
                     setCurrentRepo(new Map());
-                    const list = listRepo;
-                    list.delete(path);
-                    setListRepo(list);
+                    const savedRepositories = localStorage.getItem("repositories");
+                    const list = savedRepositories ? JSON.parse(savedRepositories) : {};
+                    delete list[path];
+                    localStorage.setItem("repositories", JSON.stringify(list));
                     setPlatformsEnum([]);
-                    localStorage.setItem("repositories", JSON.stringify(Object.fromEntries(list)));
                     localStorage.removeItem("platformsEnum");
                     localStorage.removeItem("current_repo");
                   })
                   .catch((err: unknown) => {
-                    setError(err.rawMessage);
+                    setError((err as { rawMessage: string }).rawMessage);
                   });
               })
               .catch((err: unknown) => {
-                setError(err.rawMessage);
+                setError((err as { rawMessage: string }).rawMessage);
               });
           }}
         >

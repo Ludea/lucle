@@ -10,24 +10,39 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
+import Tooltip from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
+import Checkbox from "@mui/material/Checkbox";
+import { alpha } from "@mui/material/styles";
+
+// Icons
+import UnpublishedIcon from "@mui/icons-material/Unpublished";
+import PublishIcon from "@mui/icons-material/Publish";
+import DeleteIcon from "@mui/icons-material/Delete";
+
+import { ConnectError } from "@connectrpc/connect";
 
 // api
 import { registerPackage, unregisterPackage, fileToDelete } from "utils/speedupdaterpc";
 
+type PackageEntry = { name: string; published: boolean };
+
 function PackagesTable({
   client,
+  currentRepo,
   listPackages,
   onError,
 }: {
-  client: PromiseClient<typeof Repo>;
-  listPackages: string[];
-  onError: (error: string) => void;
+  client: unknown;
+  currentRepo: Map<string, string[]>;
+  listPackages: PackageEntry[];
+  onError: (error: string | null) => void;
 }) {
   const [packagesPage, setPackagesPage] = useState(0);
   const [packagesPerPage, setPackagesPerPage] = useState(5);
-  const [canBePublished, setCanBePublished] = useState<boolean[]>([]);
+  const [canBePublished, setCanBePublished] = useState<readonly boolean[]>([]);
   const [selectedPackages, setSelectedPackages] = useState<readonly number[]>([]);
-  const [selectedPackagesValues, setSelectedPackagesValues] = useState<string[]>([]);
+  const [selectedPackagesValues, setSelectedPackagesValues] = useState<readonly string[]>([]);
   const isPackagesSelected = (id: number) => selectedPackages.includes(id);
   const numPackagesSelected = selectedPackages.length;
 
@@ -74,11 +89,11 @@ function PackagesTable({
 
   const RegisterPackages = () => {
     onError(null);
-    const repo_name = currentRepo.keys().next().value;
+    const repo_name = currentRepo.keys().next().value as string;
     const platforms = currentRepo.get(repo_name);
     selectedPackagesValues.forEach((pack) => {
-      registerPackage(client, repo_name, pack, platforms, "game").catch((err) => {
-        onError(err);
+      registerPackage(client, repo_name, pack, platforms, "game").catch((err: ConnectError) => {
+        onError(err.rawMessage);
       });
     });
     setSelectedPackages([]);
@@ -88,10 +103,10 @@ function PackagesTable({
 
   const UnregisterPackages = () => {
     onError(null);
-    const repo_name = currentRepo.keys().next().value;
+    const repo_name = currentRepo.keys().next().value as string;
     const platforms = currentRepo.get(repo_name);
     selectedPackagesValues.forEach((pack) => {
-      unregisterPackage(client, repo_name, pack, platforms, "game").catch((err) => {
+      unregisterPackage(client, repo_name, pack, platforms, "game").catch((err: ConnectError) => {
         onError(err.rawMessage);
       });
     });
@@ -102,17 +117,17 @@ function PackagesTable({
 
   const DeletePackages = () => {
     onError(null);
-    const repo_name = currentRepo.keys().next().value;
+    const repo_name = currentRepo.keys().next().value as string;
     const platforms = currentRepo.get(repo_name);
     selectedPackages.forEach((row) => {
       if (listPackages[row].published) {
         unregisterPackage(client, repo_name, listPackages[row].name, platforms, "game").catch(
-          (err) => {
+          (err: ConnectError) => {
             onError(err.rawMessage);
           },
         );
       }
-      fileToDelete(client, listPackages[row].name, platforms, "game").catch((err) => {
+      fileToDelete(client, listPackages[row].name, platforms, "game").catch((err: ConnectError) => {
         onError(err.rawMessage);
       });
       setSelectedPackages([]);
@@ -207,8 +222,10 @@ function PackagesTable({
                           <Checkbox
                             color="primary"
                             checked={isItemSelected}
-                            inputProps={{
-                              "aria-labelledby": labelId,
+                            slotProps={{
+                              input: {
+                                "aria-labelledby": labelId,
+                              },
                             }}
                           />
                         </TableCell>

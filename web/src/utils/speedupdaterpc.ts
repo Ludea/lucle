@@ -173,7 +173,7 @@ export async function status(client: any, path: string, platforms: any, type: st
         );
         if (compare_repo) {
           const firstRepo = repo.status[0];
-          const fullListPackages = [];
+          const fullListPackages: { name: string; published: boolean }[] = [];
           firstRepo.packages.map((row: any) => {
             fullListPackages.push({ name: row, published: true });
           });

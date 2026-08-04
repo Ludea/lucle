@@ -45,12 +45,11 @@ function Footer() {
     >
       <Stack
         direction="row"
-        sx={{ justifyContent: 'space-between"', alignItems: "center", flexWrap: "wrap" }}
-        gap={2}
+        sx={{ justifyContent: 'space-between"', alignItems: "center", flexWrap: "wrap", gap: 2 }}
       >
         <Stack direction="row" sx={{ alignItems: "center" }} spacing={1.25}>
           <SparusIcon />
-          <Typography variant="h6" fontSize={16}>
+          <Typography variant="h6" sx={{ fontSize: 16 }}>
             Sparus
           </Typography>
           <Typography variant="body2" color="text.secondary">

@@ -4,7 +4,7 @@ import Divider from "@mui/material/Divider";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 
-import { buildTheme, DEFAULT_LAYOUT, LayoutContext, ApiTheme } from "context/Theme";
+import { buildTheme, DEFAULT_LAYOUT, LayoutContext, ApiTheme, LayoutTokens } from "context/Theme";
 import AppBar from "components/AppBar";
 import Hero from "components/Hero";
 import Features from "components/Features";
@@ -25,7 +25,7 @@ function SparusThemeProvider({ children }: { children: ReactNode }) {
       })
       .then((data) => {
         setApiTheme(data);
-        if (data.layout) setLayout((prev) => ({ ...prev, ...data.layout }));
+        if (data.layout) setLayout((prev: LayoutTokens) => ({ ...prev, ...data.layout }));
       })
       .catch(() => {});
   }, []);

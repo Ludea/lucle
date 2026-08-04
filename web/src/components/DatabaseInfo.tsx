@@ -1,3 +1,4 @@
+import * as React from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 
@@ -10,7 +11,7 @@ interface dbInfos {
 }
 
 function DatabaseInfo({ dbInfos, setDBInfos }: { dbInfos: dbInfos; setDBInfos: any }) {
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = event.target;
     setDBInfos({
       ...dbInfos,
