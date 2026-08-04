@@ -30,13 +30,14 @@ function InstallStep(
   setEmail: (email: string) => void,
   dbInfos: any,
   setDBInfos: (infos: any) => void,
+  handleClick: () => void,
 ) {
   switch (step) {
     case 1:
       return (
         <CreateDB
           dbInfos={dbInfos}
-          setDBInfos={(infos) => {
+          setDBInfos={(infos: any) => {
             setDBInfos(infos);
           }}
           setSelectedDB={handleDBtype}
@@ -51,6 +52,7 @@ function InstallStep(
           confirmPassword={setConfirmPassword}
           passwordStrengh={setPasswordStrengh}
           email={setEmail}
+          onCreatingUser={handleClick}
         />
       );
     default:
@@ -78,7 +80,7 @@ export default function Install() {
   const isStepFailed = (step: number) => step === activeStep;
 
   const handleClick = () => {
-    setError(null);
+    setError("");
     switch (activeStep) {
       case 0:
         {
@@ -126,13 +128,11 @@ export default function Install() {
             error?: boolean;
           } = {};
           if (isStepFailed(index)) {
-            stepProps.error = error;
+            stepProps.error = Boolean(error);
           }
           return (
-            <Step key={label}>
-              <StepLabel completed={stepProps.completed} error={false}>
-                {label}
-              </StepLabel>
+            <Step key={label} completed={stepProps.completed}>
+              <StepLabel error={stepProps.error}>{label}</StepLabel>
             </Step>
           );
         })}
@@ -160,6 +160,7 @@ export default function Install() {
             setEmail,
             dbInfos,
             setDBInfos,
+            handleClick,
           )}
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             <Button

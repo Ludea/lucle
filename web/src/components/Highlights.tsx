@@ -51,10 +51,10 @@ function Highlights() {
               }}
             >
               <CardContent sx={{ p: 5 }}>
-                <Typography variant="overline" display="block" sx={{ color: h.accent, mb: 2 }}>
+                <Typography variant="overline" sx={{ display: "block", color: h.accent, mb: 2 }}>
                   {h.tag}
                 </Typography>
-                <Typography variant="h2" fontSize={24} mb={1.75}>
+                <Typography variant="h2" sx={{ fontSize: 24, mb: 1.75 }}>
                   {h.title}
                 </Typography>
                 <Typography variant="body1" color="text.secondary">

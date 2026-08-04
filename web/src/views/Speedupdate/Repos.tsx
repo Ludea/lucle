@@ -27,6 +27,17 @@ const transport = createGrpcWebTransport({
 });
 const client = createClient(Repo, transport);
 
+// context/Auth.tsx's AuthContext is created with `createContext(undefined)`, so
+// useAuth() is typed as `undefined`. This mirrors the actual shape provided by
+// AuthContext.Provider so we can safely read the fields we need here.
+interface AuthContextValue {
+  username: string | null;
+  token: string | null;
+  repositories: Map<string, string[]>;
+  Login: (credentials: { username: string; password: string }) => Promise<unknown>;
+  Logout: () => void;
+}
+
 function ListRepo() {
   const [listRepo, setListRepo] = useState<Map<string, string[]>>(new Map());
   const [error, setError] = useState<string | null>(null);
@@ -39,11 +50,11 @@ function ListRepo() {
   });
 
   const lucleClient = useContext(LucleRPC);
-  const auth = useAuth();
+  const auth = useAuth() as AuthContextValue | undefined;
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (auth.repositories) {
+    if (auth && auth.repositories) {
       setListRepo(auth.repositories);
     }
   });
@@ -64,7 +75,7 @@ function ListRepo() {
     <div>
       {listRepo.size > 0
         ? Array.from(listRepo.keys()).map((repo_name: string, index: number) => (
-            <Grid container item key={repo_name} alignItems="center" spacing={2}>
+            <Grid container key={repo_name} sx={{ alignItems: "center" }} spacing={2}>
               <Grid>{repo_name}</Grid>
               <Grid>
                 <Button
@@ -218,11 +229,13 @@ function ListRepo() {
                 localStorage.setItem("platformsEnum", JSON.stringify(hostsEnum));
                 localStorage.setItem("repositories", JSON.stringify(Object.fromEntries(list)));
                 const hosts_string = getPlatforms();
-                registerUpdateServer(lucleClient, auth.username, path, hosts_string).catch(
-                  (err) => {
-                    setError(err.rawMessage);
-                  },
-                );
+                if (auth && auth.username) {
+                  registerUpdateServer(lucleClient, auth.username, path, hosts_string).catch(
+                    (err) => {
+                      setError(err.rawMessage);
+                    },
+                  );
+                }
               })
               .catch((err) => {
                 setError(err.rawMessage);

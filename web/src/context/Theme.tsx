@@ -148,11 +148,16 @@ export function buildTheme(api: ApiTheme) {
       MuiButton: {
         styleOverrides: {
           root: { borderRadius },
-          containedPrimary: {
-            "&:hover": { opacity: 0.88, transform: "translateY(-1px)" },
-            transition: "opacity 0.2s, transform 0.2s",
-          },
         },
+        variants: [
+          {
+            props: { variant: "contained", color: "primary" },
+            style: {
+              "&:hover": { opacity: 0.88, transform: "translateY(-1px)" },
+              transition: "opacity 0.2s, transform 0.2s",
+            },
+          },
+        ],
       },
       MuiCard: {
         styleOverrides: {

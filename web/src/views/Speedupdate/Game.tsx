@@ -1,7 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 import Grid from "@mui/material/Grid";
@@ -9,81 +7,42 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import IconButton from "@mui/material/IconButton";
 import { DropzoneArea } from "mui2-file-dropzone";
 
-import { useNavigate, To, NavigateOptions } from "react-router";
-
-// Icons
-import WarningIcon from "@mui/icons-material/Warning";
-import DeleteIcon from "@mui/icons-material/Delete";
-import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-
 // RPC Connect
-import { Platforms, Options } from "gen/speedupdate_pb";
+import { Platforms, OptionsSchema, Versions } from "gen/speedupdate_pb";
+import { create } from "@bufbuild/protobuf";
 
 //components
 import PackagesTable from "views/Speedupdate/PackagesTable";
 import BinariesTable from "views/Speedupdate/BinariesTable";
 import VersionsTable from "views/Speedupdate/VersionsTable";
-import speedupdateOptions from "components/Speedupdate/Options";
+import SpeedupdateOptions from "components/Speedupdate/Options";
 
 // api
-import { repoToDelete, status } from "utils/speedupdaterpc";
-import { deleteRepo } from "utils/rpc";
+import { status } from "utils/speedupdaterpc";
 
 // Context
-import { LucleRPC } from "context/Luclerpc";
 import { SpeedupdateRPC } from "context/Speedupdate";
-
-declare module "react-router-dom" {
-  interface NavigateFunction {
-    (to: To, options?: NavigateOptions): void;
-    (delta: number): void;
-  }
-}
 
 // import { uploadFile } from "utils/minio";
 
-const DisplaySizeUnit = (TotalSize: number) => {
-  if (TotalSize > 0 && TotalSize < 1024) {
-    return "B";
-  }
-  if (TotalSize < 1024 * 1024) {
-    return "kB";
-  }
-  if (TotalSize < 1024 * 1024 * 1024) {
-    return "MB";
-  }
-  if (TotalSize < 1024 * 1024 * 1024 * 1024) {
-    return "GB";
-  }
-};
-
 function Game() {
-  const [key, setKey] = useState();
+  const [key, setKey] = useState(0);
   const [statusAlreadyStarted, setStatusAlreadyStarted] = useState(false);
   const [uploadProgression, setUploadProgression] = useState<string>("");
   const [uploadBinariesHost, setUploadBinariesHost] = useState<number>(0);
   const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(new Map());
-  const [currentVer, setCurrentVer] = useState<string>("");
-  const [size, setSize] = useState<number>();
   const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
-    JSON.parse(localStorage.getItem("platformsEnum")),
+    JSON.parse(localStorage.getItem("platformsEnum") ?? "[]"),
   );
-  const [listVersions, setListVersions] = useState<any>();
-  const [listRepo, setListRepo] = useState<Map<string, string[]>>(new Map());
-  const [listPackages, setListPackages] = useState<string[]>([]);
+  const [listVersions, setListVersions] = useState<Versions[]>([]);
+  const [listPackages, setListPackages] = useState<{ name: string; published: boolean }[]>([]);
   const [availableBinaries, setAvailableBinaries] = useState<string[]>([]);
-  const [buildPath, setBuildPath] = useState<string>("");
-  const [uploadPath, setUploadPath] = useState<string>("");
-  const [files, setFiles] = useState();
+  const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const lucleClient = useContext(LucleRPC);
   const speedupdateClient = useContext(SpeedupdateRPC);
-  const controller = new AbortController();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const savedCurrentRepo = localStorage.getItem("current_repo");
@@ -94,14 +53,13 @@ function Game() {
       if (currentRepo.size === 0) setCurrentRepo(mapCurrentRepo);
     }
 
-    const opt: Options = {
-      buildPath: ".",
-      uploadPath: ".",
-    };
-
     if (currentRepo.size > 0) {
-      const current = currentRepo.keys().next().value;
+      const current = currentRepo.keys().next().value as string;
       if (!statusAlreadyStarted) {
+        const opt = create(OptionsSchema, {
+          buildPath: ".",
+          uploadPath: ".",
+        });
         status(speedupdateClient, current, platformsEnum, "game", opt).then((value) => {
           const reader = value.getReader();
           setStatusAlreadyStarted(true);
@@ -111,8 +69,6 @@ function Game() {
               setListVersions(result.value.versions);
               setListPackages(result.value.packages);
               setAvailableBinaries(result.value.binaries);
-              setSize(result.value.size);
-              setCurrentVer(result.value.currentVersion);
             }
           }
           readStream().catch((err: unknown) => {
@@ -126,12 +82,12 @@ function Game() {
         eventSource.onmessage = (event) => {
           setUploadProgression(event.data);
           if (event.data === "100") {
-            setUploadProgression(null);
-            setFiles(null);
+            setUploadProgression("");
+            setFiles([]);
           }
         };
-        eventSource.onerror = (error) => {
-          setError(error);
+        eventSource.onerror = () => {
+          setError("Lost connection to the update server");
         };
       }
     }
@@ -153,7 +109,7 @@ function Game() {
         platform = "linux";
         break;
     }
-    const current_repo = currentRepo.keys().next().value;
+    const current_repo = currentRepo.keys().next().value as string;
     const formData = new FormData();
     for (let i = 0; i < files.length; i++) {
       formData.append("files[]", files[i]);
@@ -177,9 +133,24 @@ function Game() {
       {currentRepo.size > 0 ? (
         <Box sx={{ width: "100%" }}>
           <SpeedupdateOptions binaryType={"game"} />
-          <VersionsTable client={speedupdateClient} listVersions={listVersions} />
-          <PackagesTable client={speedupdateClient} listPackages={listPackages} />
-          <BinariesTable availableBinaries={availableBinaries} />
+          <VersionsTable
+            client={speedupdateClient}
+            currentRepo={currentRepo}
+            listVersions={listVersions}
+            onError={setError}
+          />
+          <PackagesTable
+            client={speedupdateClient}
+            currentRepo={currentRepo}
+            listPackages={listPackages}
+            onError={setError}
+          />
+          <BinariesTable
+            client={speedupdateClient}
+            currentRepo={currentRepo}
+            availableBinaries={availableBinaries}
+            onError={setError}
+          />
           Upload Binaries
           <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
             <InputLabel id="hosts">Hosts</InputLabel>
@@ -188,7 +159,7 @@ function Game() {
               id="demo-simple-select-standard"
               value={uploadBinariesHost}
               onChange={(event) => {
-                setUploadBinariesHost(event.target.value);
+                setUploadBinariesHost(Number(event.target.value));
               }}
               label="Hosts"
             >
@@ -200,7 +171,6 @@ function Game() {
           </FormControl>
           <DropzoneArea
             key={key}
-            fileObjects={files}
             onChange={(newFile) => {
               setFiles(newFile);
             }}
@@ -213,7 +183,7 @@ function Game() {
           >
             <Grid size={9}>
               {uploadProgression ? (
-                <LinearProgress variant="determinate" value={uploadProgression} />
+                <LinearProgress variant="determinate" value={Number(uploadProgression)} />
               ) : null}
             </Grid>
             <Grid size={1}>

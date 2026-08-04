@@ -16,20 +16,35 @@ import IconButton from "@mui/material/IconButton";
 //Icons
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 
+import Tooltip from "@mui/material/Tooltip";
+import Checkbox from "@mui/material/Checkbox";
+import { alpha } from "@mui/material/styles";
+
+// Icons
+import DeleteIcon from "@mui/icons-material/Delete";
+import CheckIcon from "@mui/icons-material/Check";
+
 import { ConnectError } from "@connectrpc/connect";
+import { setCurrentVersion, registerVersion, unregisterVersion } from "utils/speedupdaterpc";
+import { Versions } from "gen/speedupdate_pb";
 
 function VersionsTable({
+  client,
+  currentRepo,
   listVersions,
   onError,
 }: {
-  listVersions: string[];
-  onError: (rawMessage: string) => void;
+  client: unknown;
+  currentRepo: Map<string, string[]>;
+  listVersions: Versions[];
+  onError: (rawMessage: string | null) => void;
 }) {
   const [version, setVersion] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [versionsPerPage, setVersionsPerPage] = useState(5);
   const [versionsPage, setVersionsPage] = useState(0);
   const [selectedVersions, setSelectedVersions] = useState<readonly number[]>([]);
+  const [selectedVersionsValues, setSelectedVersionsValues] = useState<readonly string[]>([]);
 
   const isVersionsSelected = (id: number) => selectedVersions.includes(id);
   const numVersionsSelected = selectedVersions.length;
@@ -47,7 +62,7 @@ function VersionsTable({
 
   const DeleteVersion = () => {
     onError(null);
-    const repo_name = currentRepo.keys().next().value;
+    const repo_name = currentRepo.keys().next().value as string;
     const platforms = currentRepo.get(repo_name);
     selectedVersionsValues.forEach((version) => {
       unregisterVersion(client, repo_name, version, platforms, "game")
@@ -55,8 +70,8 @@ function VersionsTable({
           setSelectedVersions([]);
           setSelectedVersionsValues([]);
         })
-        .catch((err) => {
-          onError(err);
+        .catch((err: ConnectError) => {
+          onError(err.rawMessage);
         });
     });
   };
@@ -113,7 +128,7 @@ function VersionsTable({
           <Tooltip title="SetVersion">
             <IconButton
               onClick={() => {
-                const repo_name = currentRepo.keys().next().value;
+                const repo_name = currentRepo.keys().next().value as string;
                 const platforms = currentRepo.get(repo_name);
                 onError(null);
                 setCurrentVersion(client, repo_name, selectedVersionsValues[0], platforms, "game")
@@ -169,8 +184,10 @@ function VersionsTable({
                         <Checkbox
                           color="primary"
                           checked={isItemSelected}
-                          inputProps={{
-                            "aria-labelledby": labelId,
+                          slotProps={{
+                            input: {
+                              "aria-labelledby": labelId,
+                            },
                           }}
                         />
                       </TableCell>

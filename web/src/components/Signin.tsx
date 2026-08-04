@@ -14,7 +14,13 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import { Link } from "react-router";
 
-function Signin({ onSignin, error }: { onSignin: void; error: string }) {
+function Signin({
+  onSignin,
+  error,
+}: {
+  onSignin: (username: string, password: string, remember: boolean) => void;
+  error: (message: string) => void;
+}) {
   const [username, setUsername] = useState<string>(localStorage.getItem("username") || "");
   const [password, setPassword] = useState<string>(localStorage.getItem("password") || "");
   const [remember, setRemember] = useState<boolean>(false);

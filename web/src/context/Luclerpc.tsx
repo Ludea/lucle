@@ -5,9 +5,9 @@ import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import { createClient } from "@connectrpc/connect";
 import { Lucle } from "gen/lucle_pb";
 
-const LucleRPC = createContext();
+const LucleRPC = createContext<any>(undefined);
 
-function LucleRPCProvider({ children, url }: { children: ReactNode; url: string }) {
+function LucleRPCProvider({ children }: { children: ReactNode }) {
   const transport = createGrpcWebTransport({
     baseUrl: `https://web.marlin-atlas.ts.net`,
   });

@@ -6,18 +6,45 @@ import Typography from "@mui/material/Typography";
 import TableContainer from "@mui/material/TableContainer";
 import Table from "@mui/material/Table";
 import TablePagination from "@mui/material/TablePagination";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TableCell from "@mui/material/TableCell";
+import TableBody from "@mui/material/TableBody";
+import Tooltip from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
+import Checkbox from "@mui/material/Checkbox";
+import { alpha } from "@mui/material/styles";
 
-function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
+// Icons
+import DeleteIcon from "@mui/icons-material/Delete";
+
+import { ConnectError } from "@connectrpc/connect";
+
+// api
+import { fileToDelete } from "utils/speedupdaterpc";
+
+function BinariesTable({
+  client,
+  currentRepo,
+  availableBinaries,
+  onError,
+}: {
+  client: unknown;
+  currentRepo: Map<string, string[]>;
+  availableBinaries: string[];
+  onError: (error: string | null) => void;
+}) {
   const [binariesPerPage, setBinariesPerPage] = useState(5);
   const [binariesPage, setBinariesPage] = useState(0);
   const [selectedBinaries, setSelectedBinaries] = useState<readonly number[]>([]);
+  const [selectedBinariesValues, setSelectedBinariesValues] = useState<readonly string[]>([]);
 
-  const isBinarySelected = (id: number) => selectedBibaries.includes(id);
+  const isBinarySelected = (id: number) => selectedBinaries.includes(id);
   const numBinariesSelected = selectedBinaries.length;
 
   const visibleBinaries = useMemo(
     () =>
-      !availableBinaries.length
+      availableBinaries.length
         ? availableBinaries.slice(
             binariesPage * binariesPerPage,
             binariesPage * binariesPerPage + binariesPerPage,
@@ -29,6 +56,7 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
   const binariesSelection = (id: number, bin: string) => {
     const selectedIndex = selectedBinaries.indexOf(id);
     let newSelected: readonly number[] = [];
+    let binariesValues: readonly string[] = [];
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selectedBinaries, id);
@@ -44,10 +72,27 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
         selectedBinaries.slice(0, selectedIndex),
         selectedBinaries.slice(selectedIndex + 1),
       );
+      binariesValues = binariesValues.concat(
+        selectedBinariesValues.slice(0, selectedIndex),
+        selectedBinariesValues.slice(selectedIndex + 1),
+      );
     }
 
     setSelectedBinaries(newSelected);
-    setSelectedBinariesValues(packagesValues);
+    setSelectedBinariesValues(binariesValues);
+  };
+
+  const DeleteBinaries = () => {
+    onError(null);
+    const repo_name = currentRepo.keys().next().value as string;
+    const platforms = currentRepo.get(repo_name);
+    selectedBinariesValues.forEach((bin) => {
+      fileToDelete(client, bin, platforms, "game").catch((err: ConnectError) => {
+        onError(err.rawMessage);
+      });
+    });
+    setSelectedBinaries([]);
+    setSelectedBinariesValues([]);
   };
 
   return (
@@ -79,7 +124,7 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
           )}
           {numBinariesSelected > 0 ? (
             <Tooltip title="Delete">
-              <IconButton>
+              <IconButton onClick={DeleteBinaries}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
@@ -104,7 +149,7 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
                         role="checkbox"
                         aria-checked={isItemSelected}
                         onClick={() => {
-                          binariesSelection(index, binary);
+                          binariesSelection(index + 1, binary);
                         }}
                         tabIndex={-1}
                         key={index + 1}
@@ -115,8 +160,10 @@ function BinariesTable({ availableBinaries }: { availableBinaries: string[] }) {
                           <Checkbox
                             color="primary"
                             checked={isItemSelected}
-                            inputProps={{
-                              "aria-labelledby": labelId,
+                            slotProps={{
+                              input: {
+                                "aria-labelledby": labelId,
+                              },
                             }}
                           />
                         </TableCell>

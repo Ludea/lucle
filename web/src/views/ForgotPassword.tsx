@@ -4,14 +4,14 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 
 // Context
-import { LucleRPCProvider } from "context/Luclerpc";
+import { LucleRPC } from "context/Luclerpc";
 
 // RPC
 import { forgotPassword } from "utils/rpc";
 
 function ForgotPassword() {
   const [email, setEmail] = useState<string>("");
-  const client = useContext(LucleRPCProvider);
+  const client = useContext(LucleRPC);
 
   return (
     <div>

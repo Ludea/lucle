@@ -12,8 +12,8 @@ function Signup({
   error,
 }: {
   successfullSignup: boolean;
-  onSignup: void;
-  error: string;
+  onSignup: (username: string, password: string, email: string) => void;
+  error: (message: string) => void;
 }) {
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");

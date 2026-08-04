@@ -40,7 +40,12 @@ export default function BottomSheet({ open, onClose }: BottomSheetProps) {
   };
 
   return (
-    <Drawer anchor="bottom" open={open} onClose={onClose} slotProps={{ sx: { maxHeight: "85vh" } }}>
+    <Drawer
+      anchor="bottom"
+      open={open}
+      onClose={onClose}
+      slotProps={{ paper: { sx: { maxHeight: "85vh" } } }}
+    >
       {/* Handle */}
       <Box
         sx={{
@@ -63,7 +68,10 @@ export default function BottomSheet({ open, onClose }: BottomSheetProps) {
               onClick={onClose}
               sx={{ py: 1.5, borderRadius: 1 }}
             >
-              <ListItemText primary={label} slotsProps={{ variant: "h6", fontSize: 18 }} />
+              <ListItemText
+                primary={label}
+                slotProps={{ primary: { variant: "h6", sx: { fontSize: 18 } } }}
+              />
             </ListItemButton>
           </ListItem>
         ))}

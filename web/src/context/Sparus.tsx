@@ -5,9 +5,9 @@ import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import { createClient } from "@connectrpc/connect";
 import { event } from "gen/sparus_pb";
 
-const SparusRPC = createContext();
+const SparusRPC = createContext<any>(undefined);
 
-function SparusRPCProvider({ children, url }: { children: ReactNode; url: string }) {
+function SparusRPCProvider({ children }: { children: ReactNode }) {
   const transport = createGrpcWebTransport({
     baseUrl: `https://web.marlin-atlas.ts.net`,
   });
