@@ -437,7 +437,7 @@ impl Event for EventRoute {
         self.clients.lock().await.insert(client_id, tx.clone());
 
         let clients_cleanup = self.clients.clone();
-        
+
         let tx_cloned = tx.clone();
         tokio::spawn(async move {
             tx_cloned.closed().await;
