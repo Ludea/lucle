@@ -13,7 +13,6 @@ import {
   chartsCustomizations,
   dataGridCustomizations,
   datePickersCustomizations,
-  treeViewCustomizations,
 } from "theme/customizations";
 
 import { Outlet } from "react-router";
@@ -22,7 +21,6 @@ const xThemeComponents = {
   ...chartsCustomizations,
   ...dataGridCustomizations,
   ...datePickersCustomizations,
-  ...treeViewCustomizations,
 };
 
 export default function Dashboard(props: { disableCustomTheme?: boolean }) {
