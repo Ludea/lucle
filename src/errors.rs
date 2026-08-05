@@ -9,9 +9,9 @@ pub enum Error {
     Query(#[from] diesel::result::Error),
     #[error("Failed to run migrations: {0}")]
     Migration(Box<dyn std::error::Error + Send + Sync + 'static>),
-    #[error("User not found")]
-    GetPool,
     #[error("Cannot get Pool")]
+    GetPool,
+    #[error("User not found")]
     UserNotFound,
     #[error("No user created")]
     UserNotCreated,
