@@ -65,10 +65,10 @@ function Download() {
     <Section id="download">
       <SectionLabel>Download</SectionLabel>
       <Typography variant="h2" sx={{ fontSize: "clamp(30px, 4vw, 44px)", mb: 2, maxWidth: 520 }}>
-        Get Sparus
+        Try example launcher
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 6, maxWidth: 480 }}>
-        Download the latest version of the Sparus launcher for your platform.
+        Download the latest version of the example launcher for your platform.
       </Typography>
 
       <Card sx={{ maxWidth: 560 }}>
