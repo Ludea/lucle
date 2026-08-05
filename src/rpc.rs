@@ -491,17 +491,16 @@ impl Event for EventRoute {
                                     return;
                                 }
                             };
-                            if registered_semver.gt(&semver_from_client) {
-                                if tx_init
+                            if registered_semver.gt(&semver_from_client)
+                                && tx_init
                                     .send(Ok(Message {
                                         plugin: registered_plugin,
                                         event_type: 1,
                                     }))
                                     .await
                                     .is_err()
-                                {
-                                    return;
-                                }
+                            {
+                                return;
                             }
                         }
                     }
