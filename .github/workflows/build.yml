@@ -65,6 +65,7 @@ jobs:
         run: cargo build --verbose --release
       - name: Run tests
         run: cargo test --verbose
+      - run: ls target/ 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
