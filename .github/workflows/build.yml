@@ -35,6 +35,7 @@ jobs:
 
   backend:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - platform: 'macos-latest' 
@@ -69,7 +70,7 @@ jobs:
         with:
           name: lucle
           if-no-files-found: error
-          path: target/x86_64-unknown-linux-musl/release/lucle
+          path: target/${{ matrix.target }}/release/lucle
   
   build-container:
     runs-on: ubuntu-latest
