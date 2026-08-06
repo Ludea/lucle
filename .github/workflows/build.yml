@@ -11,7 +11,8 @@ env:
 
 jobs:
   frontend:
-    matrix:
+    strategy:
+      matrix:
         include:
           - platform: 'macos-latest' 
             target: 'aarch64-apple-darwin'
