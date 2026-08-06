@@ -71,7 +71,7 @@ jobs:
         with:
           name: lucle
           if-no-files-found: error
-          path: target/${{ matrix.target }}/release/lucle
+          path: target/release/lucle
   
   build-container:
     runs-on: ubuntu-latest
