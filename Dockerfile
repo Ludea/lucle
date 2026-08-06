@@ -1,8 +1,8 @@
-FROM alpine:3.21
+FROM alpine:3.23
 WORKDIR /opt/lucle
 ARG TARGETARCH
 
-COPY lucle-$TARGETARCH/lucle .
+COPY lucle_$TARGETARCH/lucle .
 RUN chmod +x lucle
 
 COPY web/dist ./web/dist
