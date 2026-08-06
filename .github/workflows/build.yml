@@ -11,6 +11,18 @@ env:
 
 jobs:
   frontend:
+    matrix:
+        include:
+          - platform: 'macos-latest' 
+            target: 'aarch64-apple-darwin'
+          - platform: 'macos-latest' 
+            target: 'x86_64-apple-darwin'
+          - platform: 'ubuntu-latest'
+            target: 'aarch64-unknown-linux-musl'
+          - platform: 'ubuntu-latest'
+            target: 'x86_64-unknown-linux-musl'
+          - platform: 'windows-latest'
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -33,16 +45,20 @@ jobs:
           if-no-files-found: error
           path: web/dist
 
-  build_x86_64:
-    runs-on: ubuntu-latest
-    container: ghcr.io/blackdex/rust-musl:x86_64-musl
+  backend:
+    runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v7
       - uses: Swatinem/rust-cache@v2
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: ${{ matrix.target }}
       - name: fmt
         run: cargo fmt --all -- --check
       - name: Clippy
-        run: cargo clippy --target x86_64-unknown-linux-musl --all-features -- -D warnings
+        run: cargo clippy --all-features -- -D warnings
       - name: Build
         run: cargo build --verbose --release
       - name: Run tests
@@ -50,34 +66,13 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: lucle-amd64
+          name: lucle
           if-no-files-found: error
           path: target/x86_64-unknown-linux-musl/release/lucle
-
-  build_aarch64:
-    runs-on: ubuntu-latest
-    container: ghcr.io/blackdex/rust-musl:aarch64-musl
-    steps:
-      - uses: actions/checkout@v7
-      - uses: Swatinem/rust-cache@v2
-      - name: fmt
-        run: cargo fmt --all -- --check
-      - name: Clippy
-        run: cargo clippy --target aarch64-unknown-linux-musl --all-features -- -D warnings
-      - name: Build
-        run: cargo build --verbose --release
-      - name: Run tests
-        run: cargo test --verbose
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: lucle-arm64
-          if-no-files-found: error
-          path: target/aarch64-unknown-linux-musl/release/lucle
-
+  
   build-container:
-    runs-on: ubuntu-22.04
-    needs: [build_aarch64, build_x86_64, frontend]
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
