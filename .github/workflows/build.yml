@@ -38,9 +38,6 @@ jobs:
     container: ghcr.io/blackdex/rust-musl:x86_64-musl
     steps:
       - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
       - name: fmt
         run: cargo fmt --all -- --check
@@ -62,9 +59,6 @@ jobs:
     container: ghcr.io/blackdex/rust-musl:aarch64-musl
     steps:
       - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
       - name: fmt
         run: cargo fmt --all -- --check
