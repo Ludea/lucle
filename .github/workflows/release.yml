@@ -27,42 +27,7 @@ jobs:
       - name: Create .env file
         run: |
           echo "VITE_ST_KEY=${{ secrets.ST_KEY }}" >> web/.env
-          echo "VITE_ST_SRC=${{ secrets.ST_SRC }}" >> web/.env
-      - name: Build frontend
-        run: cd web && vp run build
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: web
-          if-no-files-found: error
-          path: web/dist
-
-  build_aarch64:
-    runs-on: ubuntu-latest
-    container: ghcr.io/blackdex/rust-musl:aarch64-musl
-    steps:
-      - uses: actions/checkout@v7
-      - uses: Swatinem/rust-cache@v2
-      - name: Build
-        run: cargo build --release
-      - name: add some suffix into release name
-        run: cp target/aarch64-unknown-linux-musl/release/lucle target/aarch64-unknown-linux-musl/release/lucle_linux_arm64
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: lucle-arm64
-          if-no-files-found: error
-          path: target/aarch64-unknown-linux-musl/release/lucle
-      - name: Upload artifacts on release page
-        uses: softprops/action-gh-release@v3
-        with:
-          files: target/aarch64-unknown-linux-musl/release/lucle_linux_arm64
-
-  build_x86_64:
-    runs-on: ubuntu-latest
-    container: ghcr.io/blackdex/rust-musl:x86_64-musl
-    steps:
-      - uses: actions/checkout@v7
+          echo "VITE_ST_SRC=${{ secrets.ST_SRC }}" >> web/.env- uses: actions/checkout@v7
       - name: "Build Changelog"
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v6
@@ -73,26 +38,73 @@ jobs:
           configuration: ".github/release_note_config.json"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: Swatinem/rust-cache@v2
-      - name: Build
-        run: cargo build --release
-      - name: add some suffix into release name
-        run: cp target/x86_64-unknown-linux-musl/release/lucle target/x86_64-unknown-linux-musl/release/lucle_linux_x86_64
+      - name: Build frontend
+        run: cd web && vp run build
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: lucle-amd64
+          name: web
           if-no-files-found: error
-          path: target/x86_64-unknown-linux-musl/release/lucle
+          path: web/dist
+      - name: Upload changelog
+        uses: softprops/action-gh-release@v3
+        with:
+          body: ${{ steps.build_changelog.outputs.changelog }}
+
+  backend:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest' 
+            target: 'aarch64-apple-darwin'
+            name: 'macos_aarch64'
+          - platform: 'macos-latest' 
+            target: 'x86_64-apple-darwin'
+            name: 'macos_x86_64'
+            target: 'aarch64-unknown-linux-musl'
+          - platform: 'ubuntu-latest'
+            name: 'linux_aarch64'
+          - platform: 'ubuntu-latest'
+            target: 'x86_64-unknown-linux-musl'
+            name: 'linux_x86_64'
+          - platform: 'windows-latest'
+            name: "windows_x86_64"
+          
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: Swatinem/rust-cache@v2
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: ${{ matrix.target }}
+      - name: fmt
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        run: cargo clippy --all-features -- -D warnings
+      - name: Build
+        run: cargo build --verbose --release
+      - name: Run tests
+        run: cargo test --verbose
+      - name: add some suffix into release name
+        run: mv target/release/lucle target/release/lucle_${{ matrix.name }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: lucle_${{ matrix.name }}
+          if-no-files-found: error
+          path: target/release/lucle_{{ matrix.name }}
       - name: Upload artifacts on release page
         uses: softprops/action-gh-release@v3
         with:
-          files: target/x86_64-unknown-linux-musl/release/lucle_linux_x86_64
+          files: target/release/lucle_${{ matrix.name }}
           body: ${{ steps.build_changelog.outputs.changelog }}
 
   build-container:
     runs-on: ubuntu-22.04
-    needs: [build_aarch64, build_x86_64, frontend]
+    needs: [backend, frontend]
     steps:
       - uses: actions/checkout@v7
       - name: extract version without "v"
@@ -101,7 +113,11 @@ jobs:
           echo "VERSION=${GITHUB_TAG#v}" >> $GITHUB_ENV
       - uses: actions/download-artifact@v8
         with:
-          pattern: lucle-*
+          pattern: lucle_linux*
+      - name: Rename binaries
+        run: |
+          mv lucle_linux_aarch64 lucle_arm64
+          mv lucle_linux_x86_64 lucle_amd64
       - uses: actions/download-artifact@v8
         with:
           name: web
