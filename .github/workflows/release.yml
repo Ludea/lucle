@@ -95,7 +95,7 @@ jobs:
         with:
           name: lucle_${{ matrix.name }}
           if-no-files-found: error
-          path: target/release/lucle_{{ matrix.name }}
+          path: target/release/lucle_${{ matrix.name }}
       - name: Upload artifacts on release page
         uses: softprops/action-gh-release@v3
         with:
