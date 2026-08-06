@@ -27,7 +27,7 @@ jobs:
       - name: Create .env file
         run: |
           echo "VITE_ST_KEY=${{ secrets.ST_KEY }}" >> web/.env
-          echo "VITE_ST_SRC=${{ secrets.ST_SRC }}" >> web/.env- uses: actions/checkout@v7
+          echo "VITE_ST_SRC=${{ secrets.ST_SRC }}" >> web/.env
       - name: "Build Changelog"
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v6
