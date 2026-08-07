@@ -99,7 +99,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: lucle_arm64
+          name: lucle_linux_aarch64
           if-no-files-found: error
           path: target/aarch64-unknown-linux-musl/release/lucle
   
@@ -112,7 +112,10 @@ jobs:
         with:
           pattern: lucle_linux_*
       - name: Rename binaries
-        run: mv lucle_linux_x86_64 lucle_amd64
+        run: |
+          ls -la
+          mv lucle_linux_x86_64 lucle_amd64
+          mv lucle_linux_aarch64 lucle_arm64
       - uses: actions/download-artifact@v8
         with:
           name: web
