@@ -85,7 +85,7 @@ jobs:
       - name: Clippy
         run: cargo clippy --all-features -- -D warnings
       - name: Build
-        run: cargo build --verbose --release
+        run: cargo build --target ${{ matrix.target }} --verbose --release
       - name: Run tests
         run: cargo test --verbose
       - name: Upload artifacts for Macos and Linux hosts
