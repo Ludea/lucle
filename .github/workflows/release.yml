@@ -63,9 +63,6 @@ jobs:
             target: 'x86_64-apple-darwin'
             name: 'macos_x86_64'          
           - platform: 'ubuntu-latest'
-            target: 'aarch64-unknown-linux-musl'
-            name: 'linux_aarch64'
-          - platform: 'ubuntu-latest'
             target: 'x86_64-unknown-linux-musl'
             name: 'linux_x86_64'
           - platform: 'windows-latest'
@@ -125,10 +122,24 @@ jobs:
         with:
           files: target/release/lucle_${{ matrix.name }}.exe
 
+  build_aarch64:
+    runs-on: ubuntu-latest
+    container: ghcr.io/blackdex/rust-musl:aarch64-musl
+    steps:
+      - uses: actions/checkout@v7
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build --release
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: lucle-arm64
+          if-no-files-found: error
+          path: target/aarch64-unknown-linux-musl/release/lucle
 
   build-container:
     runs-on: ubuntu-22.04
-    needs: [backend, frontend]
+    needs: [backend_aarch64, backend, frontend]
     steps:
       - uses: actions/checkout@v7
       - name: extract version without "v"
@@ -137,11 +148,9 @@ jobs:
           echo "VERSION=${GITHUB_TAG#v}" >> $GITHUB_ENV
       - uses: actions/download-artifact@v8
         with:
-          pattern: lucle_linux*
+          pattern: lucle_linux_*
       - name: Rename binaries
-        run: |
-          mv lucle_linux_aarch64 lucle_arm64
-          mv lucle_linux_x86_64 lucle_amd64
+        run: mv lucle_linux_x86_64 lucle_amd64
       - uses: actions/download-artifact@v8
         with:
           name: web
