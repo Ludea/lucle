@@ -52,10 +52,16 @@ jobs:
             name: 'linux_x86_64'
           - platform: 'windows-latest'
             name: "windows_x86_64"
+            target: "x86_64-pc-windows-msvc"
           
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v7
+      - name: Install musl deps
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt update
+          sudo apt install -y musl-tools
       - uses: Swatinem/rust-cache@v2
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
