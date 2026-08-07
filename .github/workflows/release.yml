@@ -69,7 +69,7 @@ jobs:
             target: 'x86_64-unknown-linux-musl'
             name: 'linux_x86_64'
           - platform: 'windows-latest'
-            name: "windows_x86_64"
+            name: "Windows x86_64"
           
     runs-on: ${{ matrix.platform }}
     steps:
@@ -95,16 +95,30 @@ jobs:
         if: matrix.platform == 'windows-latest'
         run: mv target/release/lucle.exe target/release/lucle_${{ matrix.name }}.exe
       - name: Upload artifacts
+        if: matrix.platform != 'windows-latest'
         uses: actions/upload-artifact@v7
         with:
           name: lucle_${{ matrix.name }}
           if-no-files-found: error
           path: target/release/lucle_${{ matrix.name }}
+      - name: Upload artifacts
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v7
+        with:
+          name: lucle_${{ matrix.name }}
+          if-no-files-found: error
+          path: target/release/lucle_${{ matrix.name }}.exe
       - name: Upload artifacts on release page
+        if: matrix.platform != 'windows-latest' 
         uses: softprops/action-gh-release@v3
         with:
           files: target/release/lucle_${{ matrix.name }}
-          body: ${{ steps.build_changelog.outputs.changelog }}
+      - name: Upload artifacts on release page
+        if: matrix.platform == 'windows-latest' 
+        uses: softprops/action-gh-release@v3
+        with:
+          files: target/release/lucle_${{ matrix.name }}.exe
+
 
   build-container:
     runs-on: ubuntu-22.04
