@@ -122,7 +122,7 @@ jobs:
         with:
           files: target/release/lucle_${{ matrix.name }}.exe
 
-  build_aarch64:
+  backend_aarch64:
     runs-on: ubuntu-latest
     container: ghcr.io/blackdex/rust-musl:aarch64-musl
     steps:
