@@ -88,32 +88,32 @@ jobs:
         run: cargo build --verbose --release
       - name: Run tests
         run: cargo test --verbose
+      - name: Upload artifacts for Macos and Linux hosts
+        if: matrix.platform != 'windows-latest'
+        uses: actions/upload-artifact@v7
+        with:
+          name: lucle_${{ matrix.name }}
+          if-no-files-found: error
+          path: target/release/lucle
+      - name: Upload artifacts on Windows host
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v7
+        with:
+          name: lucle_${{ matrix.name }}
+          if-no-files-found: error
+          path: target/release/lucle.exe
       - name: add some suffix into release name
         if: matrix.platform != 'windows-latest'
         run: mv target/release/lucle target/release/lucle_${{ matrix.name }}
       - name: add some suffix into release name
         if: matrix.platform == 'windows-latest'
         run: mv target/release/lucle.exe target/release/lucle_${{ matrix.name }}.exe
-      - name: Upload artifacts
-        if: matrix.platform != 'windows-latest'
-        uses: actions/upload-artifact@v7
-        with:
-          name: lucle_${{ matrix.name }}
-          if-no-files-found: error
-          path: target/release/lucle_${{ matrix.name }}
-      - name: Upload artifacts
-        if: matrix.platform == 'windows-latest'
-        uses: actions/upload-artifact@v7
-        with:
-          name: lucle_${{ matrix.name }}
-          if-no-files-found: error
-          path: target/release/lucle_${{ matrix.name }}.exe
-      - name: Upload artifacts on release page
+      - name: Upload Linux and Macos artifacts on release page
         if: matrix.platform != 'windows-latest' 
         uses: softprops/action-gh-release@v3
         with:
           files: target/release/lucle_${{ matrix.name }}
-      - name: Upload artifacts on release page
+      - name: Upload Windows artifacts on release page
         if: matrix.platform == 'windows-latest' 
         uses: softprops/action-gh-release@v3
         with:
