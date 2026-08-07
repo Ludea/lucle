@@ -97,30 +97,30 @@ jobs:
         with:
           name: lucle_${{ matrix.name }}
           if-no-files-found: error
-          path: target/release/lucle
+          path: target/${{ matrix.target }}/release/lucle
       - name: Upload artifacts on Windows host
         if: matrix.platform == 'windows-latest'
         uses: actions/upload-artifact@v7
         with:
           name: lucle_${{ matrix.name }}
           if-no-files-found: error
-          path: target/release/lucle.exe
+          path: target/${{ matrix.target }}/release/lucle.exe
       - name: add some suffix into release name
         if: matrix.platform != 'windows-latest'
-        run: mv target/release/lucle target/release/lucle_${{ matrix.name }}
+        run: mv target/${{ matrix.target }}/release/lucle target/release/lucle_${{ matrix.name }}
       - name: add some suffix into release name
         if: matrix.platform == 'windows-latest'
-        run: mv target/release/lucle.exe target/release/lucle_${{ matrix.name }}.exe
+        run: mv target/${{ matrix.target }}/release/lucle.exe target/release/lucle_${{ matrix.name }}.exe
       - name: Upload Linux and Macos artifacts on release page
         if: matrix.platform != 'windows-latest' 
         uses: softprops/action-gh-release@v3
         with:
-          files: target/release/lucle_${{ matrix.name }}
+          files: target/${{ matrix.target }}/release/lucle_${{ matrix.name }}
       - name: Upload Windows artifacts on release page
         if: matrix.platform == 'windows-latest' 
         uses: softprops/action-gh-release@v3
         with:
-          files: target/release/lucle_${{ matrix.name }}.exe
+          files: target/${{ matrix.target }}/release/lucle_${{ matrix.name }}.exe
 
   backend_aarch64:
     runs-on: ubuntu-latest
