@@ -437,7 +437,7 @@ impl Event for EventRoute {
 
         let client_id = CLIENT_ID.fetch_add(1, Ordering::Relaxed);
         let (tx, rx) = mpsc::channel(32);
-        
+
         self.clients.lock().await.insert(client_id, tx.clone());
 
         let clients_cleanup = self.clients.clone();
