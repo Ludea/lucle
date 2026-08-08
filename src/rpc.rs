@@ -66,10 +66,13 @@ impl Lucle for LucleApi {
         let db_name = inner.clone().db_name.unwrap_or("lucle".to_string());
         match DatabaseType::try_from(db_type) {
             Ok(DatabaseType::Sqlite) => {
-                if let Err(err) = diesel::create_database("lucle.db").await {
-                    tracing::error!("Unable to create database : {}", err);
-                    return Err(Status::internal(err.to_string()));
-                }
+                // create_database() creates the file, but there's no connection
+                // pool implementation for SQLite yet (POOL is hardcoded to
+                // AsyncMysqlConnection) — every request after this would fail
+                // with "Cannot get Pool" while the client believes install
+                // succeeded (#140). Fail loudly instead, same as Surrealdb.
+                tracing::error!("Unable to create Sqlite database, it's currently not supported");
+                return Err(Status::internal("Database not supported".to_string()));
             }
             Ok(DatabaseType::Mysql) => {
                 if let Some(db_connection) = inner.db_connection {
@@ -102,10 +105,15 @@ impl Lucle for LucleApi {
                 }
             }
             Ok(DatabaseType::Postgresql) => {
-                if let Err(err) = diesel::create_database("postgres://").await {
-                    tracing::error!("Unable to create database : {}", err);
-                    return Err(Status::internal(err.to_string()));
-                }
+                // Same problem as Sqlite above (no pool implementation for
+                // AsyncPgConnection), plus this call was passing the literal
+                // string "postgres://" instead of a URL built from
+                // inner.db_connection, so database creation itself was never
+                // going to succeed either. Fail loudly instead of pretending.
+                tracing::error!(
+                    "Unable to create PostgreSQL database, it's currently not supported"
+                );
+                return Err(Status::internal("Database not supported".to_string()));
             }
             Ok(DatabaseType::Surrealdb) => {
                 tracing::error!(
