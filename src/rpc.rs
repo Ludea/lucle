@@ -72,7 +72,6 @@ impl Lucle for LucleApi {
                 }
             }
             Ok(DatabaseType::Mysql) => {
-                utils::set_config_key("database", "type", "mysql");
                 if let Some(db_connection) = inner.db_connection {
                     let db_url = &("mysql://".to_owned()
                         + &db_connection.username
@@ -84,17 +83,22 @@ impl Lucle for LucleApi {
                         + &db_connection.port.to_string()
                         + "/"
                         + &db_name);
-                    utils::set_config_key("database", "url", &db_connection.hostname);
-                    utils::set_config_key("database", "port", &db_connection.port.to_string());
-                    utils::set_config_key("database", "name", &db_name);
-                    utils::set_config_key("database", "user", &db_connection.username);
-                    utils::set_config_key("database", "password", &db_connection.password);
 
                     if let Err(err) = diesel::create_database(db_url).await {
                         tracing::error!("Unable to create database : {}", err);
                         return Err(Status::internal(err.to_string()));
                     }
                     diesel::set_pool(db_url);
+                    utils::set_config_key("database", "type", "mysql");
+                    utils::set_config_key("database", "url", &db_connection.hostname);
+                    utils::set_config_key("database", "port", &db_connection.port.to_string());
+                    utils::set_config_key("database", "name", &db_name);
+                    utils::set_config_key("database", "user", &db_connection.username);
+                    utils::set_config_key("database", "password", &db_connection.password);
+                } else {
+                    return Err(Status::invalid_argument(
+                        "Missing MySQL connection information",
+                    ));
                 }
             }
             Ok(DatabaseType::Postgresql) => {
@@ -433,7 +437,7 @@ impl Event for EventRoute {
 
         let client_id = CLIENT_ID.fetch_add(1, Ordering::Relaxed);
         let (tx, rx) = mpsc::channel(32);
-
+println!("Client {} connected", client_id);
         self.clients.lock().await.insert(client_id, tx.clone());
 
         let clients_cleanup = self.clients.clone();

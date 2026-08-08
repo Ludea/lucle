@@ -33,7 +33,7 @@ use std::{
 use url::Url;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
-pub static POOL: OnceLock<Mutex<Pool<AsyncMysqlConnection>>> = OnceLock::new();
+pub static POOL: OnceLock<Mutex<Option<Pool<AsyncMysqlConnection>>>> = OnceLock::new();
 
 pub enum Backend {
     Pg,
@@ -63,15 +63,14 @@ impl Backend {
 pub fn set_pool(db_url: &str) {
     let pool = AsyncDieselConnectionManager::<AsyncMysqlConnection>::new(db_url);
     let conn = Pool::builder(pool).build().unwrap();
-    if POOL.set(Mutex::new(conn)).is_err() {
-        tracing::error!("Unable to set pool");
-    }
+    let pool = POOL.get_or_init(|| Mutex::new(None));
+    *pool.lock().unwrap() = Some(conn);
 }
 
 pub fn get_pool() -> Option<Pool<AsyncMysqlConnection>> {
     if let Some(mutex) = POOL.get() {
         let pool = mutex.lock().unwrap();
-        Some(pool.clone())
+        pool.clone()
     } else {
         None
     }
@@ -129,17 +128,19 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
                 {
                     tracing::error!("Unable to create database: {}", err);
                     return Err(crate::errors::Error::Query(err));
-                } else if let Some(pool) = get_pool() {
-                    let conn = pool.get().await?;
-                    let mut harness = AsyncMigrationHarness::new(conn);
-                    if let Err(err) = harness.run_pending_migrations(MIGRATIONS) {
-                        tracing::error!("Unable to run migrations: {}", err);
-                        return Err(crate::errors::Error::Migration(err));
-                    }
-                } else {
-                    return Err(crate::errors::Error::GetPool);
                 }
-                return Ok(());
+            }
+
+            set_pool(database_url);
+            if let Some(pool) = get_pool() {
+                let conn = pool.get().await?;
+                let mut harness = AsyncMigrationHarness::new(conn);
+                if let Err(err) = harness.run_pending_migrations(MIGRATIONS) {
+                    tracing::error!("Unable to run migrations: {}", err);
+                    return Err(crate::errors::Error::Migration(err));
+                }
+            } else {
+                return Err(crate::errors::Error::GetPool);
             }
         }
     }

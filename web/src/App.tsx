@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 
-import { useRoutes } from "react-router";
+import { useLocation, useRoutes } from "react-router";
 
 // RPC Components
 import { checkIfInstalled } from "utils/rpc";
@@ -14,8 +14,14 @@ import { LucleRPC } from "context/Luclerpc";
 export default function App() {
   const [isInstalled, setIsInstalled] = useState<boolean>();
   const client = useContext(LucleRPC);
+  const location = useLocation();
+  const isLanding = location.pathname === "/";
 
   useEffect(() => {
+    if (isLanding) {
+      return;
+    }
+
     checkIfInstalled(client)
       .then(() => {
         setIsInstalled(true);
@@ -23,11 +29,15 @@ export default function App() {
       .catch(() => {
         setIsInstalled(false);
       });
-  }, []);
+  }, [client, isLanding]);
+
+  const resolvedIsInstalled = isLanding ? false : isInstalled;
 
   return (
     <AuthProvider>
-      {isInstalled !== undefined ? <LucleRoutes isInstalled={isInstalled} /> : null}
+      {resolvedIsInstalled !== undefined ? (
+        <LucleRoutes isInstalled={resolvedIsInstalled} />
+      ) : null}
     </AuthProvider>
   );
 }
