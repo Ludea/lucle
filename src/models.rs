@@ -13,7 +13,7 @@ use std::io::Write;
 
 #[derive(Debug, Queryable, Selectable)]
 #[diesel(table_name = users)]
-#[diesel(check_for_backend(diesel::mysql::Mysql))]
+#[diesel(check_for_backend(diesel::mysql::Mysql, diesel::sqlite::Sqlite, diesel::pg::Pg))]
 pub struct User {
     pub id: i32,
     pub username: String,
@@ -36,7 +36,7 @@ pub struct NewUser {
 
 #[derive(Insertable, Selectable, Queryable, Debug, PartialEq)]
 #[diesel(table_name = repositories)]
-#[diesel(check_for_backend(diesel::mysql::Mysql))]
+#[diesel(check_for_backend(diesel::mysql::Mysql, diesel::sqlite::Sqlite, diesel::pg::Pg))]
 pub struct Repository {
     pub id: i32,
     pub name: String,
@@ -56,7 +56,7 @@ pub struct NewRepository {
 
 #[derive(Insertable, Selectable, Queryable, Debug, PartialEq)]
 #[diesel(table_name = users_repositories)]
-#[diesel(check_for_backend(diesel::mysql::Mysql))]
+#[diesel(check_for_backend(diesel::mysql::Mysql, diesel::sqlite::Sqlite, diesel::pg::Pg))]
 pub struct UsersRepositories {
     pub user_id: i32,
     pub repository_name: String,
@@ -93,9 +93,65 @@ impl FromSql<UsersRepositoriesPermissionEnum, diesel::mysql::Mysql> for Permissi
     }
 }
 
+// SQLite has no native enum type — UsersRepositoriesPermissionEnum maps to
+// Text there (see schema.rs's sqlite_type annotation), so this stores the
+// same lowercase strings as the MySQL native enum does.
+impl ToSql<UsersRepositoriesPermissionEnum, diesel::sqlite::Sqlite> for Permission {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> serialize::Result {
+        let value = match *self {
+            Permission::Read => "read",
+            Permission::Write => "write",
+            Permission::Pending => "pending",
+        };
+        out.set_value(value);
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<UsersRepositoriesPermissionEnum, diesel::sqlite::Sqlite> for Permission {
+    fn from_sql(value: diesel::sqlite::SqliteValue<'_, '_, '_>) -> deserialize::Result<Self> {
+        match <String as FromSql<diesel::sql_types::Text, diesel::sqlite::Sqlite>>::from_sql(value)?
+            .as_str()
+        {
+            "read" => Ok(Permission::Read),
+            "write" => Ok(Permission::Write),
+            "pending" => Ok(Permission::Pending),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+// PostgreSQL path, same Text-backed approach as SQLite above. NOT verified
+// against a live PostgreSQL server in this environment (no server available
+// to test against) — compiles and mirrors the SQLite impl exactly, but
+// please test this against a real Postgres instance before relying on it.
+impl ToSql<UsersRepositoriesPermissionEnum, diesel::pg::Pg> for Permission {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::pg::Pg>) -> serialize::Result {
+        let value = match *self {
+            Permission::Read => "read",
+            Permission::Write => "write",
+            Permission::Pending => "pending",
+        };
+        <str as ToSql<diesel::sql_types::Text, diesel::pg::Pg>>::to_sql(value, out)
+    }
+}
+
+impl FromSql<UsersRepositoriesPermissionEnum, diesel::pg::Pg> for Permission {
+    fn from_sql(value: diesel::pg::PgValue<'_>) -> deserialize::Result<Self> {
+        match <String as FromSql<diesel::sql_types::Text, diesel::pg::Pg>>::from_sql(value)?
+            .as_str()
+        {
+            "read" => Ok(Permission::Read),
+            "write" => Ok(Permission::Write),
+            "pending" => Ok(Permission::Pending),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
 #[derive(Insertable, Selectable, Queryable, Debug, PartialEq)]
 #[diesel(table_name = plugins)]
-#[diesel(check_for_backend(diesel::mysql::Mysql))]
+#[diesel(check_for_backend(diesel::mysql::Mysql, diesel::sqlite::Sqlite, diesel::pg::Pg))]
 pub struct Plugins {
     pub id: i32,
     pub name: String,

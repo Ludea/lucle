@@ -66,10 +66,13 @@ impl Lucle for LucleApi {
         let db_name = inner.clone().db_name.unwrap_or("lucle".to_string());
         match DatabaseType::try_from(db_type) {
             Ok(DatabaseType::Sqlite) => {
-                if let Err(err) = diesel::create_database("lucle.db").await {
+                let db_path = "lucle.db";
+                if let Err(err) = diesel::create_database(db_path).await {
                     tracing::error!("Unable to create database : {}", err);
                     return Err(Status::internal(err.to_string()));
                 }
+                utils::set_config_key("database", "type", "sqlite");
+                utils::set_config_key("database", "path", db_path);
             }
             Ok(DatabaseType::Mysql) => {
                 if let Some(db_connection) = inner.db_connection {
@@ -88,7 +91,6 @@ impl Lucle for LucleApi {
                         tracing::error!("Unable to create database : {}", err);
                         return Err(Status::internal(err.to_string()));
                     }
-                    diesel::set_pool(db_url);
                     utils::set_config_key("database", "type", "mysql");
                     utils::set_config_key("database", "url", &db_connection.hostname);
                     utils::set_config_key("database", "port", &db_connection.port.to_string());
@@ -102,9 +104,36 @@ impl Lucle for LucleApi {
                 }
             }
             Ok(DatabaseType::Postgresql) => {
-                if let Err(err) = diesel::create_database("postgres://").await {
-                    tracing::error!("Unable to create database : {}", err);
-                    return Err(Status::internal(err.to_string()));
+                // NOTE: this path compiles and mirrors the Mysql branch, but
+                // is not verified against a live PostgreSQL server in this
+                // environment (see the PR description). Please test before
+                // relying on it.
+                if let Some(db_connection) = inner.db_connection {
+                    let db_url = &("postgres://".to_owned()
+                        + &db_connection.username
+                        + ":"
+                        + &db_connection.password
+                        + "@"
+                        + &db_connection.hostname
+                        + ":"
+                        + &db_connection.port.to_string()
+                        + "/"
+                        + &db_name);
+
+                    if let Err(err) = diesel::create_database(db_url).await {
+                        tracing::error!("Unable to create database : {}", err);
+                        return Err(Status::internal(err.to_string()));
+                    }
+                    utils::set_config_key("database", "type", "postgresql");
+                    utils::set_config_key("database", "url", &db_connection.hostname);
+                    utils::set_config_key("database", "port", &db_connection.port.to_string());
+                    utils::set_config_key("database", "name", &db_name);
+                    utils::set_config_key("database", "user", &db_connection.username);
+                    utils::set_config_key("database", "password", &db_connection.password);
+                } else {
+                    return Err(Status::invalid_argument(
+                        "Missing PostgreSQL connection information",
+                    ));
                 }
             }
             Ok(DatabaseType::Surrealdb) => {
