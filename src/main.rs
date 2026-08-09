@@ -1,5 +1,4 @@
 use axum::Router;
-use diesel_async::{pooled_connection::deadpool::Pool, AsyncMysqlConnection};
 use dotenvy::dotenv;
 use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};
@@ -16,9 +15,15 @@ mod rpc;
 pub mod schema;
 mod utils;
 
+// rpc::rpc_api() takes this but doesn't currently read it (its param is
+// `_db`) — the real source of truth for "is a database available" is
+// diesel::get_pool(), populated below. Kept as a marker rather than removed
+// outright since rpc_api()'s signature already expects it.
 pub enum DbType {
-    Mysql(Pool<AsyncMysqlConnection>),
-    Surrealdb(),
+    Mysql,
+    Postgresql,
+    Sqlite,
+    Surrealdb,
     NoDatabase,
 }
 
@@ -61,15 +66,45 @@ async fn main() {
                 let name = utils::get_config_key("database", "name").unwrap();
                 let user = utils::get_config_key("database", "user").unwrap();
                 let password = utils::get_config_key("database", "password").unwrap();
-                diesel::set_pool(&(format!("mysql://{user}:{password}@{url}:{port}/{name}")));
-                if let Some(pool) = diesel::get_pool() {
-                    DbType::Mysql(pool)
+                diesel::set_pool(
+                    &diesel::Backend::Mysql,
+                    &format!("mysql://{user}:{password}@{url}:{port}/{name}"),
+                );
+                if diesel::get_pool().is_some() {
+                    DbType::Mysql
                 } else {
                     tracing::error!("Unable to get pool connection");
                     DbType::NoDatabase
                 }
             }
-            "surrealdb" => DbType::Surrealdb(),
+            "postgresql" => {
+                let url = utils::get_config_key("database", "url").unwrap();
+                let port = utils::get_config_key("database", "port").unwrap();
+                let name = utils::get_config_key("database", "name").unwrap();
+                let user = utils::get_config_key("database", "user").unwrap();
+                let password = utils::get_config_key("database", "password").unwrap();
+                diesel::set_pool(
+                    &diesel::Backend::Pg,
+                    &format!("postgres://{user}:{password}@{url}:{port}/{name}"),
+                );
+                if diesel::get_pool().is_some() {
+                    DbType::Postgresql
+                } else {
+                    tracing::error!("Unable to get pool connection");
+                    DbType::NoDatabase
+                }
+            }
+            "sqlite" => {
+                let path = utils::get_config_key("database", "path").unwrap();
+                diesel::set_pool(&diesel::Backend::Sqlite, &path);
+                if diesel::get_pool().is_some() {
+                    DbType::Sqlite
+                } else {
+                    tracing::error!("Unable to get pool connection");
+                    DbType::NoDatabase
+                }
+            }
+            "surrealdb" => DbType::Surrealdb,
             _ => DbType::NoDatabase,
         };
     }

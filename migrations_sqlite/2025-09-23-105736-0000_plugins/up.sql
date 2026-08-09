@@ -1,0 +1,6 @@
+-- Your SQL goes here
+CREATE TABLE plugins (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name VARCHAR(255) NOT NULL,
+  version VARCHAR(255) NOT NULL
+);

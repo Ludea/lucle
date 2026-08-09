@@ -2,7 +2,11 @@
 
 pub mod sql_types {
     #[derive(diesel::sql_types::SqlType)]
-    #[diesel(mysql_type(name = "Enum"))]
+    #[diesel(
+        mysql_type(name = "Enum"),
+        sqlite_type(name = "Text"),
+        postgres_type(name = "Text")
+    )]
     pub struct UsersRepositoriesPermissionEnum;
 }
 
