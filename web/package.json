@@ -1,13 +1,13 @@
 {
   "name": "lucle",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
-    "buf:generate": "vp exec buf generate ../proto",
+    "buf:generate": "npm exec buf generate ../proto",
     "check": "vp run buf:generate && vp check",
     "format": "vp run buf:generate && vp check --fix",
-    "dev": "vp run buf:generate && vp dev",
+    "dev": "npm run buf:generate && vite dev",
     "build": "vp run buf:generate && tsc && vp build",
     "serve": "protobuf && vp preview"
   },
@@ -33,13 +33,11 @@
     "vite-plugin-checker": "^0.14.5"
   },
   "devDependencies": {
-    "@bufbuild/buf": "^1.72.0",
     "@bufbuild/protobuf": "^2.2.0",
     "@bufbuild/protoc-gen-es": "^2.2.0",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^6.0.0",
-    "typescript": "^7.0.2",
-    "vite-plus": "^0.2.1"
+    "vite": "^8.0.0"
   }
 }
