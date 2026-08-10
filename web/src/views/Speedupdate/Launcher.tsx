@@ -1,23 +1,31 @@
-import { useState, useContext } from "react";
-
-import TextField from "@mui/material/TextField";
+import { useState, useContext, useRef, ReactNode } from "react";
 import { styled } from "@mui/material/styles";
+
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid";
-import MenuItem from "@mui/material/MenuItem";
+import Chip from "@mui/material/Chip";
+import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
+import Grid from "@mui/material/Grid";
+import InputAdornment from "@mui/material/InputAdornment";
+import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
 
-// Icons
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutlined";
+import ImageIcon from "@mui/icons-material/Image";
+import SendIcon from "@mui/icons-material/Send";
+import BuildIcon from "@mui/icons-material/Build";
 
-//Components
 import SpeedupdateOptions from "components/Speedupdate/Options";
-
 import { build_custom_launcher, send_event_all } from "utils/sparusrpc";
 import { SparusRPC } from "context/Sparus";
 
-const VisuallyHiddenInput = styled("input")({
+const HiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
   clipPath: "inset(50%)",
   height: 1,
@@ -29,187 +37,307 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-function Launcher() {
-  const [gameName, setGameName] = useState<string>("");
-  const [launcherName, setLauncherName] = useState<string>("");
-  const [configName, setConfigName] = useState<string>("Sparus.json");
-  const [repositoryName, setRepositoryName] = useState<string>("");
-  const [updateURL, setUpdateURL] = useState<string>("https://repo.marlin-atlas.ts.net");
-  const [pluginsURL, setPluginsURL] = useState<string>("");
-  const [disableLauncherCreation, setDisableLauncherCreation] = useState<boolean>(false);
-  const [selectedEvent, setSelectedEvent] = useState<number>(0);
-  const [pluginName, setPluginName] = useState<string>("");
-  const SparusClient = useContext(SparusRPC);
+const SectionCard = styled(Box)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(2),
+  height: "100%",
+  [theme.breakpoints.up("sm")]: {
+    padding: theme.spacing(3),
+  },
+}));
+
+const SectionLabel = styled(Typography)(({ theme }) => ({
+  fontFamily: "JetBrains Mono, monospace",
+  fontSize: "0.7rem",
+  fontWeight: 700,
+  letterSpacing: "0.12em",
+  textTransform: "uppercase",
+  color: theme.palette.primary.main,
+  marginBottom: theme.spacing(2.5),
+}));
+
+interface FilePickerProps {
+  label: string;
+  icon: ReactNode;
+  accept?: string;
+  onFile: (file: File | null) => void;
+  fileName?: string;
+}
+
+function FilePicker({ label, icon, accept, onFile, fileName }: FilePickerProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  // Truncate long filenames for display
+  const displayName = fileName && fileName.length > 20
+    ? `${fileName.slice(0, 17)}…`
+    : fileName;
 
   return (
-    <>
-      <Grid container>
-        <Grid size={12}>
-          <TextField
-            margin="normal"
-            required
-            id="launcher"
-            label="Launcher name"
-            name="launcher"
-            autoComplete="launcher"
-            value={launcherName}
-            onChange={(event) => {
-              setLauncherName(event.target.value);
-            }}
-          />
+    <Tooltip title={fileName ?? "No selected file"} placement="top">
+      <Button
+        component="label"
+        variant="outlined"
+        size="small"
+        startIcon={fileName ? <CheckCircleOutlineIcon color="success" /> : icon}
+        sx={{
+          fontFamily: "JetBrains Mono, monospace",
+          fontSize: "0.72rem",
+          flex: 1,
+          minWidth: 0,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {displayName ?? label}
+        <HiddenInput
+          ref={inputRef}
+          type="file"
+          accept={accept}
+          onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+        />
+      </Button>
+    </Tooltip>
+  );
+}
+
+function Launcher() {
+  const [gameName, setGameName] = useState("");
+  const [launcherName, setLauncherName] = useState("");
+  const [configName, setConfigName] = useState("Sparus.json");
+  const [repositoryName, setRepositoryName] = useState("");
+  const [updateURL, setUpdateURL] = useState("repo.marlin-atlas.ts.net");
+  const [pluginsURL, setPluginsURL] = useState("");
+  const [disableLauncherCreation, setDisableLauncherCreation] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<number>(0);
+  const [pluginName, setPluginName] = useState("");
+  const [bgFile, setBgFile] = useState<File | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+
+  const SparusClient = useContext(SparusRPC);
+
+  const urlAdornment = (
+    <InputAdornment position="start">
+      <Typography
+        component="span"
+        sx={{
+          fontFamily: "JetBrains Mono, monospace",
+          fontSize: "0.72rem",
+          color: "primary.main",
+          userSelect: "none",
+        }}
+      >
+        https://
+      </Typography>
+    </InputAdornment>
+  );
+
+  const eventLabels: Record<number, string> = {
+    0: "Install Plugin",
+    1: "Update Plugin",
+    2: "Remove Plugin",
+    3: "Update Frontend",
+  };
+
+  const eventColors: Record<number, "default" | "primary" | "warning" | "error"> = {
+    0: "primary",
+    1: "default",
+    2: "error",
+    3: "warning",
+  };
+
+  return (
+    <Stack spacing={3}>
+      <Grid container spacing={3} alignItems="stretch">
+        <Grid size={{ xs: 12, md: 7 }}>
+          <SectionCard>
+            <SectionLabel>// Build Launcher</SectionLabel>
+
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  fullWidth
+                  required
+                  size="small"
+                  label="Launcher name"
+                  value={launcherName}
+                  onChange={(e) => setLauncherName(e.target.value)}
+                  inputProps={{ style: { fontFamily: "JetBrains Mono, monospace" } }}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  fullWidth
+                  required
+                  size="small"
+                  label="Repository name"
+                  value={repositoryName}
+                  onChange={(e) => setRepositoryName(e.target.value)}
+                  inputProps={{ style: { fontFamily: "JetBrains Mono, monospace" } }}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  fullWidth
+                  required
+                  size="small"
+                  label="Game name"
+                  value={gameName}
+                  onChange={(e) => setGameName(e.target.value)}
+                  inputProps={{ style: { fontFamily: "JetBrains Mono, monospace" } }}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  fullWidth
+                  required
+                  size="small"
+                  label="Config file"
+                  value={configName}
+                  onChange={(e) => setConfigName(e.target.value)}
+                  inputProps={{ style: { fontFamily: "JetBrains Mono, monospace" } }}
+                />
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  required
+                  size="small"
+                  label="Update server"
+                  value={updateURL}
+                  onChange={(e) => setUpdateURL(e.target.value)}
+                  slotProps={{
+                    input: {
+                      startAdornment: urlAdornment,
+                      style: { fontFamily: "JetBrains Mono, monospace" },
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Plugins URL"
+                  value={pluginsURL}
+                  onChange={(e) => setPluginsURL(e.target.value)}
+                  slotProps={{
+                    input: {
+                      startAdornment: urlAdornment,
+                      style: { fontFamily: "JetBrains Mono, monospace" },
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid size={12}>
+                <Divider sx={{ mb: 1.5 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    Assets
+                  </Typography>
+                </Divider>
+                <Stack direction="row" spacing={1.5} sx={{ width: "100%" }}>
+                  <FilePicker
+                    label="Background"
+                    icon={<ImageIcon />}
+                    accept="image/*"
+                    onFile={setBgFile}
+                    fileName={bgFile?.name}
+                  />
+                  <FilePicker
+                    label="Logo"
+                    icon={<CloudUploadIcon />}
+                    accept="image/*"
+                    onFile={setLogoFile}
+                    fileName={logoFile?.name}
+                  />
+                </Stack>
+              </Grid>
+            </Grid>
+            <Box sx={{ mt: 3 }}>
+              <Button
+                disabled={disableLauncherCreation}
+                variant="contained"
+                startIcon={<BuildIcon />}
+                fullWidth
+                onClick={() =>
+                  build_custom_launcher(
+                    SparusClient,
+                    launcherName,
+                    repositoryName,
+                    gameName,
+                    `https://${updateURL}`,
+                    pluginsURL ? `https://${pluginsURL}` : "",
+                    configName,
+                  )
+                }
+                sx={{ maxWidth: { sm: 220 } }}
+              >
+                Build Launcher
+              </Button>
+            </Box>
+          </SectionCard>
         </Grid>
-        <Grid size={12}>
-          <TextField
-            margin="normal"
-            required
-            id="repository"
-            label="Repository name"
-            name="repository"
-            autoComplete="repository"
-            value={repositoryName}
-            onChange={(event) => {
-              setRepositoryName(event.target.value);
-            }}
-          />
-        </Grid>
-        <Grid size={12}>
-          <TextField
-            margin="normal"
-            required
-            id="update_server"
-            label="Url of the update server"
-            name="update_server"
-            autoComplete="update_server"
-            value={updateURL}
-            onChange={(event) => {
-              setUpdateURL(event.target.value);
-            }}
-          />
-        </Grid>
-        <Grid size={12}>
-          <TextField
-            margin="normal"
-            required
-            id="plugin_url"
-            label="Url of the plugins"
-            name="plugin_url"
-            autoComplete="plugin_url"
-            value={pluginsURL}
-            onChange={(event) => {
-              setPluginsURL(event.target.value);
-            }}
-          />
-        </Grid>
-        <Grid size={12}>
-          <TextField
-            margin="normal"
-            required
-            id="game"
-            label="Game name"
-            name="game"
-            autoComplete="game"
-            value={gameName}
-            onChange={(event) => {
-              setGameName(event.target.value);
-            }}
-          />
-        </Grid>
-        <Grid size={12}>
-          <TextField
-            margin="normal"
-            required
-            id="config"
-            label="Config file name"
-            name="config"
-            autoComplete="config"
-            value={configName}
-            onChange={(event) => {
-              setConfigName(event.target.value);
-            }}
-          />
-        </Grid>
-        <Grid size={12}>
-          <Button
-            component="label"
-            role={undefined}
-            variant="contained"
-            tabIndex={-1}
-            startIcon={<CloudUploadIcon />}
-          >
-            Upload Background
-            <VisuallyHiddenInput
-              type="file"
-              onChange={(event) => console.log(event.target.files)}
-              multiple
-            />
-          </Button>
-          <Button
-            component="label"
-            role={undefined}
-            variant="contained"
-            tabIndex={-1}
-            startIcon={<CloudUploadIcon />}
-          >
-            Upload Logo
-            <VisuallyHiddenInput
-              type="file"
-              onChange={(event) => console.log(event.target.files)}
-              multiple
-            />
-          </Button>
-        </Grid>
-        <Button
-          disabled={disableLauncherCreation}
-          variant="contained"
-          onClick={() =>
-            build_custom_launcher(
-              SparusClient,
-              launcherName,
-              repositoryName,
-              gameName,
-              updateURL,
-              pluginsURL,
-              configName,
-            )
-          }
-        >
-          Create Launcher
-        </Button>
-        <Grid size={12}>
-          <FormControl>
-            <Select
-              labelId="select-event"
-              id="select-event"
-              value={selectedEvent}
-              label="Send Event"
-              onChange={(event) => setSelectedEvent(event.target.value)}
-            >
-              <MenuItem value={0}>Install Plugin</MenuItem>
-              <MenuItem value={1}>Update Plugin</MenuItem>
-              <MenuItem value={2}>Remove Plugin</MenuItem>
-              <MenuItem value={3}>Update Frontend</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            margin="normal"
-            id="plugin_name"
-            label="Plugin name"
-            name="plugin"
-            value={pluginName}
-            onChange={(event) => {
-              setPluginName(event.target.value);
-            }}
-          />
-          <Button
-            variant="contained"
-            onClick={() => send_event_all(SparusClient, selectedEvent, pluginName)}
-          >
-            Send event
-          </Button>
+        <Grid size={{ xs: 12, md: 5 }}>
+          <SectionCard>
+            <SectionLabel>// Deploy Event</SectionLabel>
+
+            <Stack spacing={2.5}>
+              <FormControl fullWidth size="small">
+                <Select
+                  value={selectedEvent}
+                  onChange={(e) => setSelectedEvent(e.target.value as number)}
+                  renderValue={(v) => (
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Chip
+                        label={eventLabels[v as number]}
+                        color={eventColors[v as number]}
+                        size="small"
+                        sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem" }}
+                      />
+                    </Stack>
+                  )}
+                >
+                  {Object.entries(eventLabels).map(([val, label]) => (
+                    <MenuItem key={val} value={Number(val)}>
+                      <Chip
+                        label={label}
+                        color={eventColors[Number(val)]}
+                        size="small"
+                        sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", mr: 1 }}
+                      />
+                      {label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                fullWidth
+                size="small"
+                label="Plugin name"
+                value={pluginName}
+                onChange={(e) => setPluginName(e.target.value)}
+                placeholder={selectedEvent === 3 ? "— not required —" : "my-plugin"}
+                disabled={selectedEvent === 3}
+                inputProps={{ style: { fontFamily: "JetBrains Mono, monospace" } }}
+              />
+              <Button
+                variant="contained"
+                color={eventColors[selectedEvent] === "default" ? "primary" : eventColors[selectedEvent]}
+                startIcon={<SendIcon />}
+                onClick={() => send_event_all(SparusClient, selectedEvent, pluginName)}
+                fullWidth
+                sx={{ maxWidth: { sm: 180 } }}
+              >
+                Broadcast
+              </Button>
+            </Stack>
+            <Divider sx={{ my: 3 }} />
+            <SpeedupdateOptions binaryType="launcher" />
+          </SectionCard>
         </Grid>
       </Grid>
-      <SpeedupdateOptions binaryType={"launcher"} />
-    </>
+    </Stack>
   );
 }
 
