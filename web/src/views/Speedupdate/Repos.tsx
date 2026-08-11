@@ -50,7 +50,7 @@ interface AuthContextValue {
 const SectionCard = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: `calc(${theme.shape.borderRadius} * 2)`,
   padding: theme.spacing(2),
   [theme.breakpoints.up("sm")]: {
     padding: theme.spacing(3),
@@ -87,25 +87,25 @@ const RepoRow = styled(Box)(({ theme }) => ({
 type PlatformKey = "win64" | "macos_x86_64" | "macos_arm64" | "linux";
 
 const PLATFORMS: { key: PlatformKey; label: string; enum: Platforms }[] = [
-  { key: "win64",        label: "Windows x64",   enum: Platforms.WIN64 },
-  { key: "macos_x86_64", label: "macOS x86_64",  enum: Platforms.MACOS_X86_64 },
-  { key: "macos_arm64",  label: "macOS arm64",   enum: Platforms.MACOS_ARM64 },
-  { key: "linux",        label: "Linux",          enum: Platforms.LINUX },
+  { key: "win64", label: "Windows x64", enum: Platforms.WIN64 },
+  { key: "macos_x86_64", label: "macOS x86_64", enum: Platforms.MACOS_X86_64 },
+  { key: "macos_arm64", label: "macOS arm64", enum: Platforms.MACOS_ARM64 },
+  { key: "linux", label: "Linux", enum: Platforms.LINUX },
 ];
 
 const PLATFORM_COLORS: Record<PlatformKey, "default" | "primary" | "secondary" | "warning"> = {
-  win64:        "primary",
+  win64: "primary",
   macos_x86_64: "secondary",
-  macos_arm64:  "secondary",
-  linux:        "warning",
+  macos_arm64: "secondary",
+  linux: "warning",
 };
 
 function ListRepo() {
-  const [listRepo, setListRepo]     = useState<Map<string, string[]>>(new Map());
-  const [error, setError]           = useState<string | null>(null);
-  const [joinPath, setJoinPath]     = useState<string>("");
+  const [listRepo, setListRepo] = useState<Map<string, string[]>>(new Map());
+  const [error, setError] = useState<string | null>(null);
+  const [joinPath, setJoinPath] = useState<string>("");
   const [createPath, setCreatePath] = useState<string>("");
-  const [checked, setChecked]       = useState<Record<PlatformKey, boolean>>({
+  const [checked, setChecked] = useState<Record<PlatformKey, boolean>>({
     win64: false,
     macos_x86_64: false,
     macos_arm64: false,
@@ -113,8 +113,8 @@ function ListRepo() {
   });
 
   const lucleClient = useContext(LucleRPC);
-  const auth        = useAuth() as AuthContextValue | undefined;
-  const navigate    = useNavigate();
+  const auth = useAuth() as AuthContextValue | undefined;
+  const navigate = useNavigate();
 
   // Sync repositories from auth — only when auth.repositories reference changes
   useEffect(() => {
@@ -126,11 +126,9 @@ function ListRepo() {
   const getSelectedPlatforms = (): Platforms[] =>
     PLATFORMS.filter((p) => checked[p.key]).map((p) => p.enum);
 
-  const getSelectedKeys = (): string[] =>
-    PLATFORMS.filter((p) => checked[p.key]).map((p) => p.key);
+  const getSelectedKeys = (): string[] => PLATFORMS.filter((p) => checked[p.key]).map((p) => p.key);
 
-  const handleToggle = (key: PlatformKey) =>
-    setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+  const handleToggle = (key: PlatformKey) => setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const navigateToRepo = (repo_name: string, type: "game" | "launcher") => {
     setError(null);
@@ -147,17 +145,17 @@ function ListRepo() {
     setError(null);
     init(client, createPath, checked)
       .then(() => {
-        const platformsEnum  = getSelectedPlatforms();
-        const platformsKeys  = getSelectedKeys();
-        const updated        = new Map(listRepo);
+        const platformsEnum = getSelectedPlatforms();
+        const platformsKeys = getSelectedKeys();
+        const updated = new Map(listRepo);
         updated.set(createPath, platformsKeys);
         setListRepo(updated);
         setCreatePath("");
         localStorage.setItem("platformsEnum", JSON.stringify(platformsEnum));
         localStorage.setItem("repositories", JSON.stringify(Object.fromEntries(updated)));
         if (auth?.username) {
-          registerUpdateServer(lucleClient, auth.username, createPath, platformsEnum).catch(
-            (err) => setError(err.rawMessage),
+          registerUpdateServer(lucleClient, auth.username, createPath, platformsEnum).catch((err) =>
+            setError(err.rawMessage),
           );
         }
       })
@@ -169,7 +167,11 @@ function ListRepo() {
   return (
     <Stack spacing={3}>
       {error && (
-        <Alert severity="error" onClose={() => setError(null)} sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" }}>
+        <Alert
+          severity="error"
+          onClose={() => setError(null)}
+          sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" }}
+        >
           {error}
         </Alert>
       )}
@@ -177,14 +179,22 @@ function ListRepo() {
         <SectionLabel>// Repositories</SectionLabel>
 
         {listRepo.size === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" }}
+          >
             No repositories found.
           </Typography>
         ) : (
           Array.from(listRepo.entries()).map(([repo_name, platforms]) => (
             <RepoRow key={repo_name}>
               <Box sx={{ minWidth: 0 }}>
-                <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 0, mb: 0.5 }}>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ minWidth: 0, mb: 0.5, alignItems:"center" }}
+                >
                   <StorageIcon fontSize="small" color="action" sx={{ flexShrink: 0 }} />
                   <Typography
                     sx={{
@@ -199,7 +209,7 @@ function ListRepo() {
                     {repo_name}
                   </Typography>
                 </Stack>
-                <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ pl: "28px" }}>
+                <Stack direction="row" spacing={0.5} useFlexGap sx={{ pl: "28px", flexWrap:"wrap" }}>
                   {platforms.map((p) => (
                     <Chip
                       key={p}
@@ -249,7 +259,7 @@ function ListRepo() {
         )}
       </SectionCard>
 
-      <Grid container spacing={3} alignItems="stretch">
+      <Grid container spacing={3} sx={{ alignItems: "stretch" }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <SectionCard sx={{ height: "100%" }}>
             <SectionLabel>// Join Repository</SectionLabel>
@@ -305,7 +315,14 @@ function ListRepo() {
                 }}
               />
               <Box>
-                <FormLabel sx={{ fontSize: "0.75rem", fontFamily: "JetBrains Mono, monospace", mb: 1, display: "block" }}>
+                <FormLabel
+                  sx={{
+                    fontSize: "0.75rem",
+                    fontFamily: "JetBrains Mono, monospace",
+                    mb: 1,
+                    display: "block",
+                  }}
+                >
                   Platforms
                 </FormLabel>
                 <FormGroup>
@@ -321,7 +338,9 @@ function ListRepo() {
                             />
                           }
                           label={
-                            <Typography sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.78rem" }}>
+                            <Typography
+                              sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.78rem" }}
+                            >
                               {p.label}
                             </Typography>
                           }
