@@ -4,10 +4,10 @@
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
-    "buf:generate": "npm exec buf generate ../proto",
+    "buf:generate": "vp exec buf generate ../proto",
     "check": "vp run buf:generate && vp check",
     "format": "vp run buf:generate && vp check --fix",
-    "dev": "npm run buf:generate && vite dev",
+    "dev": "vp run buf:generate && vp dev",
     "build": "vp run buf:generate && tsc && vp build",
     "serve": "protobuf && vp preview"
   },
@@ -38,6 +38,7 @@
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^6.0.0",
-    "vite": "^8.0.0"
+    "typescript": "^7.0.0",
+    "vite-plus": "^0.2. 9"
   }
 }
