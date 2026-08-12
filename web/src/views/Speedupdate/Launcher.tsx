@@ -102,20 +102,22 @@ function FilePicker({ label, icon, accept, onFile, fileName }: FilePickerProps) 
   );
 }
 
-type EventType = 0 | 1 | 2 | 3;
+// Must stay in sync with sparus.proto's EventType (INSTALL/UPDATE/DELETE).
+// A value outside that range makes the Sparus client's `EventType::try_from`
+// fail, which ends its stream loop and permanently unsubscribes it -- so the
+// launcher stops receiving every later broadcast too.
+type EventType = 0 | 1 | 2;
 
 const eventLabels: Record<EventType, string> = {
   0: "Install Plugin",
   1: "Update Plugin",
   2: "Remove Plugin",
-  3: "Update Frontend",
 };
 
 const eventColors: Record<EventType, "default" | "primary" | "warning" | "error"> = {
   0: "primary",
   1: "default",
   2: "error",
-  3: "warning",
 };
 
 function Launcher() {
@@ -128,6 +130,7 @@ function Launcher() {
   const [disableLauncherCreation, setDisableLauncherCreation] = useState(false);
 
   const [selectedEvent, setSelectedEvent] = useState<EventType>(0);
+  const [broadcastError, setBroadcastError] = useState<string | null>(null);
 
   const [pluginName, setPluginName] = useState("");
   const [bgFile, setBgFile] = useState<File | null>(null);
@@ -333,11 +336,11 @@ function Launcher() {
                 <Select<number>
                   value={selectedEvent}
                   onChange={handleEventChange}
-                  renderValue={(value) => (
+                  renderValue={(value: number) => (
                     <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                       <Chip
-                        label={eventLabels[value]}
-                        color={eventColors[value]}
+                        label={eventLabels[value as EventType]}
+                        color={eventColors[value as EventType]}
                         size="small"
                         sx={{
                           fontFamily: "JetBrains Mono, monospace",
@@ -375,8 +378,7 @@ function Launcher() {
                 label="Plugin name"
                 value={pluginName}
                 onChange={(event) => setPluginName(event.target.value)}
-                placeholder={selectedEvent === 3 ? "— not required —" : "my-plugin"}
-                disabled={selectedEvent === 3}
+                placeholder="my-plugin"
                 slotProps={{
                   htmlInput: {
                     style: {
@@ -392,12 +394,24 @@ function Launcher() {
                   eventColors[selectedEvent] === "default" ? "primary" : eventColors[selectedEvent]
                 }
                 startIcon={<SendIcon />}
-                onClick={() => send_event_all(SparusClient, selectedEvent, pluginName)}
+                onClick={() => {
+                  setBroadcastError(null);
+                  // Without this the promise rejection was swallowed, so a
+                  // failed broadcast looked exactly like a successful one.
+                  send_event_all(SparusClient, selectedEvent, pluginName).catch((err: unknown) => {
+                    setBroadcastError(err instanceof Error ? err.message : "broadcast failed");
+                  });
+                }}
                 fullWidth
                 sx={{ maxWidth: { sm: 180 } }}
               >
                 Broadcast
               </Button>
+              {broadcastError ? (
+                <Typography variant="body2" color="error">
+                  {broadcastError}
+                </Typography>
+              ) : null}
             </Stack>
 
             <Divider sx={{ my: 3 }} />

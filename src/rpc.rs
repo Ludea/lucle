@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sparus::{
     event_server::{Event, EventServer},
-    Empty as EmptySparus, Message, Options, Plugins,
+    Empty as EmptySparus, EventType, Message, Options, Plugins,
 };
 use std::collections::HashSet;
 use std::{
@@ -448,9 +448,41 @@ impl Event for EventRoute {
     async fn send_event_all(&self, req: Request<Message>) -> Result<Response<EmptySparus>, Status> {
         let message = req.into_inner();
 
-        let clients = self.clients.lock().await;
-        for tx in clients.values() {
-            let _ = tx.send(Ok(message.clone())).await;
+        // Clone the senders out and release the registry lock *before* sending.
+        // Awaiting `send()` while holding the lock meant one slow client (the
+        // channel holds 32 messages, and Sparus stops polling the stream while
+        // it downloads a plugin) blocked delivery to every other client, and
+        // also blocked `sparus()` from registering newly connected clients.
+        let receivers: Vec<_> = {
+            let clients = self.clients.lock().await;
+            clients.iter().map(|(id, tx)| (*id, tx.clone())).collect()
+        };
+
+        let mut delivered = 0usize;
+        for (client_id, tx) in &receivers {
+            // `try_send` rather than `send().await`: a client whose buffer is
+            // full is already behind, and must not stall the broadcast.
+            match tx.try_send(Ok(message.clone())) {
+                Ok(()) => delivered += 1,
+                Err(err) => tracing::warn!("client {client_id}: event not delivered: {err}"),
+            }
+        }
+
+        // Without this, a broadcast that reached nobody was indistinguishable
+        // from one that reached everybody: the RPC returns Empty either way.
+        if delivered == 0 {
+            tracing::warn!(
+                "event {:?} for plugin {:?} broadcast to 0 connected clients",
+                message.event_type,
+                message.plugin
+            );
+        } else {
+            tracing::info!(
+                "event {:?} for plugin {:?} broadcast to {delivered}/{} connected clients",
+                message.event_type,
+                message.plugin,
+                receivers.len()
+            );
         }
 
         let response = EmptySparus {};
@@ -479,6 +511,14 @@ impl Event for EventRoute {
 
         let tx_init = tx.clone();
         tokio::spawn(async move {
+            // IMPORTANT: never send `Err(Status)` on this channel. tonic turns
+            // an Err item in a server-streaming body into the HTTP/2 TRAILERS
+            // frame and marks the response ended, which permanently closes the
+            // subscription: `rx` drops, the cleanup task above removes this
+            // client from the registry, and every later `send_event_all` finds
+            // an empty map. A failure to compute the *initial* plugin diff is
+            // not a reason to drop the client's subscription -- log it and keep
+            // the stream open so broadcasts still reach them.
             let plugin_name_from_client: HashSet<_> =
                 plugin_list_from_client.keys().cloned().collect();
 
@@ -502,33 +542,45 @@ impl Event for EventRoute {
                 .cloned()
                 .collect();
 
-            match diesel::get_plugin_version(common_plugin).await {
-                Ok(registered_plugin_with_version) => {
-                    for (registered_plugin, registered_version) in registered_plugin_with_version {
-                        if let Some(version_from_client) =
-                            plugin_list_from_client.get(&registered_plugin)
+            // Skip the query entirely when there is nothing in common: it would
+            // otherwise still hit the database (and fail when no pool/table
+            // exists) just to return an empty map.
+            if !common_plugin.is_empty() {
+                match diesel::get_plugin_version(common_plugin).await {
+                    Ok(registered_plugin_with_version) => {
+                        for (registered_plugin, registered_version) in
+                            registered_plugin_with_version
                         {
+                            let Some(version_from_client) =
+                                plugin_list_from_client.get(&registered_plugin)
+                            else {
+                                continue;
+                            };
+                            // Skip just this plugin on an unparseable version
+                            // rather than tearing down the whole subscription.
                             let registered_semver = match Version::parse(&registered_version) {
                                 Ok(v) => v,
                                 Err(err) => {
-                                    let _ =
-                                        tx_init.send(Err(Status::internal(err.to_string()))).await;
-                                    return;
+                                    tracing::error!(
+                                        "plugin {registered_plugin}: bad registered version {registered_version:?}: {err}"
+                                    );
+                                    continue;
                                 }
                             };
                             let semver_from_client = match Version::parse(version_from_client) {
                                 Ok(v) => v,
                                 Err(err) => {
-                                    let _ =
-                                        tx_init.send(Err(Status::internal(err.to_string()))).await;
-                                    return;
+                                    tracing::error!(
+                                        "plugin {registered_plugin}: bad version {version_from_client:?} from client: {err}"
+                                    );
+                                    continue;
                                 }
                             };
                             if registered_semver.gt(&semver_from_client)
                                 && tx_init
                                     .send(Ok(Message {
                                         plugin: registered_plugin,
-                                        event_type: 1,
+                                        event_type: EventType::Update.into(),
                                     }))
                                     .await
                                     .is_err()
@@ -537,10 +589,9 @@ impl Event for EventRoute {
                             }
                         }
                     }
-                }
-                Err(err) => {
-                    let _ = tx_init.send(Err(Status::internal(err.to_string()))).await;
-                    return;
+                    Err(err) => {
+                        tracing::error!("unable to read registered plugin versions: {err}");
+                    }
                 }
             }
 
@@ -548,7 +599,7 @@ impl Event for EventRoute {
                 if tx_init
                     .send(Ok(Message {
                         plugin,
-                        event_type: 2,
+                        event_type: EventType::Delete.into(),
                     }))
                     .await
                     .is_err()
@@ -579,4 +630,118 @@ pub fn rpc_api(_db: DbType) -> AxumRouter {
         .into_axum_router()
         .reset_fallback()
         .layer(GrpcWebLayer::new())
+}
+
+// Regression test for the "send_event_all reaches nobody" bug.
+//
+// Lives here rather than in tests/ because `lucle` is a binary crate, so an
+// integration test cannot reach `EventRoute`. Being a descendant module of
+// `rpc` also lets it read the private `clients` registry to assert on it.
+// Same style as src/diesel.rs's existing test.
+#[cfg(test)]
+mod event_stream_tests {
+    use super::*;
+    use sparus::event_client::EventClient;
+    use tokio::time::timeout;
+
+    /// Serves the real `rpc_api()` route stack (including `GrpcWebLayer`) and
+    /// hands back the client registry so tests can assert on it.
+    async fn spawn_server() -> (std::net::SocketAddr, ClientRegistry) {
+        let route = EventRoute::new();
+        let registry = route.clients.clone();
+
+        let mut routes = RoutesBuilder::default();
+        routes.add_service(LucleServer::new(LucleApi::default()));
+        routes.add_service(EventServer::new(route));
+        let router = routes
+            .routes()
+            .into_axum_router()
+            .reset_fallback()
+            .layer(GrpcWebLayer::new());
+
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+        tokio::spawn(async move {
+            let _ = axum::serve(listener, router).await;
+        });
+        tokio::time::sleep(Duration::from_millis(50)).await;
+        (addr, registry)
+    }
+
+    /// A client subscribes while the database is unavailable, so the initial
+    /// plugin diff cannot be computed. The subscription must survive that and
+    /// still receive a later broadcast.
+    ///
+    /// This is the exact scenario that was broken: the init task used to push
+    /// `Err(Status)` into the stream, which tonic turns into end-of-stream
+    /// trailers, dropping the client from the registry within milliseconds --
+    /// so every later `send_event_all` silently reached nobody while still
+    /// returning `Ok(Empty)` to the caller.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn broadcast_reaches_client_whose_init_burst_failed() {
+        // No pool is configured in tests, so `get_plugin_version` would error.
+        // Send a non-empty plugin list so the init task has work to attempt.
+        let (addr, registry) = spawn_server().await;
+        let url = format!("http://{addr}");
+
+        let mut streaming_client = EventClient::connect(url.clone()).await.unwrap();
+        let mut stream = streaming_client
+            .sparus(Plugins {
+                repository_name: "some-repo".to_string(),
+                // An empty list means there is no diff to send, so the only
+                // thing the init task does is the database lookup that fails.
+                // The old code turned that failure into end-of-stream trailers.
+                list_plugin: HashMap::new(),
+            })
+            .await
+            .unwrap()
+            .into_inner();
+
+        // Give the init task time to run (and, before the fix, to kill us).
+        tokio::time::sleep(Duration::from_millis(300)).await;
+
+        assert_eq!(
+            registry.lock().await.len(),
+            1,
+            "client must still be registered after a failed initial plugin diff"
+        );
+
+        let mut broadcaster = EventClient::connect(url).await.unwrap();
+        broadcaster
+            .send_event_all(Message {
+                plugin: "a-plugin".to_string(),
+                event_type: EventType::Update.into(),
+            })
+            .await
+            .unwrap();
+
+        let received = timeout(Duration::from_secs(5), stream.message())
+            .await
+            .expect("timed out waiting for the broadcast")
+            .expect("stream returned an error instead of the broadcast")
+            .expect("stream ended instead of delivering the broadcast");
+
+        assert_eq!(received.plugin, "a-plugin");
+        assert_eq!(received.event_type, EventType::Update as i32);
+    }
+
+    /// A broadcast with no connected clients must not fail the RPC (the web UI
+    /// relies on it returning), but it must be visible in the logs -- see the
+    /// `tracing::warn!` in `send_event_all`.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn broadcast_with_no_clients_is_not_an_error() {
+        let (addr, registry) = spawn_server().await;
+        assert_eq!(registry.lock().await.len(), 0);
+
+        let mut broadcaster = EventClient::connect(format!("http://{addr}"))
+            .await
+            .unwrap();
+        broadcaster
+            .send_event_all(Message {
+                plugin: "nobody-listening".to_string(),
+                event_type: EventType::Install.into(),
+            })
+            .await
+            .expect("send_event_all must still succeed with zero clients");
+    }
 }
