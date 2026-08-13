@@ -333,11 +333,11 @@ function Launcher() {
                 <Select<number>
                   value={selectedEvent}
                   onChange={handleEventChange}
-                  renderValue={(value) => (
+                  renderValue={(value: number) => (
                     <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                       <Chip
-                        label={eventLabels[value]}
-                        color={eventColors[value]}
+                        label={eventLabels[value as EventType]}
+                        color={eventColors[value as EventType]}
                         size="small"
                         sx={{
                           fontFamily: "JetBrains Mono, monospace",
