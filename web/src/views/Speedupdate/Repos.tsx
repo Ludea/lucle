@@ -193,7 +193,7 @@ function ListRepo() {
                 <Stack
                   direction="row"
                   spacing={1}
-                  sx={{ minWidth: 0, mb: 0.5, alignItems:"center" }}
+                  sx={{ minWidth: 0, mb: 0.5, alignItems: "center" }}
                 >
                   <StorageIcon fontSize="small" color="action" sx={{ flexShrink: 0 }} />
                   <Typography
@@ -209,7 +209,12 @@ function ListRepo() {
                     {repo_name}
                   </Typography>
                 </Stack>
-                <Stack direction="row" spacing={0.5} useFlexGap sx={{ pl: "28px", flexWrap:"wrap" }}>
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  useFlexGap
+                  sx={{ pl: "28px", flexWrap: "wrap" }}
+                >
                   {platforms.map((p) => (
                     <Chip
                       key={p}
