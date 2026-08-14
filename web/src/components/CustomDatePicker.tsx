@@ -13,6 +13,7 @@ interface ButtonFieldProps extends DatePickerFieldProps {}
 function ButtonField(props: ButtonFieldProps) {
   const { forwardedProps } = useSplitFieldProps(props, "date");
   const pickerContext = usePickerContext();
+  const { slotProps, ...buttonProps } = forwardedProps;
   const handleRef = useForkRef(pickerContext.triggerRef, pickerContext.rootRef);
   const parsedFormat = useParsedFormat();
   const valueStr =
@@ -22,7 +23,7 @@ function ButtonField(props: ButtonFieldProps) {
 
   return (
     <Button
-      {...forwardedProps}
+      {...buttonProps} 
       variant="outlined"
       ref={handleRef}
       size="small"
@@ -45,10 +46,10 @@ export default function CustomDatePicker() {
         label={value == null ? null : value.format("MMM DD, YYYY")}
         onChange={(newValue) => setValue(newValue)}
         slots={{ field: ButtonField }}
-        //        slotProps={{
-        //          nextIconButton: { size: 'small' },
-        //          previousIconButton: { size: 'small' },
-        //        }}
+        slotProps={{
+          nextIconButton: { size: 'small' },
+          previousIconButton: { size: 'small' },
+        }}
         views={["day", "month", "year"]}
       />
     </LocalizationProvider>
