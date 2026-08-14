@@ -805,7 +805,7 @@ pub async fn list_plugin_by_repository(repository_name: String) -> Result<Vec<St
     if let Some(pool) = get_pool() {
         with_conn!(pool, |conn| {
             match repositories::table
-                .filter(repositories::dsl::name.eq(repository_name))
+                .filter(repositories::dsl::name.eq(&repository_name))
                 .select(Repository::as_select())
                 .first(&mut conn)
                 .await
@@ -823,7 +823,7 @@ pub async fn list_plugin_by_repository(repository_name: String) -> Result<Vec<St
                     }
                     Ok(plugins_list)
                 }
-                Ok(None) => Ok(Vec::new()),
+                Ok(None) => Err(crate::errors::Error::RepositoryNotFound(repository_name)),
                 Err(err) => Err(crate::errors::Error::Query(err)),
             }
         })

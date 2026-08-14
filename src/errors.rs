@@ -11,6 +11,8 @@ pub enum Error {
     Migration(Box<dyn std::error::Error + Send + Sync + 'static>),
     #[error("Cannot get Pool")]
     GetPool,
+    #[error("Repository {0} not found")]
+    RepositoryNotFound(String),
     #[error("User not found")]
     UserNotFound,
     #[error("No user created")]

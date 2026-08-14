@@ -1,5 +1,6 @@
 use super::diesel;
 use super::utils;
+use crate::errors::Error;
 use crate::DbType;
 use dotenvy::dotenv;
 use email_address_parser::EmailAddress;
@@ -522,12 +523,24 @@ impl Event for EventRoute {
             let plugin_name_from_client: HashSet<_> =
                 plugin_list_from_client.keys().cloned().collect();
 
-            let registered_plugins = diesel::list_plugin_by_repository(repo_name)
-                .await
-                .unwrap_or_else(|err| {
-                    tracing::error!("{}", err);
-                    Vec::new()
-                });
+            /*   let registered_plugins = diesel::list_plugin_by_repository(repo_name)
+            .await
+            .unwrap_or_else(|err| {
+                tracing::error!("{}", err);
+                Vec::new()
+            });*/
+
+            let registered_plugins =
+                match diesel::list_plugin_by_repository(repo_name.clone()).await {
+                    Ok(plugins) => plugins,
+                    Err(Error::RepositoryNotFound(_)) => {
+                        return;
+                    }
+                    Err(err) => {
+                        tracing::error!("client {client_id}: {}", err);
+                        Vec::new()
+                    }
+                };
 
             let registered_plugins_hashset: HashSet<_> =
                 registered_plugins.iter().cloned().collect();
