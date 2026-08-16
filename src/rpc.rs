@@ -734,7 +734,7 @@ mod event_stream_tests {
 
         let mut broadcaster = EventClient::connect(url).await.unwrap();
         broadcaster
-            .send_event_all(Message {
+            .send_event_all(MessageFromServer {
                 plugin: "a-plugin".to_string(),
                 event_type: EventType::Update.into(),
             })
@@ -763,7 +763,7 @@ mod event_stream_tests {
             .await
             .unwrap();
         broadcaster
-            .send_event_all(Message {
+            .send_event_all(MessageFromServer {
                 plugin: "nobody-listening".to_string(),
                 event_type: EventType::Install.into(),
             })
