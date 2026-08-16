@@ -3,8 +3,8 @@ syntax = "proto3";
 package sparus;
 
 service event {
-  rpc Sparus (Plugins) returns (stream Message);
-  rpc Send_event_all (Message) returns (Empty);
+  rpc Sparus (Plugins) returns (stream MessageFromServer);
+  rpc Send_event_all (MessageFromServer) returns (Empty);
   rpc Create_workflow(Options) returns (Empty);
 }
 
@@ -14,7 +14,7 @@ enum EventType {
   DELETE = 2;
 }
 
-message Message {
+message MessageFromServer {
   string plugin = 1;
   EventType event_type = 2;
 }

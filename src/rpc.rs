@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sparus::{
     event_server::{Event, EventServer},
-    Empty as EmptySparus, EventType, Message, Options, Plugins,
+    Empty as EmptySparus, EventType, MessageFromServer, Options, Plugins,
 };
 use std::collections::HashSet;
 use std::{
@@ -370,11 +370,12 @@ impl Lucle for LucleApi {
     }
 }
 type SparusResult<T> = Result<Response<T>, Status>;
-type ResponseStream = Pin<Box<dyn Stream<Item = Result<Message, Status>> + Send>>;
+type ResponseStream = Pin<Box<dyn Stream<Item = Result<MessageFromServer, Status>> + Send>>;
 static CLIENT_ID: AtomicU64 = AtomicU64::new(0);
 
 type ClientId = u64;
-type ClientRegistry = Arc<Mutex<HashMap<ClientId, mpsc::Sender<Result<Message, Status>>>>>;
+type ClientRegistry =
+    Arc<Mutex<HashMap<ClientId, (String, mpsc::Sender<Result<MessageFromServer, Status>>)>>>;
 
 pub struct EventRoute {
     clients: ClientRegistry,
@@ -446,8 +447,21 @@ impl Event for EventRoute {
         Ok(Response::new(response))
     }
 
-    async fn send_event_all(&self, req: Request<Message>) -> Result<Response<EmptySparus>, Status> {
+    async fn send_event_all(
+        &self,
+        req: Request<MessageFromServer>,
+    ) -> Result<Response<EmptySparus>, Status> {
         let message = req.into_inner();
+        let target_repo = match diesel::get_repository_by_plugin(&message.plugin).await {
+            Ok(repo) => repo,
+            Err(err) => {
+                tracing::error!(
+                    "unable to find repository for plugin {}: {err}",
+                    message.plugin
+                );
+                return Err(Status::internal(err.to_string()));
+            }
+        };
 
         // Clone the senders out and release the registry lock *before* sending.
         // Awaiting `send()` while holding the lock meant one slow client (the
@@ -456,36 +470,39 @@ impl Event for EventRoute {
         // also blocked `sparus()` from registering newly connected clients.
         let receivers: Vec<_> = {
             let clients = self.clients.lock().await;
-            clients.iter().map(|(id, tx)| (*id, tx.clone())).collect()
+            clients
+                .iter()
+                .filter(|(_, (repo, _))| repo == &target_repo)
+                .map(|(id, (_, tx))| (*id, tx.clone()))
+                .collect()
         };
 
         let mut delivered = 0usize;
+        let client_message = MessageFromServer {
+            plugin: message.plugin.clone(),
+            event_type: message.event_type,
+        };
         for (client_id, tx) in &receivers {
-            // `try_send` rather than `send().await`: a client whose buffer is
-            // full is already behind, and must not stall the broadcast.
-            match tx.try_send(Ok(message.clone())) {
+            match tx.try_send(Ok(client_message.clone())) {
                 Ok(()) => delivered += 1,
                 Err(err) => tracing::warn!("client {client_id}: event not delivered: {err}"),
             }
         }
 
-        // Without this, a broadcast that reached nobody was indistinguishable
-        // from one that reached everybody: the RPC returns Empty either way.
         if delivered == 0 {
             tracing::warn!(
-                "event {:?} for plugin {:?} broadcast to 0 connected clients",
+                "event {:?} for plugin {:?} (repo: {target_repo:?}) broadcast to 0 clients",
                 message.event_type,
-                message.plugin
+                message.plugin,
             );
         } else {
             tracing::info!(
-                "event {:?} for plugin {:?} broadcast to {delivered}/{} connected clients",
-                message.event_type,
-                message.plugin,
-                receivers.len()
-            );
+            "event {:?} for plugin {:?} (repo: {target_repo:?}) broadcast to {delivered}/{} clients",
+            message.event_type,
+            message.plugin,
+            receivers.len(),
+        );
         }
-
         let response = EmptySparus {};
         Ok(Response::new(response))
     }
@@ -500,7 +517,10 @@ impl Event for EventRoute {
         let client_id = CLIENT_ID.fetch_add(1, Ordering::Relaxed);
         let (tx, rx) = mpsc::channel(32);
 
-        self.clients.lock().await.insert(client_id, tx.clone());
+        self.clients
+            .lock()
+            .await
+            .insert(client_id, (repo_name.clone(), tx.clone()));
 
         let clients_cleanup = self.clients.clone();
 
@@ -522,13 +542,6 @@ impl Event for EventRoute {
             // the stream open so broadcasts still reach them.
             let plugin_name_from_client: HashSet<_> =
                 plugin_list_from_client.keys().cloned().collect();
-
-            /*   let registered_plugins = diesel::list_plugin_by_repository(repo_name)
-            .await
-            .unwrap_or_else(|err| {
-                tracing::error!("{}", err);
-                Vec::new()
-            });*/
 
             let registered_plugins =
                 match diesel::list_plugin_by_repository(repo_name.clone()).await {
@@ -591,7 +604,7 @@ impl Event for EventRoute {
                             };
                             if registered_semver.gt(&semver_from_client)
                                 && tx_init
-                                    .send(Ok(Message {
+                                    .send(Ok(MessageFromServer {
                                         plugin: registered_plugin,
                                         event_type: EventType::Update.into(),
                                     }))
@@ -610,7 +623,7 @@ impl Event for EventRoute {
 
             for plugin in diff {
                 if tx_init
-                    .send(Ok(Message {
+                    .send(Ok(MessageFromServer {
                         plugin,
                         event_type: EventType::Delete.into(),
                     }))

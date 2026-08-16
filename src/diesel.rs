@@ -832,6 +832,33 @@ pub async fn list_plugin_by_repository(repository_name: String) -> Result<Vec<St
     }
 }
 
+pub async fn get_repository_by_plugin(plugin_name: &str) -> Result<String, Error> {
+    if let Some(pool) = get_pool() {
+        with_conn!(pool, |conn| {
+            let all_repos = repositories::table
+                .select(Repository::as_select())
+                .load(&mut conn)
+                .await
+                .map_err(crate::errors::Error::Query)?;
+
+            for repo in all_repos {
+                let parsed_plugins: Value = serde_json::from_str(&repo.plugins)?;
+                if let Some(list) = parsed_plugins.as_array() {
+                    if list.iter().any(|p| p.as_str() == Some(plugin_name)) {
+                        return Ok(repo.name);
+                    }
+                }
+            }
+
+            Err(crate::errors::Error::RepositoryNotFound(
+                plugin_name.to_string(),
+            ))
+        })
+    } else {
+        Err(crate::errors::Error::GetPool)
+    }
+}
+
 pub async fn get_plugin_version(
     plugins_name: Vec<String>,
 ) -> Result<HashMap<String, String>, Error> {
