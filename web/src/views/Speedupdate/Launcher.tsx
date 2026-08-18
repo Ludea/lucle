@@ -126,7 +126,7 @@ function Launcher() {
   const [configName, setConfigName] = useState("Sparus.json");
   const [repositoryName, setRepositoryName] = useState("");
   const [updateURL, setUpdateURL] = useState("repo.marlin-atlas.ts.net");
-  const [pluginsURL, setPluginsURL] = useState("");
+  const [cmsURL, setCmsURL] = useState("");
   const [disableLauncherCreation, setDisableLauncherCreation] = useState(false);
 
   const [selectedEvent, setSelectedEvent] = useState<EventType>(0);
@@ -164,7 +164,6 @@ function Launcher() {
         <Grid size={{ xs: 12, md: 7 }}>
           <SectionCard>
             <SectionLabel>// Build Launcher</SectionLabel>
-
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
@@ -183,7 +182,6 @@ function Launcher() {
                   }}
                 />
               </Grid>
-
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
@@ -201,7 +199,6 @@ function Launcher() {
                   }}
                 />
               </Grid>
-
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
@@ -219,7 +216,6 @@ function Launcher() {
                   }}
                 />
               </Grid>
-
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
@@ -237,7 +233,6 @@ function Launcher() {
                   }}
                 />
               </Grid>
-
               <Grid size={12}>
                 <TextField
                   fullWidth
@@ -256,14 +251,13 @@ function Launcher() {
                   }}
                 />
               </Grid>
-
               <Grid size={12}>
                 <TextField
                   fullWidth
                   size="small"
-                  label="Plugins URL"
-                  value={pluginsURL}
-                  onChange={(event) => setPluginsURL(event.target.value)}
+                  label="CMS URL"
+                  value={cmsURL}
+                  onChange={(event) => setCmsURL(event.target.value)}
                   slotProps={{
                     input: {
                       startAdornment: urlAdornment,
@@ -274,14 +268,12 @@ function Launcher() {
                   }}
                 />
               </Grid>
-
               <Grid size={12}>
                 <Divider sx={{ mb: 1.5 }}>
                   <Typography variant="caption" color="text.secondary">
                     Assets
                   </Typography>
                 </Divider>
-
                 <Stack direction="row" spacing={1.5} sx={{ width: "100%" }}>
                   <FilePicker
                     label="Background"
@@ -290,7 +282,6 @@ function Launcher() {
                     onFile={setBgFile}
                     fileName={bgFile?.name}
                   />
-
                   <FilePicker
                     label="Logo"
                     icon={<CloudUploadIcon />}
@@ -301,7 +292,6 @@ function Launcher() {
                 </Stack>
               </Grid>
             </Grid>
-
             <Box sx={{ mt: 3 }}>
               <Button
                 disabled={disableLauncherCreation}
@@ -315,7 +305,7 @@ function Launcher() {
                     repositoryName,
                     gameName,
                     `https://${updateURL}`,
-                    pluginsURL ? `https://${pluginsURL}` : "",
+                    cmsURL ? `https://${cmsURL}` : "",
                     configName,
                   )
                 }
@@ -326,11 +316,9 @@ function Launcher() {
             </Box>
           </SectionCard>
         </Grid>
-
         <Grid size={{ xs: 12, md: 5 }}>
           <SectionCard>
             <SectionLabel>// Deploy Event</SectionLabel>
-
             <Stack spacing={2.5}>
               <FormControl fullWidth size="small">
                 <Select<number>
@@ -371,7 +359,6 @@ function Launcher() {
                   })}
                 </Select>
               </FormControl>
-
               <TextField
                 fullWidth
                 size="small"
@@ -387,7 +374,6 @@ function Launcher() {
                   },
                 }}
               />
-
               <Button
                 variant="contained"
                 color={
@@ -413,9 +399,7 @@ function Launcher() {
                 </Typography>
               ) : null}
             </Stack>
-
             <Divider sx={{ my: 3 }} />
-
             <SpeedupdateOptions binaryType="launcher" />
           </SectionCard>
         </Grid>
