@@ -8,6 +8,7 @@ mod diesel;
 mod errors;
 mod http;
 pub mod models;
+mod plugin_db;
 #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
 mod plugins;
 mod query_helper;

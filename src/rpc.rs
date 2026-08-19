@@ -1,13 +1,15 @@
-use super::diesel;
 use super::utils;
+use crate::diesel;
 use crate::errors::Error;
+use crate::plugin_db;
 use crate::DbType;
 use dotenvy::dotenv;
 use email_address_parser::EmailAddress;
 use luclerpc::{
     lucle_server::{Lucle, LucleServer},
-    Credentials, Database, DatabaseType, Empty, ListUpdateServer, Platforms, Plugin, ResetPassword,
-    UpdateServer, User, UserCreation, Username,
+    Credentials, Database, DatabaseType, Empty, InstallPluginRequest, InstalledPlugin,
+    ListPluginsResponse, ListUpdateServer, Platforms, RemovePluginRequest, ResetPassword,
+    TogglePluginRequest, UpdateServer, User, UserCreation, Username,
 };
 use octocrab::Octocrab;
 use semver::Version;
@@ -20,8 +22,6 @@ use sparus::{
 use std::collections::HashSet;
 use std::{
     collections::HashMap,
-    fs::{self, File},
-    io::{BufReader, Cursor},
     pin::Pin,
     sync::{
         atomic::{AtomicU64, Ordering},
@@ -38,7 +38,6 @@ use tonic::{
     Request, Response, Status,
 };
 use tonic_web::GrpcWebLayer;
-use wasmsign2::PublicKey;
 
 pub mod luclerpc {
     tonic::include_proto!("luclerpc");
@@ -330,45 +329,79 @@ impl Lucle for LucleApi {
         Ok(Response::new(reply))
     }
 
-    async fn get_plugins(&self, request: Request<Plugin>) -> Result<Response<Empty>, Status> {
-        let name = request.into_inner().name;
-        match reqwest::get(format!("http://127.0.0.1:8012/plugins/{name}")).await {
-            Ok(res) => {
-                let file_name = format!("{name}.wasm");
-                let public_key = PublicKey::from_file("pk_file").unwrap();
-
-                match res.bytes().await {
-                    Err(err) => {
-                        tracing::error!("Error reading response: {err}");
-                        return Err(Status::internal(err.to_string()));
-                    }
-                    Ok(bytes) => {
-                        let cursor = Cursor::new(bytes.clone());
-                        let mut reader = BufReader::new(cursor);
-
-                        if let Err(err) = public_key.verify(&mut reader, None) {
-                            tracing::error!("Error during plugins verification: {err}");
-                            return Err(Status::internal(err.to_string()));
-                        }
-
-                        if let Err(err) = File::create(&file_name) {
-                            tracing::error!("Error on saving plugins: {err}");
-                            return Err(Status::internal(err.to_string()));
-                        }
-
-                        if let Err(err) = fs::write(&file_name, &bytes) {
-                            tracing::error!("Error on writing plugins data: {err}");
-                            return Err(Status::internal(err.to_string()));
-                        }
-                    }
-                }
+    async fn list_plugins(
+        &self,
+        _request: Request<Empty>,
+    ) -> Result<Response<ListPluginsResponse>, Status> {
+        match plugin_db::list_plugins().await {
+            Ok(rows) => {
+                let reply = luclerpc::ListPluginsResponse {
+                    plugins: rows.into_iter().map(Into::into).collect(),
+                };
+                Ok(Response::new(reply))
             }
-            Err(err) => return Err(Status::not_found(err.to_string())),
+            Err(err) => {
+                tracing::error!("{err}");
+                Err(Status::internal(err.to_string()))
+            }
         }
-        let reply = Empty {};
-        Ok(Response::new(reply))
+    }
+
+    async fn install_plugin(
+        &self,
+        request: Request<InstallPluginRequest>,
+    ) -> Result<Response<InstalledPlugin>, Status> {
+        let new_plugin = request.into_inner().into();
+        match plugin_db::install_plugin(new_plugin).await {
+            Ok(plugin) => {
+                tracing::info!("Plugin {} installed", plugin.id);
+                let reply = plugin.into();
+                Ok(Response::new(reply))
+            }
+            Err(err) => {
+                tracing::error!("{err}");
+                Err(Status::internal(err.to_string()))
+            }
+        }
+    }
+
+    async fn toggle_plugin(
+        &self,
+        request: Request<TogglePluginRequest>,
+    ) -> Result<Response<InstalledPlugin>, Status> {
+        let id = request.into_inner().id;
+        match plugin_db::toggle_plugin(&id).await {
+            Ok(plugin) => {
+                tracing::info!("Plugin {} toggled (enabled={})", plugin.id, plugin.enabled);
+                let reply = plugin.into();
+                Ok(Response::new(reply))
+            }
+            Err(err) => {
+                tracing::error!("{err}");
+                Err(Status::internal(err.to_string()))
+            }
+        }
+    }
+
+    async fn remove_plugin(
+        &self,
+        request: Request<RemovePluginRequest>,
+    ) -> Result<Response<Empty>, Status> {
+        let id = request.into_inner().id;
+        match plugin_db::remove_plugin(&id).await {
+            Ok(()) => {
+                tracing::info!("Plugin {} removed", id);
+                let reply = luclerpc::Empty {};
+                Ok(Response::new(reply))
+            }
+            Err(err) => {
+                tracing::error!("{err}");
+                Err(Status::internal(err.to_string()))
+            }
+        }
     }
 }
+
 type SparusResult<T> = Result<Response<T>, Status>;
 type ResponseStream = Pin<Box<dyn Stream<Item = Result<MessageFromServer, Status>> + Send>>;
 static CLIENT_ID: AtomicU64 = AtomicU64::new(0);
@@ -398,11 +431,10 @@ impl Event for EventRoute {
         let inner = req.into_inner();
         let launcher_name = inner.launcher_name;
         let repository_name = inner.repository_name;
-        let game_name = inner.game_name;
+        let games_name = inner.games_name;
         let speedupdate_server_url = inner.speedupdate_server_url;
-        let plugins_url = inner.plugins_url;
+        let cms_url = inner.cms_url;
         let config_file = inner.config_file;
-        let json_config = json!({"game_name":game_name, "repository_url": speedupdate_server_url, "plugins_url": plugins_url});
 
         dotenv().ok();
         let octocrab;
@@ -423,7 +455,7 @@ impl Event for EventRoute {
         if let Err(err) = octocrab
             .actions()
             .create_workflow_dispatch("Ludea", "Sparus", "dispatch.yml", "main")
-            .inputs(json!({"launcher_name": launcher_name, "repository_name": repository_name, "filename": config_file, "content": json_config.to_string()}))
+            .inputs(json!({"launcher_name": launcher_name, "repository_name": repository_name, "filename": config_file, "repository_url": speedupdate_server_url, "cms_url": cms_url, "games": games_name}))
             .send()
             .await
         {
@@ -572,7 +604,7 @@ impl Event for EventRoute {
             // otherwise still hit the database (and fail when no pool/table
             // exists) just to return an empty map.
             if !common_plugin.is_empty() {
-                match diesel::get_plugin_version(common_plugin).await {
+                match plugin_db::get_plugin_version(common_plugin).await {
                     Ok(registered_plugin_with_version) => {
                         for (registered_plugin, registered_version) in
                             registered_plugin_with_version

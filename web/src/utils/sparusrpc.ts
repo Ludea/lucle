@@ -10,7 +10,7 @@ export const build_custom_launcher = async (
   repository_name: string,
   game_name: string,
   update_server_url: string,
-  plugins_url: string,
+  cms_url: string,
   config_file: string,
 ) =>
   client.create_workflow({
@@ -18,6 +18,6 @@ export const build_custom_launcher = async (
     repository_name: repository_name,
     game_name: game_name,
     speedupdate_server_url: update_server_url,
-    plugins_url: plugins_url,
+    cms_url: cms_url,
     config_file: config_file,
   });

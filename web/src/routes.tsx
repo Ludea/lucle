@@ -8,6 +8,8 @@ import Login from "views/Login";
 import Launcher from "views/Speedupdate/Launcher";
 import Dashboard from "layouts/Dashboard";
 import ListRepo from "views/Speedupdate/Repos";
+import PluginStore from "views/Speedupdate/PluginStore";
+import PluginManager from "views/Speedupdate/PluginManager";
 
 import { useAuth } from "context/Auth";
 
@@ -45,6 +47,8 @@ const routes = (isInstalled: boolean) => [
               { index: true, element: <ListRepo /> },
               { path: ":repo/game", element: <Game /> },
               { path: ":repo/launcher", element: <Launcher /> },
+              { path: ":repo/plugins", element: <PluginStore /> },
+              { path: ":repo/pluginmanagement", element: <PluginManager /> },
             ],
           },
         ],

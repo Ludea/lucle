@@ -24,6 +24,7 @@ import BuildIcon from "@mui/icons-material/Build";
 import SpeedupdateOptions from "components/Speedupdate/Options";
 import { build_custom_launcher, send_event_all } from "utils/sparusrpc";
 import { SparusRPC } from "context/Sparus";
+import { SpeedupdateRPC } from "context/Speedupdate";
 
 const HiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -128,6 +129,7 @@ function Launcher() {
   const [updateURL, setUpdateURL] = useState("repo.marlin-atlas.ts.net");
   const [cmsURL, setCmsURL] = useState("");
   const [disableLauncherCreation, setDisableLauncherCreation] = useState(false);
+  const [availableBinaries, setAvailableBinaries] = useState<string[]>([]);
 
   const [selectedEvent, setSelectedEvent] = useState<EventType>(0);
   const [broadcastError, setBroadcastError] = useState<string | null>(null);
@@ -137,6 +139,7 @@ function Launcher() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
 
   const SparusClient = useContext(SparusRPC);
+  const speedupdateClient = useContext(SpeedupdateRPC);
 
   const urlAdornment = (
     <InputAdornment position="start">
@@ -157,6 +160,55 @@ function Launcher() {
   const handleEventChange = (event: SelectChangeEvent<number>) => {
     setSelectedEvent(event.target.value as EventType);
   };
+
+    useEffect(() => {
+    const savedCurrentRepo = localStorage.getItem("current_repo");
+    if (savedCurrentRepo) {
+      const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
+      const mapCurrentRepo = new Map();
+      mapCurrentRepo.set(parsedCurrentRepo.repo_name, parsedCurrentRepo.platforms);
+      if (currentRepo.size === 0) setCurrentRepo(mapCurrentRepo);
+    }
+
+    if (currentRepo.size > 0) {
+      const current = currentRepo.keys().next().value as string;
+      if (!statusAlreadyStarted) {
+        const opt = create(OptionsSchema, {
+          buildPath: ".",
+          uploadPath: ".",
+        });
+        status(speedupdateClient, current, platformsEnum, "game", opt).then((value) => {
+          const reader = value.getReader();
+          setStatusAlreadyStarted(true);
+          async function readStream() {
+            let result;
+            while (!(result = await reader.read()).done) {
+              setListVersions(result.value.versions);
+              setListPackages(result.value.packages);
+              setAvailableBinaries(result.value.binaries);
+            }
+          }
+          readStream().catch((err: unknown) => {
+            setError(JSON.stringify(err));
+          });
+        });
+
+        const eventSource = new EventSource(
+          "https://repo.marlin-atlas.ts.net/" + current + "/game" + "/progression",
+        );
+        eventSource.onmessage = (event) => {
+          setUploadProgression(event.data);
+          if (event.data === "100") {
+            setUploadProgression("");
+            setFiles([]);
+          }
+        };
+        eventSource.onerror = () => {
+          setError("Lost connection to the update server");
+        };
+      }
+    }
+  }, [currentRepo]);
 
   return (
     <Stack spacing={3}>
@@ -299,13 +351,14 @@ function Launcher() {
                 startIcon={<BuildIcon />}
                 fullWidth
                 onClick={() =>
+                    
                   build_custom_launcher(
                     SparusClient,
                     launcherName,
                     repositoryName,
                     gameName,
                     `https://${updateURL}`,
-                    cmsURL ? `https://${cmsURL}` : "",
+                    `https://${cmsURL}`,
                     configName,
                   )
                 }
@@ -401,6 +454,12 @@ function Launcher() {
             </Stack>
             <Divider sx={{ my: 3 }} />
             <SpeedupdateOptions binaryType="launcher" />
+                      <BinariesTable
+            client={speedupdateClient}
+            currentRepo={currentRepo}
+            availableBinaries={availableBinaries}
+            onError={setError}
+          />
           </SectionCard>
         </Grid>
       </Grid>

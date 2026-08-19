@@ -49,9 +49,20 @@ diesel::table! {
 
 diesel::table! {
     plugins (id) {
-        id -> Integer,
-        name -> VarChar,
-        version -> VarChar,
+        id           -> Varchar,
+        name         -> Varchar,
+        icon         -> Varchar,
+        author       -> Varchar,
+        version      -> Varchar,
+        category     -> Varchar,
+        price_type   -> Varchar,
+        description  -> Text,
+        tags         -> Text,
+        downloads    -> Integer,
+        stars        -> Integer,
+        featured     -> Bool,
+        enabled      -> Bool,
+        installed_at -> Timestamp,
     }
 }
 

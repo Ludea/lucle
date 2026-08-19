@@ -1,6 +1,7 @@
 use super::schema::{
     plugins, repositories, sql_types::UsersRepositoriesPermissionEnum, users, users_repositories,
 };
+use crate::rpc::luclerpc::{InstallPluginRequest, InstalledPlugin};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel::FromSqlRow;
@@ -149,18 +150,96 @@ impl FromSql<UsersRepositoriesPermissionEnum, diesel::pg::Pg> for Permission {
     }
 }
 
-#[derive(Insertable, Selectable, Queryable, Debug, PartialEq)]
+#[derive(Queryable, Selectable)]
 #[diesel(table_name = plugins)]
-#[diesel(check_for_backend(diesel::mysql::Mysql, diesel::sqlite::Sqlite, diesel::pg::Pg))]
-pub struct Plugins {
-    pub id: i32,
+#[diesel(check_for_backend(diesel::mysql::Mysql, diesel::pg::Pg, diesel::sqlite::Sqlite,))]
+pub struct Plugin {
+    pub id: String,
     pub name: String,
+    pub icon: String,
+    pub author: String,
     pub version: String,
+    pub category: String,
+    pub price_type: String,
+    pub description: String,
+    pub tags: String, // JSON array stored as text: ["tag1","tag2"]
+    pub downloads: i32,
+    pub stars: i32,
+    pub featured: bool,
+    pub enabled: bool,
+    pub installed_at: NaiveDateTime,
 }
 
 #[derive(Insertable)]
 #[diesel(table_name = plugins)]
-pub struct NewPlugins {
+pub struct NewPlugin {
+    pub id: String,
     pub name: String,
+    pub icon: String,
+    pub author: String,
     pub version: String,
+    pub category: String,
+    pub price_type: String,
+    pub description: String,
+    pub tags: String, // serialized JSON: serde_json::to_string(&vec)?
+    pub downloads: i32,
+    pub stars: i32,
+    pub featured: bool,
+    pub enabled: bool,
+}
+
+#[derive(AsChangeset)]
+#[diesel(table_name = plugins)]
+pub struct UpdatePlugin {
+    pub name: Option<String>,
+    pub version: Option<String>,
+    pub description: Option<String>,
+    pub tags: Option<String>,
+    pub downloads: Option<i32>,
+    pub stars: Option<i32>,
+    pub featured: Option<bool>,
+    pub enabled: Option<bool>,
+    pub price_type: Option<String>,
+}
+
+impl From<Plugin> for InstalledPlugin {
+    fn from(p: Plugin) -> Self {
+        let tags: Vec<String> = serde_json::from_str(&p.tags).unwrap_or_default();
+        Self {
+            id: p.id,
+            name: p.name,
+            icon: p.icon,
+            author: p.author,
+            version: p.version,
+            category: p.category,
+            price_type: p.price_type,
+            description: p.description,
+            tags,
+            downloads: p.downloads,
+            stars: p.stars,
+            featured: p.featured,
+            enabled: p.enabled,
+            installed_at: p.installed_at.and_utc().timestamp(),
+        }
+    }
+}
+
+impl From<InstallPluginRequest> for NewPlugin {
+    fn from(r: InstallPluginRequest) -> Self {
+        Self {
+            id: r.id,
+            name: r.name,
+            icon: r.icon,
+            author: r.author,
+            version: r.version,
+            category: r.category,
+            price_type: r.price_type,
+            description: r.description,
+            tags: serde_json::to_string(&r.tags).unwrap_or_default(),
+            downloads: r.downloads,
+            stars: r.stars,
+            featured: r.featured,
+            enabled: true,
+        }
+    }
 }

@@ -1,13 +1,11 @@
 use super::query_helper;
 use crate::errors::Error;
-use crate::models::{
-    NewRepository, NewUser, Permission, Plugins, Repository, User, UsersRepositories,
-};
+use crate::models::{NewRepository, NewUser, Permission, Repository, User, UsersRepositories};
 use crate::rpc::{
     luclerpc::{Platforms, UpdateServer, User as LucleUser},
     Hosts,
 };
-use crate::schema::{plugins, repositories, users, users_repositories};
+use crate::schema::{repositories, users, users_repositories};
 use crate::utils;
 use argon2::{
     self,
@@ -26,10 +24,7 @@ use diesel_async::{
 };
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use serde_json::Value;
-use std::{
-    collections::HashMap,
-    sync::{Mutex, OnceLock},
-};
+use std::sync::{Mutex, OnceLock};
 use url::Url;
 
 pub const MYSQL_MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
@@ -125,6 +120,7 @@ pub fn get_pool() -> Option<DbPool> {
 // backend-specific syntax — that's what makes running the identical code
 // against three different connection types sound rather than three separately
 // hand-verified implementations.
+#[macro_export]
 macro_rules! with_conn {
     ($pool:expr, |$conn:ident| $body:expr) => {
         match $pool {
@@ -853,34 +849,6 @@ pub async fn get_repository_by_plugin(plugin_name: &str) -> Result<String, Error
             Err(crate::errors::Error::RepositoryNotFound(
                 plugin_name.to_string(),
             ))
-        })
-    } else {
-        Err(crate::errors::Error::GetPool)
-    }
-}
-
-pub async fn get_plugin_version(
-    plugins_name: Vec<String>,
-) -> Result<HashMap<String, String>, Error> {
-    if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
-            match plugins::table
-                .filter(plugins::dsl::name.eq_any(plugins_name))
-                .select(Plugins::as_select())
-                .load(&mut conn)
-                .await
-                .optional()
-            {
-                Ok(Some(plugins)) => {
-                    let plugin_with_version: HashMap<String, String> = plugins
-                        .into_iter()
-                        .map(|plug| (plug.name, plug.version))
-                        .collect();
-                    Ok(plugin_with_version)
-                }
-                Ok(None) => Ok(HashMap::new()),
-                Err(err) => Err(crate::errors::Error::Query(err)),
-            }
         })
     } else {
         Err(crate::errors::Error::GetPool)

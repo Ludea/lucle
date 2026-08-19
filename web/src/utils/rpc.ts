@@ -1,3 +1,8 @@
+import type {
+  InstalledPlugin,
+  InstallPluginRequest,
+} from "gen/luclerpc_pb";
+
 export const checkIfInstalled = async (client: any) => client.is_database_created();
 
 export const createDB = async (client: any, db: number, db_name: string, infos_connection: any) =>
@@ -57,3 +62,23 @@ export const deleteRepo = async (client: any, path: string) =>
   client.delete_repo({
     path,
   });
+
+export async function listPlugins(client: any): Promise<InstalledPlugin[]> {
+  let res = client.listPlugins({});
+  return res;
+}
+
+export async function installPlugin(
+  client: any, 
+  req: InstallPluginRequest
+): Promise<InstalledPlugin> {
+  return client.installPlugin(req);
+}
+
+export async function togglePlugin(client: any, id: string): Promise<InstalledPlugin> {
+  return client.togglePlugin({ id });
+}
+
+export async function removePlugin(client: any, id: string): Promise<void> {
+  client.removePlugin({ id });
+}
