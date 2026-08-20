@@ -26,16 +26,11 @@ import ExtensionIcon from "@mui/icons-material/Extension";
 
 // Stripe
 import { loadStripe } from "@stripe/stripe-js";
-import {
-  Elements,
-  PaymentElement,
-  useStripe,
-  useElements,
-} from "@stripe/react-stripe-js";
+import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import type { StripeElementsOptions } from "@stripe/stripe-js";
 
 const stripePromise = loadStripe(
-  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? "pk_test_placeholder"
+  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? "pk_test_placeholder",
 );
 
 type PriceModel =
@@ -65,8 +60,7 @@ type Step = "plan" | "payment" | "success";
 
 function getPrice(price: PriceModel, cycle: BillingCycle): number {
   if (price.type === "paid") return price.amount;
-  if (price.type === "subscription")
-    return cycle === "yearly" ? price.yearly : price.monthly;
+  if (price.type === "subscription") return cycle === "yearly" ? price.yearly : price.monthly;
   return 0;
 }
 
@@ -103,8 +97,8 @@ function Stepper({ step }: { step: Step }) {
                   current === i
                     ? "primary.main"
                     : current > i
-                    ? "success.main"
-                    : "action.disabledBackground",
+                      ? "success.main"
+                      : "action.disabledBackground",
                 color: current >= i ? "#fff" : "text.disabled",
                 transition: "background-color 0.3s",
               }}
@@ -117,10 +111,7 @@ function Stepper({ step }: { step: Step }) {
                   flex: 1,
                   height: 2,
                   borderRadius: 1,
-                  bgcolor:
-                    current > i
-                      ? "success.main"
-                      : theme.palette.action.disabledBackground,
+                  bgcolor: current > i ? "success.main" : theme.palette.action.disabledBackground,
                   transition: "background-color 0.3s",
                 })}
               />
@@ -284,7 +275,9 @@ function StepPlan({
                 },
               }}
             >
-              <Typography variant="subtitle2" fontWeight={600}>Monthly</Typography>
+              <Typography variant="subtitle2" fontWeight={600}>
+                Monthly
+              </Typography>
               <Typography variant="caption" sx={{ opacity: 0.85 }}>
                 ${(plugin.price as { monthly: number }).monthly}/mo
               </Typography>
@@ -318,7 +311,9 @@ function StepPlan({
                   }}
                 />
               )}
-              <Typography variant="subtitle2" fontWeight={600}>Yearly</Typography>
+              <Typography variant="subtitle2" fontWeight={600}>
+                Yearly
+              </Typography>
               <Typography variant="caption" sx={{ opacity: 0.85 }}>
                 ${(plugin.price as { yearly: number }).yearly}/yr
               </Typography>
@@ -348,13 +343,7 @@ interface StripeFormProps {
   onSuccess: () => void;
 }
 
-function StripePaymentForm({
-  plugin,
-  cycle,
-  clientSecret,
-  onBack,
-  onSuccess,
-}: StripeFormProps) {
+function StripePaymentForm({ plugin, cycle, clientSecret, onBack, onSuccess }: StripeFormProps) {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -413,7 +402,9 @@ function StripePaymentForm({
         <IconButton size="small" onClick={onBack} disabled={paying}>
           <ArrowBackIcon fontSize="small" />
         </IconButton>
-        <Typography variant="h6" fontWeight={700}>Payment details</Typography>
+        <Typography variant="h6" fontWeight={700}>
+          Payment details
+        </Typography>
       </Stack>
       <OrderSummary plugin={plugin} cycle={cycle} promoApplied={promoApplied} />
       <Box
@@ -432,10 +423,7 @@ function StripePaymentForm({
             </Stack>
           </Stack>
         )}
-        <PaymentElement
-          onReady={() => setReady(true)}
-          options={{ layout: "tabs" }}
-        />
+        <PaymentElement onReady={() => setReady(true)} options={{ layout: "tabs" }} />
       </Box>
       <Stack direction="row" spacing={1} alignItems="flex-start">
         <TextField
@@ -452,8 +440,8 @@ function StripePaymentForm({
             promoState === "invalid"
               ? "Invalid promo code"
               : promoApplied
-              ? "✓ LUCLE10 applied — 10% off"
-              : ""
+                ? "✓ LUCLE10 applied — 10% off"
+                : ""
           }
           disabled={promoApplied || paying}
           placeholder="LUCLE10"
@@ -532,9 +520,9 @@ function StepPayment({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           plugin_id: plugin.id,
-          amount: toCents(amount),   // en centimes
+          amount: toCents(amount), // en centimes
           currency: "usd",
-          billing_cycle: cycle,      // "monthly" | "yearly"
+          billing_cycle: cycle, // "monthly" | "yearly"
         }),
       });
       if (!res.ok) throw new Error(`Server error ${res.status}`);
@@ -545,7 +533,9 @@ function StepPayment({
     }
   }, [plugin.id, amount, cycle]);
 
-  useEffect(() => { createIntent(); }, [createIntent]);
+  useEffect(() => {
+    createIntent();
+  }, [createIntent]);
 
   const appearance: StripeElementsOptions["appearance"] = {
     theme: "night",
@@ -579,11 +569,17 @@ function StepPayment({
           <IconButton size="small" onClick={onBack}>
             <ArrowBackIcon fontSize="small" />
           </IconButton>
-          <Typography variant="h6" fontWeight={700}>Payment details</Typography>
+          <Typography variant="h6" fontWeight={700}>
+            Payment details
+          </Typography>
         </Stack>
         <Alert
           severity="error"
-          action={<Button size="small" onClick={createIntent}>Retry</Button>}
+          action={
+            <Button size="small" onClick={createIntent}>
+              Retry
+            </Button>
+          }
         >
           {fetchError}
         </Alert>
@@ -598,7 +594,9 @@ function StepPayment({
           <IconButton size="small" onClick={onBack}>
             <ArrowBackIcon fontSize="small" />
           </IconButton>
-          <Typography variant="h6" fontWeight={700}>Payment details</Typography>
+          <Typography variant="h6" fontWeight={700}>
+            Payment details
+          </Typography>
         </Stack>
         <Skeleton variant="rounded" height={80} />
         <Box
@@ -622,11 +620,7 @@ function StepPayment({
   }
 
   return (
-    <Elements
-      stripe={stripePromise}
-      options={{ clientSecret, appearance }}
-      key={clientSecret}
-    >
+    <Elements stripe={stripePromise} options={{ clientSecret, appearance }} key={clientSecret}>
       <StripePaymentForm
         plugin={plugin}
         cycle={cycle}
@@ -706,7 +700,10 @@ export default function CheckoutDialog({ open, plugin, onClose, onSuccess }: Pro
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
 
   useEffect(() => {
-    if (open) { setStep("plan"); setCycle("monthly"); }
+    if (open) {
+      setStep("plan");
+      setCycle("monthly");
+    }
   }, [open, plugin?.id]);
 
   if (!plugin) return null;
@@ -763,9 +760,7 @@ export default function CheckoutDialog({ open, plugin, onClose, onSuccess }: Pro
             onSuccess={() => setStep("success")}
           />
         )}
-        {step === "success" && (
-          <StepSuccess plugin={plugin} onClose={handleClose} />
-        )}
+        {step === "success" && <StepSuccess plugin={plugin} onClose={handleClose} />}
       </DialogContent>
     </Dialog>
   );

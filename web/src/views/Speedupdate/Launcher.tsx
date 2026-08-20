@@ -161,7 +161,7 @@ function Launcher() {
     setSelectedEvent(event.target.value as EventType);
   };
 
-    useEffect(() => {
+  useEffect(() => {
     const savedCurrentRepo = localStorage.getItem("current_repo");
     if (savedCurrentRepo) {
       const parsedCurrentRepo = JSON.parse(savedCurrentRepo);
@@ -351,7 +351,6 @@ function Launcher() {
                 startIcon={<BuildIcon />}
                 fullWidth
                 onClick={() =>
-                    
                   build_custom_launcher(
                     SparusClient,
                     launcherName,
@@ -454,12 +453,12 @@ function Launcher() {
             </Stack>
             <Divider sx={{ my: 3 }} />
             <SpeedupdateOptions binaryType="launcher" />
-                      <BinariesTable
-            client={speedupdateClient}
-            currentRepo={currentRepo}
-            availableBinaries={availableBinaries}
-            onError={setError}
-          />
+            <BinariesTable
+              client={speedupdateClient}
+              currentRepo={currentRepo}
+              availableBinaries={availableBinaries}
+              onError={setError}
+            />
           </SectionCard>
         </Grid>
       </Grid>

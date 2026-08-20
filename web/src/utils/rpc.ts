@@ -1,7 +1,4 @@
-import type {
-  InstalledPlugin,
-  InstallPluginRequest,
-} from "gen/luclerpc_pb";
+import type { InstalledPlugin, InstallPluginRequest } from "gen/luclerpc_pb";
 
 export const checkIfInstalled = async (client: any) => client.is_database_created();
 
@@ -69,8 +66,8 @@ export async function listPlugins(client: any): Promise<InstalledPlugin[]> {
 }
 
 export async function installPlugin(
-  client: any, 
-  req: InstallPluginRequest
+  client: any,
+  req: InstallPluginRequest,
 ): Promise<InstalledPlugin> {
   return client.installPlugin(req);
 }

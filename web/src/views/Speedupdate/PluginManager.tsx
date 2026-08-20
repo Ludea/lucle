@@ -46,37 +46,37 @@ import DownloadIcon from "@mui/icons-material/Download";
 type Category = "ui" | "backend" | "auth" | "devtools" | "gaming" | "theme";
 
 interface InstalledPlugin {
-  id:          string;
-  name:        string;
-  icon:        string;
-  author:      string;
-  version:     string;
-  category:    Category;
-  priceType:   string;
+  id: string;
+  name: string;
+  icon: string;
+  author: string;
+  version: string;
+  category: Category;
+  priceType: string;
   description: string;
-  tags:        string[];
-  downloads:   number;
-  stars:       number;
-  featured:    boolean;
-  enabled:     boolean;
+  tags: string[];
+  downloads: number;
+  stars: number;
+  featured: boolean;
+  enabled: boolean;
   installedAt: string;
 }
 
 function protoToPlugin(p: ProtoPlugin): InstalledPlugin {
   return {
-    id:          p.id,
-    name:        p.name,
-    icon:        p.icon,
-    author:      p.author,
-    version:     p.version,
-    category:    p.category as Category,
-    priceType:   p.priceType,
+    id: p.id,
+    name: p.name,
+    icon: p.icon,
+    author: p.author,
+    version: p.version,
+    category: p.category as Category,
+    priceType: p.priceType,
     description: p.description,
-    tags:        p.tags,
-    downloads:   p.downloads,
-    stars:       p.stars,
-    featured:    p.featured,
-    enabled:     p.enabled,
+    tags: p.tags,
+    downloads: p.downloads,
+    stars: p.stars,
+    featured: p.featured,
+    enabled: p.enabled,
     installedAt: new Date(Number(p.installedAt) * 1000).toLocaleDateString(),
   };
 }
@@ -85,36 +85,51 @@ const CATEGORY_COLOR: Record<
   Category,
   "default" | "primary" | "secondary" | "error" | "warning" | "info" | "success"
 > = {
-  ui: "info", backend: "secondary", auth: "error",
-  devtools: "warning", gaming: "success", theme: "primary",
+  ui: "info",
+  backend: "secondary",
+  auth: "error",
+  devtools: "warning",
+  gaming: "success",
+  theme: "primary",
 };
 
 const PRICE_LABEL: Record<string, string> = {
-  free: "Free", paid: "Paid", subscription: "Subscription",
+  free: "Free",
+  paid: "Paid",
+  subscription: "Subscription",
 };
 
 const CATEGORIES: Category[] = ["ui", "backend", "auth", "devtools", "gaming", "theme"];
 const PRICE_TYPES = ["free", "paid", "subscription"];
 
 interface PluginForm {
-  id:          string;
-  name:        string;
-  icon:        string;
-  author:      string;
-  version:     string;
-  category:    Category;
-  priceType:   string;
+  id: string;
+  name: string;
+  icon: string;
+  author: string;
+  version: string;
+  category: Category;
+  priceType: string;
   description: string;
-  tags:        string; // comma-separated input
-  downloads:   number;
-  stars:       number;
-  featured:    boolean;
+  tags: string; // comma-separated input
+  downloads: number;
+  stars: number;
+  featured: boolean;
 }
 
 const EMPTY_FORM: PluginForm = {
-  id: "", name: "", icon: "", author: "", version: "",
-  category: "backend", priceType: "free", description: "",
-  tags: "", downloads: 0, stars: 0, featured: false,
+  id: "",
+  name: "",
+  icon: "",
+  author: "",
+  version: "",
+  category: "backend",
+  priceType: "free",
+  description: "",
+  tags: "",
+  downloads: 0,
+  stars: 0,
+  featured: false,
 };
 
 function AddPluginDialog({
@@ -161,7 +176,7 @@ function AddPluginDialog({
   }
 
   function validate(): string | null {
-    if (!file)            return "Please select a .wasm file";
+    if (!file) return "Please select a .wasm file";
     if (!form.id.trim()) return "ID is required";
     if (!form.name.trim()) return "Name is required";
     if (!form.version.trim()) return "Version is required";
@@ -171,24 +186,30 @@ function AddPluginDialog({
 
   function handleSubmit() {
     const err = validate();
-    if (err) { setError(err); return; }
+    if (err) {
+      setError(err);
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     installPlugin({
-      id:          form.id.trim(),
-      name:        form.name.trim(),
-      icon:        form.icon.trim() || "🔌",
-      author:      form.author.trim(),
-      version:     form.version.trim(),
-      category:    form.category,
-      priceType:   form.priceType,
+      id: form.id.trim(),
+      name: form.name.trim(),
+      icon: form.icon.trim() || "🔌",
+      author: form.author.trim(),
+      version: form.version.trim(),
+      category: form.category,
+      priceType: form.priceType,
       description: form.description.trim(),
-      tags:        form.tags.split(",").map((t) => t.trim()).filter(Boolean),
-      downloads:   form.downloads,
-      stars:       form.stars,
-      featured:    form.featured,
+      tags: form.tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
+      downloads: form.downloads,
+      stars: form.stars,
+      featured: form.featured,
     })
       .then((plugin) => {
         onAdded(plugin);
@@ -199,73 +220,145 @@ function AddPluginDialog({
   }
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth
-      PaperProps={{ sx: { borderRadius: 3 } }}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{ sx: { borderRadius: 3 } }}
+    >
       <DialogTitle>
         <Stack direction="row" alignItems="center" spacing={1.5}>
           <UploadFileIcon color="primary" />
-          <Typography variant="subtitle1" fontWeight={700}>Add plugin</Typography>
+          <Typography variant="subtitle1" fontWeight={700}>
+            Add plugin
+          </Typography>
         </Stack>
       </DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ pt: 1 }}>
-          {error && <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>}
+          {error && (
+            <Alert severity="error" onClose={() => setError(null)}>
+              {error}
+            </Alert>
+          )}
           {/* WASM file */}
-          <Button component="label" variant="outlined" startIcon={<UploadFileIcon />}
-            color={file ? "success" : "primary"} fullWidth>
+          <Button
+            component="label"
+            variant="outlined"
+            startIcon={<UploadFileIcon />}
+            color={file ? "success" : "primary"}
+            fullWidth
+          >
             {file ? file.name : "Select .wasm file"}
             <input type="file" accept=".wasm" hidden onChange={handleFile} />
           </Button>
           <Stack direction="row" spacing={2}>
-            <TextField label="ID" size="small" fullWidth required
-              value={form.id} onChange={(e) => set("id", e.target.value)}
-              placeholder="my-plugin" />
-            <TextField label="Icon (emoji)" size="small" sx={{ width: 120 }}
-              value={form.icon} onChange={(e) => set("icon", e.target.value)}
-              placeholder="🔌" />
+            <TextField
+              label="ID"
+              size="small"
+              fullWidth
+              required
+              value={form.id}
+              onChange={(e) => set("id", e.target.value)}
+              placeholder="my-plugin"
+            />
+            <TextField
+              label="Icon (emoji)"
+              size="small"
+              sx={{ width: 120 }}
+              value={form.icon}
+              onChange={(e) => set("icon", e.target.value)}
+              placeholder="🔌"
+            />
           </Stack>
           <Stack direction="row" spacing={2}>
-            <TextField label="Name" size="small" fullWidth required
-              value={form.name} onChange={(e) => set("name", e.target.value)} />
-            <TextField label="Version" size="small" sx={{ width: 140 }} required
-              value={form.version} onChange={(e) => set("version", e.target.value)}
-              placeholder="0.1.0" />
+            <TextField
+              label="Name"
+              size="small"
+              fullWidth
+              required
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+            />
+            <TextField
+              label="Version"
+              size="small"
+              sx={{ width: 140 }}
+              required
+              value={form.version}
+              onChange={(e) => set("version", e.target.value)}
+              placeholder="0.1.0"
+            />
           </Stack>
-          <TextField label="Author" size="small" fullWidth required
-            value={form.author} onChange={(e) => set("author", e.target.value)} />
-          <TextField label="Description" size="small" fullWidth multiline rows={2}
-            value={form.description} onChange={(e) => set("description", e.target.value)} />
+          <TextField
+            label="Author"
+            size="small"
+            fullWidth
+            required
+            value={form.author}
+            onChange={(e) => set("author", e.target.value)}
+          />
+          <TextField
+            label="Description"
+            size="small"
+            fullWidth
+            multiline
+            rows={2}
+            value={form.description}
+            onChange={(e) => set("description", e.target.value)}
+          />
           <Stack direction="row" spacing={2}>
             <FormControl size="small" fullWidth>
               <InputLabel>Category</InputLabel>
-              <Select label="Category" value={form.category}
-                onChange={(e) => set("category", e.target.value as Category)}>
+              <Select
+                label="Category"
+                value={form.category}
+                onChange={(e) => set("category", e.target.value as Category)}
+              >
                 {CATEGORIES.map((c) => (
-                  <MenuItem key={c} value={c}>{c}</MenuItem>
+                  <MenuItem key={c} value={c}>
+                    {c}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
             <FormControl size="small" fullWidth>
               <InputLabel>License</InputLabel>
-              <Select label="License" value={form.priceType}
-                onChange={(e) => set("priceType", e.target.value)}>
+              <Select
+                label="License"
+                value={form.priceType}
+                onChange={(e) => set("priceType", e.target.value)}
+              >
                 {PRICE_TYPES.map((p) => (
-                  <MenuItem key={p} value={p}>{p}</MenuItem>
+                  <MenuItem key={p} value={p}>
+                    {p}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
           </Stack>
-          <TextField label="Tags (comma-separated)" size="small" fullWidth
-            value={form.tags} onChange={(e) => set("tags", e.target.value)}
-            placeholder="wasm, grpc, auth" />
+          <TextField
+            label="Tags (comma-separated)"
+            size="small"
+            fullWidth
+            value={form.tags}
+            onChange={(e) => set("tags", e.target.value)}
+            placeholder="wasm, grpc, auth"
+          />
         </Stack>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2.5 }}>
         <Button onClick={handleClose} variant="outlined" size="small" disabled={loading}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} variant="contained" size="small" disabled={loading}
-          startIcon={loading ? <CircularProgress size={14} color="inherit" /> : <AddIcon />}>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          size="small"
+          disabled={loading}
+          startIcon={loading ? <CircularProgress size={14} color="inherit" /> : <AddIcon />}
+        >
           {loading ? "Adding…" : "Add plugin"}
         </Button>
       </DialogActions>
@@ -297,16 +390,21 @@ function UninstallDialog({
   }
 
   return (
-    <Dialog open onClose={onClose} maxWidth="xs" fullWidth
-      PaperProps={{ sx: { borderRadius: 3 } }}>
+    <Dialog open onClose={onClose} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
       <DialogTitle>
         <Stack direction="row" alignItems="center" spacing={1.5}>
           <WarningAmberIcon color="warning" />
-          <Typography variant="subtitle1" fontWeight={700}>Uninstall plugin</Typography>
+          <Typography variant="subtitle1" fontWeight={700}>
+            Uninstall plugin
+          </Typography>
         </Stack>
       </DialogTitle>
       <DialogContent>
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
         <Alert severity="warning" sx={{ mb: 2 }}>
           This action cannot be undone. Any data stored by this plugin will be lost.
         </Alert>
@@ -321,9 +419,16 @@ function UninstallDialog({
         <Button onClick={onClose} variant="outlined" size="small" disabled={loading}>
           Cancel
         </Button>
-        <Button onClick={handleConfirm} variant="contained" color="error" size="small"
+        <Button
+          onClick={handleConfirm}
+          variant="contained"
+          color="error"
+          size="small"
           disabled={loading}
-          startIcon={loading ? <CircularProgress size={14} color="inherit" /> : <DeleteOutlineIcon />}>
+          startIcon={
+            loading ? <CircularProgress size={14} color="inherit" /> : <DeleteOutlineIcon />
+          }
+        >
           {loading ? "Removing…" : "Uninstall"}
         </Button>
       </DialogActions>
@@ -334,8 +439,11 @@ function UninstallDialog({
 function Toolbar() {
   return (
     <GridToolbarContainer sx={{ px: 2, py: 1, gap: 1 }}>
-      <GridToolbarQuickFilter size="small" placeholder="Search plugins…"
-        sx={{ flexGrow: 1, maxWidth: 320 }} />
+      <GridToolbarQuickFilter
+        size="small"
+        placeholder="Search plugins…"
+        sx={{ flexGrow: 1, maxWidth: 320 }}
+      />
       <GridToolbarFilterButton />
       <GridToolbarColumnsButton />
     </GridToolbarContainer>
@@ -363,17 +471,13 @@ export default function PluginManager() {
   const handleToggle = useCallback((id: string) => {
     togglePlugin(id)
       .then((updated) =>
-        setPlugins((prev) =>
-          prev.map((p) => p.id === id ? protoToPlugin(updated) : p)
-        )
+        setPlugins((prev) => prev.map((p) => (p.id === id ? protoToPlugin(updated) : p))),
       )
       .catch((e: Error) => setError(e.message));
   }, []);
 
   const handleUninstall = useCallback((id: string) => {
-    return removePlugin(id).then(() =>
-      setPlugins((prev) => prev.filter((p) => p.id !== id))
-    );
+    return removePlugin(id).then(() => setPlugins((prev) => prev.filter((p) => p.id !== id)));
   }, []);
 
   const columns: GridColDef<InstalledPlugin>[] = [
@@ -384,12 +488,16 @@ export default function PluginManager() {
       minWidth: 200,
       renderCell: (params: GridRenderCellParams<InstalledPlugin>) => (
         <Stack direction="row" alignItems="center" spacing={1.5} sx={{ py: 0.5 }}>
-          <Avatar sx={(theme) => ({
-            width: 30, height: 30, fontSize: "0.95rem",
-            bgcolor: theme.palette.action.hover,
-            border: `1px solid ${theme.palette.divider}`,
-            flexShrink: 0,
-          })}>
+          <Avatar
+            sx={(theme) => ({
+              width: 30,
+              height: 30,
+              fontSize: "0.95rem",
+              bgcolor: theme.palette.action.hover,
+              border: `1px solid ${theme.palette.divider}`,
+              flexShrink: 0,
+            })}
+          >
             {params.row.icon}
           </Avatar>
           <Box sx={{ minWidth: 0 }}>
@@ -398,8 +506,13 @@ export default function PluginManager() {
                 {params.row.name}
               </Typography>
               {params.row.featured && (
-                <Chip label="Featured" size="small" color="primary" variant="outlined"
-                  sx={{ height: 16, fontSize: "0.6rem" }} />
+                <Chip
+                  label="Featured"
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                  sx={{ height: 16, fontSize: "0.6rem" }}
+                />
               )}
             </Stack>
             <Typography variant="caption" color="text.secondary" noWrap>
@@ -424,9 +537,13 @@ export default function PluginManager() {
       headerName: "Category",
       width: 120,
       renderCell: (params) => (
-        <Chip label={params.value} size="small"
+        <Chip
+          label={params.value}
+          size="small"
           color={CATEGORY_COLOR[params.value as Category]}
-          variant="filled" sx={{ height: 20, fontSize: "0.65rem" }} />
+          variant="filled"
+          sx={{ height: 20, fontSize: "0.65rem" }}
+        />
       ),
     },
     {
@@ -434,10 +551,13 @@ export default function PluginManager() {
       headerName: "License",
       width: 110,
       renderCell: (params: GridRenderCellParams<InstalledPlugin>) => (
-        <Chip label={PRICE_LABEL[params.row.priceType] ?? params.row.priceType}
-          size="small" variant="outlined"
+        <Chip
+          label={PRICE_LABEL[params.row.priceType] ?? params.row.priceType}
+          size="small"
+          variant="outlined"
           color={params.row.priceType === "free" ? "default" : "warning"}
-          sx={{ height: 20, fontSize: "0.65rem" }} />
+          sx={{ height: 20, fontSize: "0.65rem" }}
+        />
       ),
     },
     {
@@ -460,7 +580,9 @@ export default function PluginManager() {
       renderCell: (params) => (
         <Stack direction="row" alignItems="center" spacing={0.4}>
           <StarIcon sx={{ fontSize: 13, color: "warning.main" }} />
-          <Typography variant="caption" color="text.secondary">{params.value}</Typography>
+          <Typography variant="caption" color="text.secondary">
+            {params.value}
+          </Typography>
         </Stack>
       ),
     },
@@ -469,7 +591,9 @@ export default function PluginManager() {
       headerName: "Installed",
       width: 110,
       renderCell: (params) => (
-        <Typography variant="caption" color="text.secondary">{params.value}</Typography>
+        <Typography variant="caption" color="text.secondary">
+          {params.value}
+        </Typography>
       ),
     },
     {
@@ -478,13 +602,19 @@ export default function PluginManager() {
       width: 130,
       renderCell: (params: GridRenderCellParams<InstalledPlugin>) => (
         <Stack direction="row" alignItems="center" spacing={0.5}>
-          <Switch size="small" checked={params.row.enabled}
-            onChange={() => handleToggle(params.row.id)} color="success" />
+          <Switch
+            size="small"
+            checked={params.row.enabled}
+            onChange={() => handleToggle(params.row.id)}
+            color="success"
+          />
           <Stack direction="row" alignItems="center" spacing={0.4}>
-            <FiberManualRecordIcon sx={{
-              fontSize: 8,
-              color: params.row.enabled ? "success.main" : "text.disabled",
-            }} />
+            <FiberManualRecordIcon
+              sx={{
+                fontSize: 8,
+                color: params.row.enabled ? "success.main" : "text.disabled",
+              }}
+            />
             <Typography variant="caption" color="text.secondary">
               {params.row.enabled ? "Active" : "Inactive"}
             </Typography>
@@ -500,8 +630,7 @@ export default function PluginManager() {
       filterable: false,
       renderCell: (params: GridRenderCellParams<InstalledPlugin>) => (
         <Tooltip title="Uninstall">
-          <IconButton size="small" color="error"
-            onClick={() => setUninstallPlugin(params.row)}>
+          <IconButton size="small" color="error" onClick={() => setUninstallPlugin(params.row)}>
             <DeleteOutlineIcon fontSize="small" />
           </IconButton>
         </Tooltip>
@@ -529,8 +658,12 @@ export default function PluginManager() {
           </Typography>
         </Box>
         <Stack direction="row" spacing={1}>
-          <Button variant="contained" size="small" startIcon={<AddIcon />}
-            onClick={() => setAddOpen(true)}>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<AddIcon />}
+            onClick={() => setAddOpen(true)}
+          >
             Add plugin
           </Button>
           <Button variant="outlined" size="small" startIcon={<StorefrontIcon />} href="/plugins">
@@ -540,13 +673,18 @@ export default function PluginManager() {
       </Stack>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
       )}
 
-      <Box sx={(theme) => ({
-        border: `1px solid ${theme.palette.divider}`,
-        borderRadius: 2, overflow: "hidden",
-      })}>
+      <Box
+        sx={(theme) => ({
+          border: `1px solid ${theme.palette.divider}`,
+          borderRadius: 2,
+          overflow: "hidden",
+        })}
+      >
         <DataGrid
           rows={plugins}
           columns={columns}
@@ -579,11 +717,7 @@ export default function PluginManager() {
         />
       </Box>
 
-      <AddPluginDialog
-        open={addOpen}
-        onClose={() => setAddOpen(false)}
-        onAdded={handleAdded}
-      />
+      <AddPluginDialog open={addOpen} onClose={() => setAddOpen(false)} onAdded={handleAdded} />
       <UninstallDialog
         plugin={uninstallPlugin}
         onConfirm={handleUninstall}

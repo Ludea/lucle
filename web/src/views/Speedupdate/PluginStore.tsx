@@ -46,23 +46,23 @@ type PriceModel =
   | { type: "subscription"; monthly: number; yearly: number; currency: string };
 
 interface StorePlugin {
-  id:          string;
-  name:        string;
-  icon:        string;
-  author:      string;
-  version:     string;
-  category:    Exclude<Category, "all">;
-  priceType:   string;
-  price:       PriceModel;
+  id: string;
+  name: string;
+  icon: string;
+  author: string;
+  version: string;
+  category: Exclude<Category, "all">;
+  priceType: string;
+  price: PriceModel;
   description: string;
-  tags:        string[];
-  downloads:   number;
-  stars:       number;
-  featured:    boolean;
-  enabled:     boolean;
-  installed:   boolean;
-  installing:  boolean;
-  purchased:   boolean;
+  tags: string[];
+  downloads: number;
+  stars: number;
+  featured: boolean;
+  enabled: boolean;
+  installed: boolean;
+  installing: boolean;
+  purchased: boolean;
 }
 
 // ─── Proto → StorePlugin ──────────────────────────────────────────────────────
@@ -75,46 +75,50 @@ function protoToStore(p: ProtoPlugin): StorePlugin {
     p.priceType === "paid"
       ? { type: "paid", amount: 0, currency: "USD" }
       : p.priceType === "subscription"
-      ? { type: "subscription", monthly: 0, yearly: 0, currency: "USD" }
-      : { type: "free" };
+        ? { type: "subscription", monthly: 0, yearly: 0, currency: "USD" }
+        : { type: "free" };
 
   return {
-    id:          p.id,
-    name:        p.name,
-    icon:        p.icon,
-    author:      p.author,
-    version:     p.version,
-    category:    p.category as Exclude<Category, "all">,
-    priceType:   p.priceType,
+    id: p.id,
+    name: p.name,
+    icon: p.icon,
+    author: p.author,
+    version: p.version,
+    category: p.category as Exclude<Category, "all">,
+    priceType: p.priceType,
     price,
     description: p.description,
-    tags:        p.tags,
-    downloads:   p.downloads,
-    stars:       p.stars,
-    featured:    p.featured,
-    enabled:     p.enabled,
-    installed:   true,   // rows from the DB are by definition installed
-    installing:  false,
-    purchased:   p.priceType !== "free",
+    tags: p.tags,
+    downloads: p.downloads,
+    stars: p.stars,
+    featured: p.featured,
+    enabled: p.enabled,
+    installed: true, // rows from the DB are by definition installed
+    installing: false,
+    purchased: p.priceType !== "free",
   };
 }
 
 const CATEGORIES: { value: Category; label: string; icon: ReactNode }[] = [
-  { value: "all",      label: "All",      icon: <ExtensionIcon fontSize="small" /> },
-  { value: "ui",       label: "UI",       icon: <PaletteIcon fontSize="small" /> },
-  { value: "backend",  label: "Backend",  icon: <StorageIcon fontSize="small" /> },
-  { value: "auth",     label: "Auth",     icon: <SecurityIcon fontSize="small" /> },
+  { value: "all", label: "All", icon: <ExtensionIcon fontSize="small" /> },
+  { value: "ui", label: "UI", icon: <PaletteIcon fontSize="small" /> },
+  { value: "backend", label: "Backend", icon: <StorageIcon fontSize="small" /> },
+  { value: "auth", label: "Auth", icon: <SecurityIcon fontSize="small" /> },
   { value: "devtools", label: "DevTools", icon: <BuildIcon fontSize="small" /> },
-  { value: "gaming",   label: "Gaming",   icon: <SportsEsportsIcon fontSize="small" /> },
-  { value: "theme",    label: "Theme",    icon: <PaletteIcon fontSize="small" /> },
+  { value: "gaming", label: "Gaming", icon: <SportsEsportsIcon fontSize="small" /> },
+  { value: "theme", label: "Theme", icon: <PaletteIcon fontSize="small" /> },
 ];
 
 const CATEGORY_COLOR: Record<
   Exclude<Category, "all">,
   "default" | "primary" | "secondary" | "error" | "warning" | "info" | "success"
 > = {
-  ui: "info", backend: "secondary", auth: "error",
-  devtools: "warning", gaming: "success", theme: "primary",
+  ui: "info",
+  backend: "secondary",
+  auth: "error",
+  devtools: "warning",
+  gaming: "success",
+  theme: "primary",
 };
 
 function fmtDownloads(n: number) {
@@ -127,15 +131,36 @@ function canInstall(plugin: StorePlugin): boolean {
 
 function PriceBadge({ plugin }: { plugin: StorePlugin }) {
   if (plugin.price.type === "free") {
-    return <Chip label="Free" size="small" color="success" variant="outlined"
-      sx={{ height: 20, fontSize: "0.65rem", fontWeight: 600 }} />;
+    return (
+      <Chip
+        label="Free"
+        size="small"
+        color="success"
+        variant="outlined"
+        sx={{ height: 20, fontSize: "0.65rem", fontWeight: 600 }}
+      />
+    );
   }
   if (plugin.purchased) {
-    return <Chip label="Purchased" size="small" color="success" variant="filled"
-      sx={{ height: 20, fontSize: "0.65rem", fontWeight: 600 }} />;
+    return (
+      <Chip
+        label="Purchased"
+        size="small"
+        color="success"
+        variant="filled"
+        sx={{ height: 20, fontSize: "0.65rem", fontWeight: 600 }}
+      />
+    );
   }
-  return <Chip label={plugin.priceType} size="small" color="warning" variant="filled"
-    sx={{ height: 20, fontSize: "0.65rem", fontWeight: 700 }} />;
+  return (
+    <Chip
+      label={plugin.priceType}
+      size="small"
+      color="warning"
+      variant="filled"
+      sx={{ height: 20, fontSize: "0.65rem", fontWeight: 700 }}
+    />
+  );
 }
 
 function ActionButton({
@@ -149,30 +174,48 @@ function ActionButton({
 }) {
   if (plugin.installed) {
     return (
-      <Button size="small" variant="outlined" color="error"
-        startIcon={<DownloadDoneIcon />} onClick={() => onToggle(plugin.id)}
-        sx={{ minWidth: 100, fontSize: "0.72rem" }}>
+      <Button
+        size="small"
+        variant="outlined"
+        color="error"
+        startIcon={<DownloadDoneIcon />}
+        onClick={() => onToggle(plugin.id)}
+        sx={{ minWidth: 100, fontSize: "0.72rem" }}
+      >
         Uninstall
       </Button>
     );
   }
   if (plugin.installing) {
-    return <Button size="small" variant="contained" disabled
-      sx={{ minWidth: 100, fontSize: "0.72rem" }}>Installing…</Button>;
+    return (
+      <Button size="small" variant="contained" disabled sx={{ minWidth: 100, fontSize: "0.72rem" }}>
+        Installing…
+      </Button>
+    );
   }
   if (!canInstall(plugin)) {
     return (
-      <Button size="small" variant="contained" color="warning"
-        startIcon={<ShoppingCartIcon />} onClick={() => onBuy(plugin.id)}
-        sx={{ minWidth: 100, fontSize: "0.72rem" }}>
+      <Button
+        size="small"
+        variant="contained"
+        color="warning"
+        startIcon={<ShoppingCartIcon />}
+        onClick={() => onBuy(plugin.id)}
+        sx={{ minWidth: 100, fontSize: "0.72rem" }}
+      >
         {plugin.priceType}
       </Button>
     );
   }
   return (
-    <Button size="small" variant="contained" color="primary"
-      startIcon={<DownloadIcon />} onClick={() => onToggle(plugin.id)}
-      sx={{ minWidth: 100, fontSize: "0.72rem" }}>
+    <Button
+      size="small"
+      variant="contained"
+      color="primary"
+      startIcon={<DownloadIcon />}
+      onClick={() => onToggle(plugin.id)}
+      sx={{ minWidth: 100, fontSize: "0.72rem" }}
+    >
       Install
     </Button>
   );
@@ -190,45 +233,76 @@ function PluginCard({
   const locked = !canInstall(plugin) && !plugin.installed;
 
   return (
-    <Card variant="outlined" sx={(theme) => ({
-      height: "100%", display: "flex", flexDirection: "column",
-      position: "relative", transition: "border-color 0.2s, box-shadow 0.2s",
-      borderColor: plugin.installed ? "success.dark" : locked ? "warning.dark" : "divider",
-      boxShadow: plugin.installed
-        ? `0 0 0 1px ${theme.palette.success.dark}22, 0 2px 12px ${theme.palette.success.dark}18`
-        : locked ? `0 0 0 1px ${theme.palette.warning.dark}18` : undefined,
-      "&:hover": {
-        borderColor: plugin.installed ? "success.main" : locked ? "warning.main" : "primary.main",
-      },
-      "&::before": plugin.installed ? {
-        content: '""', position: "absolute", top: 0, left: 0, right: 0, height: "2px",
-        background: `linear-gradient(90deg, transparent, ${theme.palette.success.main}, transparent)`,
-        borderRadius: "4px 4px 0 0",
-      } : undefined,
-    })}>
+    <Card
+      variant="outlined"
+      sx={(theme) => ({
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        transition: "border-color 0.2s, box-shadow 0.2s",
+        borderColor: plugin.installed ? "success.dark" : locked ? "warning.dark" : "divider",
+        boxShadow: plugin.installed
+          ? `0 0 0 1px ${theme.palette.success.dark}22, 0 2px 12px ${theme.palette.success.dark}18`
+          : locked
+            ? `0 0 0 1px ${theme.palette.warning.dark}18`
+            : undefined,
+        "&:hover": {
+          borderColor: plugin.installed ? "success.main" : locked ? "warning.main" : "primary.main",
+        },
+        "&::before": plugin.installed
+          ? {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "2px",
+              background: `linear-gradient(90deg, transparent, ${theme.palette.success.main}, transparent)`,
+              borderRadius: "4px 4px 0 0",
+            }
+          : undefined,
+      })}
+    >
       {plugin.installing && (
-        <LinearProgress color="primary" sx={{ position: "absolute", top: 0, left: 0, right: 0, borderRadius: "4px 4px 0 0" }} />
+        <LinearProgress
+          color="primary"
+          sx={{ position: "absolute", top: 0, left: 0, right: 0, borderRadius: "4px 4px 0 0" }}
+        />
       )}
 
       <CardContent sx={{ flexGrow: 1, pb: 1 }}>
         <Stack direction="row" alignItems="flex-start" spacing={1.5} mb={1.5}>
           <Box sx={{ position: "relative", flexShrink: 0 }}>
-            <Avatar sx={(theme) => ({
-              width: 40, height: 40, fontSize: "1.3rem",
-              bgcolor: theme.palette.action.hover,
-              border: `1px solid ${theme.palette.divider}`,
-              filter: locked ? "grayscale(60%)" : undefined,
-              opacity: locked ? 0.8 : 1,
-            })}>
+            <Avatar
+              sx={(theme) => ({
+                width: 40,
+                height: 40,
+                fontSize: "1.3rem",
+                bgcolor: theme.palette.action.hover,
+                border: `1px solid ${theme.palette.divider}`,
+                filter: locked ? "grayscale(60%)" : undefined,
+                opacity: locked ? 0.8 : 1,
+              })}
+            >
               {plugin.icon}
             </Avatar>
             {locked && (
-              <Box sx={(theme) => ({
-                position: "absolute", bottom: -3, right: -3,
-                width: 16, height: 16, borderRadius: "50%", bgcolor: "warning.main",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                border: `1.5px solid ${theme.palette.background.paper}`,
-              })}>
+              <Box
+                sx={(theme) => ({
+                  position: "absolute",
+                  bottom: -3,
+                  right: -3,
+                  width: 16,
+                  height: 16,
+                  borderRadius: "50%",
+                  bgcolor: "warning.main",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: `1.5px solid ${theme.palette.background.paper}`,
+                })}
+              >
                 <LockIcon sx={{ fontSize: 9, color: "warning.contrastText" }} />
               </Box>
             )}
@@ -236,10 +310,17 @@ function PluginCard({
 
           <Box sx={{ minWidth: 0, flexGrow: 1 }}>
             <Stack direction="row" alignItems="center" spacing={0.75} flexWrap="wrap">
-              <Typography variant="subtitle2" fontWeight={600} noWrap>{plugin.name}</Typography>
+              <Typography variant="subtitle2" fontWeight={600} noWrap>
+                {plugin.name}
+              </Typography>
               {plugin.featured && (
-                <Chip label="Featured" size="small" color="primary" variant="outlined"
-                  sx={{ height: 16, fontSize: "0.6rem", px: 0.5 }} />
+                <Chip
+                  label="Featured"
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                  sx={{ height: 16, fontSize: "0.6rem", px: 0.5 }}
+                />
               )}
             </Stack>
             <Typography variant="caption" color="text.secondary">
@@ -247,21 +328,44 @@ function PluginCard({
             </Typography>
           </Box>
 
-          <Chip label={plugin.category} size="small" color={CATEGORY_COLOR[plugin.category]}
-            variant="filled" sx={{ height: 20, fontSize: "0.65rem", flexShrink: 0 }} />
+          <Chip
+            label={plugin.category}
+            size="small"
+            color={CATEGORY_COLOR[plugin.category]}
+            variant="filled"
+            sx={{ height: 20, fontSize: "0.65rem", flexShrink: 0 }}
+          />
         </Stack>
 
-        <Typography variant="body2" color="text.secondary" sx={{
-          display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical",
-          overflow: "hidden", lineHeight: 1.55, mb: 1.5,
-        }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            display: "-webkit-box",
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            lineHeight: 1.55,
+            mb: 1.5,
+          }}
+        >
           {plugin.description}
         </Typography>
 
         <Stack direction="row" flexWrap="wrap" gap={0.5}>
           {plugin.tags.map((tag) => (
-            <Chip key={tag} label={`#${tag}`} size="small" variant="outlined"
-              sx={{ height: 18, fontSize: "0.6rem", color: "text.disabled", borderColor: "divider" }} />
+            <Chip
+              key={tag}
+              label={`#${tag}`}
+              size="small"
+              variant="outlined"
+              sx={{
+                height: 18,
+                fontSize: "0.6rem",
+                color: "text.disabled",
+                borderColor: "divider",
+              }}
+            />
           ))}
         </Stack>
       </CardContent>
@@ -281,7 +385,9 @@ function PluginCard({
           <Tooltip title="Stars">
             <Stack direction="row" alignItems="center" spacing={0.4}>
               <StarIcon sx={{ fontSize: 13, color: "warning.main" }} />
-              <Typography variant="caption" color="text.secondary">{plugin.stars}</Typography>
+              <Typography variant="caption" color="text.secondary">
+                {plugin.stars}
+              </Typography>
             </Stack>
           </Tooltip>
           <PriceBadge plugin={plugin} />
@@ -330,11 +436,12 @@ export default function PluginStore() {
     const q = search.toLowerCase();
     return plugins.filter((p) => {
       const matchCat = category === "all" || p.category === category;
-      const matchSearch = !q
-        || p.name.toLowerCase().includes(q)
-        || p.description.toLowerCase().includes(q)
-        || p.tags.some((t) => t.includes(q))
-        || p.author.toLowerCase().includes(q);
+      const matchSearch =
+        !q ||
+        p.name.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.tags.some((t) => t.includes(q)) ||
+        p.author.toLowerCase().includes(q);
       return matchCat && matchSearch;
     });
   }, [plugins, search, category]);
@@ -348,38 +455,34 @@ export default function PluginStore() {
     if (plugin.installed) {
       removePlugin(id)
         .then(() =>
-          setPlugins((prev) =>
-            prev.map((p) => p.id !== id ? p : { ...p, installed: false })
-          )
+          setPlugins((prev) => prev.map((p) => (p.id !== id ? p : { ...p, installed: false }))),
         )
         .catch((e: Error) => setError(e.message));
     } else {
-      setPlugins((prev) =>
-        prev.map((p) => p.id !== id ? p : { ...p, installing: true })
-      );
+      setPlugins((prev) => prev.map((p) => (p.id !== id ? p : { ...p, installing: true })));
       installPlugin({
-        id:          plugin.id,
-        name:        plugin.name,
-        icon:        plugin.icon,
-        author:      plugin.author,
-        version:     plugin.version,
-        category:    plugin.category,
-        priceType:   plugin.priceType,
+        id: plugin.id,
+        name: plugin.name,
+        icon: plugin.icon,
+        author: plugin.author,
+        version: plugin.version,
+        category: plugin.category,
+        priceType: plugin.priceType,
         description: plugin.description,
-        tags:        plugin.tags,
-        downloads:   plugin.downloads,
-        stars:       plugin.stars,
-        featured:    plugin.featured,
+        tags: plugin.tags,
+        downloads: plugin.downloads,
+        stars: plugin.stars,
+        featured: plugin.featured,
       })
         .then((proto) =>
           setPlugins((prev) =>
-            prev.map((p) => p.id !== id ? p : { ...protoToStore(proto), installed: true, installing: false })
-          )
+            prev.map((p) =>
+              p.id !== id ? p : { ...protoToStore(proto), installed: true, installing: false },
+            ),
+          ),
         )
         .catch((e: Error) => {
-          setPlugins((prev) =>
-            prev.map((p) => p.id !== id ? p : { ...p, installing: false })
-          );
+          setPlugins((prev) => prev.map((p) => (p.id !== id ? p : { ...p, installing: false })));
           setError(e.message);
         });
     }
@@ -391,9 +494,7 @@ export default function PluginStore() {
   }
 
   function handleCheckoutSuccess(id: string) {
-    setPlugins((prev) =>
-      prev.map((p) => p.id !== id ? p : { ...p, purchased: true })
-    );
+    setPlugins((prev) => prev.map((p) => (p.id !== id ? p : { ...p, purchased: true })));
     setCheckoutPlugin(null);
   }
 
@@ -422,7 +523,9 @@ export default function PluginStore() {
           slotProps={{
             input: {
               startAdornment: (
-                <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
               ),
             },
           }}
@@ -431,32 +534,50 @@ export default function PluginStore() {
       </Stack>
 
       <ToggleButtonGroup
-        value={category} exclusive
+        value={category}
+        exclusive
         onChange={(_, v) => v && setCategory(v)}
-        size="small" sx={{ mb: 3, flexWrap: "wrap", gap: 0.5 }}
+        size="small"
+        sx={{ mb: 3, flexWrap: "wrap", gap: 0.5 }}
       >
         {CATEGORIES.map((c) => (
-          <ToggleButton key={c.value} value={c.value} sx={{
-            gap: 0.5, px: 1.5, fontSize: "0.75rem", textTransform: "none",
-            border: "1px solid", borderColor: "divider", borderRadius: "6px !important",
-            "&.Mui-selected": {
-              bgcolor: "primary.main", color: "primary.contrastText", borderColor: "primary.main",
-              "&:hover": { bgcolor: "primary.dark" },
-            },
-          }}>
-            {c.icon}{c.label}
+          <ToggleButton
+            key={c.value}
+            value={c.value}
+            sx={{
+              gap: 0.5,
+              px: 1.5,
+              fontSize: "0.75rem",
+              textTransform: "none",
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: "6px !important",
+              "&.Mui-selected": {
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+                borderColor: "primary.main",
+                "&:hover": { bgcolor: "primary.dark" },
+              },
+            }}
+          >
+            {c.icon}
+            {c.label}
           </ToggleButton>
         ))}
       </ToggleButtonGroup>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
       )}
 
       {loading ? (
         <Grid container spacing={2}>
           {Array.from({ length: 6 }).map((_, i) => (
-            <Grid key={i} size={{ xs: 12, sm: 6, lg: 4 }}><CardSkeleton /></Grid>
+            <Grid key={i} size={{ xs: 12, sm: 6, lg: 4 }}>
+              <CardSkeleton />
+            </Grid>
           ))}
         </Grid>
       ) : filtered.length === 0 ? (
