@@ -8,8 +8,9 @@ use email_address_parser::EmailAddress;
 use luclerpc::{
     lucle_server::{Lucle, LucleServer},
     Credentials, Database, DatabaseType, Empty, InstallPluginRequest, InstalledPlugin,
-    ListPluginsResponse, ListUpdateServer, Platforms, RemovePluginRequest, ResetPassword,
-    TogglePluginRequest, UpdateServer, User, UserCreation, Username,
+    ListPluginsResponse, ListUpdateServer, Platforms,
+    RemovePluginRequest, ResetPassword, TogglePluginRequest, UpdateServer, User, UserCreation,
+    Username,
 };
 use octocrab::Octocrab;
 use semver::Version;

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, ChangeEvent } from "react";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
@@ -13,6 +13,12 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Alert from "@mui/material/Alert";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import TextField from "@mui/material/TextField";
+
 import CircularProgress from "@mui/material/CircularProgress";
 import {
   DataGrid,
@@ -24,16 +30,18 @@ import {
   GridToolbarColumnsButton,
 } from "@mui/x-data-grid";
 
+import { listPlugins, togglePlugin, removePlugin, installPlugin } from "utils/rpc";
+import type { InstalledPlugin as ProtoPlugin } from "gen/luclerpc_pb";
+
 //Icons
+import AddIcon from "@mui/icons-material/Add";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import StarIcon from "@mui/icons-material/Star";
 import DownloadIcon from "@mui/icons-material/Download";
-
-import { listPlugins, togglePlugin, removePlugin } from "utils/rpc";
-import type { InstalledPlugin as ProtoPlugin } from "gen/luclerpc_pb";
 
 type Category = "ui" | "backend" | "auth" | "devtools" | "gaming" | "theme";
 
@@ -84,6 +92,186 @@ const CATEGORY_COLOR: Record<
 const PRICE_LABEL: Record<string, string> = {
   free: "Free", paid: "Paid", subscription: "Subscription",
 };
+
+const CATEGORIES: Category[] = ["ui", "backend", "auth", "devtools", "gaming", "theme"];
+const PRICE_TYPES = ["free", "paid", "subscription"];
+
+interface PluginForm {
+  id:          string;
+  name:        string;
+  icon:        string;
+  author:      string;
+  version:     string;
+  category:    Category;
+  priceType:   string;
+  description: string;
+  tags:        string; // comma-separated input
+  downloads:   number;
+  stars:       number;
+  featured:    boolean;
+}
+
+const EMPTY_FORM: PluginForm = {
+  id: "", name: "", icon: "", author: "", version: "",
+  category: "backend", priceType: "free", description: "",
+  tags: "", downloads: 0, stars: 0, featured: false,
+};
+
+function AddPluginDialog({
+  open,
+  onClose,
+  onAdded,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onAdded: (plugin: ProtoPlugin) => void;
+}) {
+  const [form, setForm] = useState<PluginForm>(EMPTY_FORM);
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function reset() {
+    setForm(EMPTY_FORM);
+    setFile(null);
+    setError(null);
+  }
+
+  function handleClose() {
+    reset();
+    onClose();
+  }
+
+  function set<K extends keyof PluginForm>(field: K, value: PluginForm[K]) {
+    setForm((f) => ({ ...f, [field]: value }));
+  }
+
+  function handleFile(e: ChangeEvent<HTMLInputElement>) {
+    const picked = e.target.files?.[0] ?? null;
+    if (picked && !picked.name.endsWith(".wasm")) {
+      setError("Only .wasm files are accepted");
+      return;
+    }
+    setFile(picked);
+    setError(null);
+    // Pre-fill id from filename if empty
+    if (picked && !form.id) {
+      set("id", picked.name.replace(/\.wasm$/, ""));
+    }
+  }
+
+  function validate(): string | null {
+    if (!file)            return "Please select a .wasm file";
+    if (!form.id.trim()) return "ID is required";
+    if (!form.name.trim()) return "Name is required";
+    if (!form.version.trim()) return "Version is required";
+    if (!form.author.trim()) return "Author is required";
+    return null;
+  }
+
+  function handleSubmit() {
+    const err = validate();
+    if (err) { setError(err); return; }
+
+    setLoading(true);
+    setError(null);
+
+    installPlugin({
+      id:          form.id.trim(),
+      name:        form.name.trim(),
+      icon:        form.icon.trim() || "🔌",
+      author:      form.author.trim(),
+      version:     form.version.trim(),
+      category:    form.category,
+      priceType:   form.priceType,
+      description: form.description.trim(),
+      tags:        form.tags.split(",").map((t) => t.trim()).filter(Boolean),
+      downloads:   form.downloads,
+      stars:       form.stars,
+      featured:    form.featured,
+    })
+      .then((plugin) => {
+        onAdded(plugin);
+        handleClose();
+      })
+      .catch((e: Error) => setError(e.message))
+      .finally(() => setLoading(false));
+  }
+
+  return (
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth
+      PaperProps={{ sx: { borderRadius: 3 } }}>
+      <DialogTitle>
+        <Stack direction="row" alignItems="center" spacing={1.5}>
+          <UploadFileIcon color="primary" />
+          <Typography variant="subtitle1" fontWeight={700}>Add plugin</Typography>
+        </Stack>
+      </DialogTitle>
+      <DialogContent>
+        <Stack spacing={2} sx={{ pt: 1 }}>
+          {error && <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>}
+          {/* WASM file */}
+          <Button component="label" variant="outlined" startIcon={<UploadFileIcon />}
+            color={file ? "success" : "primary"} fullWidth>
+            {file ? file.name : "Select .wasm file"}
+            <input type="file" accept=".wasm" hidden onChange={handleFile} />
+          </Button>
+          <Stack direction="row" spacing={2}>
+            <TextField label="ID" size="small" fullWidth required
+              value={form.id} onChange={(e) => set("id", e.target.value)}
+              placeholder="my-plugin" />
+            <TextField label="Icon (emoji)" size="small" sx={{ width: 120 }}
+              value={form.icon} onChange={(e) => set("icon", e.target.value)}
+              placeholder="🔌" />
+          </Stack>
+          <Stack direction="row" spacing={2}>
+            <TextField label="Name" size="small" fullWidth required
+              value={form.name} onChange={(e) => set("name", e.target.value)} />
+            <TextField label="Version" size="small" sx={{ width: 140 }} required
+              value={form.version} onChange={(e) => set("version", e.target.value)}
+              placeholder="0.1.0" />
+          </Stack>
+          <TextField label="Author" size="small" fullWidth required
+            value={form.author} onChange={(e) => set("author", e.target.value)} />
+          <TextField label="Description" size="small" fullWidth multiline rows={2}
+            value={form.description} onChange={(e) => set("description", e.target.value)} />
+          <Stack direction="row" spacing={2}>
+            <FormControl size="small" fullWidth>
+              <InputLabel>Category</InputLabel>
+              <Select label="Category" value={form.category}
+                onChange={(e) => set("category", e.target.value as Category)}>
+                {CATEGORIES.map((c) => (
+                  <MenuItem key={c} value={c}>{c}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl size="small" fullWidth>
+              <InputLabel>License</InputLabel>
+              <Select label="License" value={form.priceType}
+                onChange={(e) => set("priceType", e.target.value)}>
+                {PRICE_TYPES.map((p) => (
+                  <MenuItem key={p} value={p}>{p}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Stack>
+          <TextField label="Tags (comma-separated)" size="small" fullWidth
+            value={form.tags} onChange={(e) => set("tags", e.target.value)}
+            placeholder="wasm, grpc, auth" />
+        </Stack>
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2.5 }}>
+        <Button onClick={handleClose} variant="outlined" size="small" disabled={loading}>
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} variant="contained" size="small" disabled={loading}
+          startIcon={loading ? <CircularProgress size={14} color="inherit" /> : <AddIcon />}>
+          {loading ? "Adding…" : "Add plugin"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
 
 function UninstallDialog({
   plugin,
@@ -159,6 +347,11 @@ export default function PluginManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [uninstallPlugin, setUninstallPlugin] = useState<InstalledPlugin | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+
+  const handleAdded = useCallback((proto: ProtoPlugin) => {
+    setPlugins((prev) => [protoToPlugin(proto), ...prev]);
+  }, []);
 
   useEffect(() => {
     listPlugins()
@@ -335,9 +528,15 @@ export default function PluginManager() {
             {plugins.length} installed · {activeCount} active
           </Typography>
         </Box>
-        <Button variant="outlined" size="small" startIcon={<StorefrontIcon />} href="/plugins">
-          Browse store
-        </Button>
+        <Stack direction="row" spacing={1}>
+          <Button variant="contained" size="small" startIcon={<AddIcon />}
+            onClick={() => setAddOpen(true)}>
+            Add plugin
+          </Button>
+          <Button variant="outlined" size="small" startIcon={<StorefrontIcon />} href="/plugins">
+            Browse store
+          </Button>
+        </Stack>
       </Stack>
 
       {error && (
@@ -380,6 +579,11 @@ export default function PluginManager() {
         />
       </Box>
 
+      <AddPluginDialog
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onAdded={handleAdded}
+      />
       <UninstallDialog
         plugin={uninstallPlugin}
         onConfirm={handleUninstall}
