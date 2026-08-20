@@ -23,26 +23,6 @@ pub async fn list_plugins() -> Result<Vec<Plugin>, Error> {
     }
 }
 
-pub async fn get_plugin(plugin_id: &str) -> Result<Plugin, Error> {
-    if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
-            plugins::table
-                .find(plugin_id)
-                .select(Plugin::as_select())
-                .first(&mut conn)
-                .await
-                .map_err(|e| match e {
-                    diesel::result::Error::NotFound => {
-                        Error::RepositoryNotFound(plugin_id.to_string())
-                    }
-                    other => Error::Query(other),
-                })
-        })
-    } else {
-        Err(Error::GetPool)
-    }
-}
-
 pub async fn install_plugin(new_plugin: NewPlugin) -> Result<Plugin, Error> {
     if let Some(pool) = get_pool() {
         with_conn!(pool, |conn| {
