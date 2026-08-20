@@ -1,4 +1,4 @@
-import { useContext, useRef, useState, type ReactNode } from "react";
+import { useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { styled } from "@mui/material/styles";
 
 import Box from "@mui/material/Box";
@@ -21,7 +21,19 @@ import ImageIcon from "@mui/icons-material/Image";
 import SendIcon from "@mui/icons-material/Send";
 import BuildIcon from "@mui/icons-material/Build";
 
+// RPC Connect
+import { Platforms, OptionsSchema, Versions } from "gen/speedupdate_pb";
+import { create } from "@bufbuild/protobuf";
+
+// api
+import { status } from "utils/speedupdaterpc";
+
+//components
+import PackagesTable from "views/Speedupdate/PackagesTable";
+import BinariesTable from "views/Speedupdate/BinariesTable";
+import VersionsTable from "views/Speedupdate/VersionsTable";
 import SpeedupdateOptions from "components/Speedupdate/Options";
+
 import { build_custom_launcher, send_event_all } from "utils/sparusrpc";
 import { SparusRPC } from "context/Sparus";
 import { SpeedupdateRPC } from "context/Speedupdate";
@@ -126,17 +138,23 @@ function Launcher() {
   const [launcherName, setLauncherName] = useState("");
   const [configName, setConfigName] = useState("Sparus.json");
   const [repositoryName, setRepositoryName] = useState("");
+  const [statusAlreadyStarted, setStatusAlreadyStarted] = useState(false);
   const [updateURL, setUpdateURL] = useState("repo.marlin-atlas.ts.net");
   const [cmsURL, setCmsURL] = useState("");
+  const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
+    JSON.parse(localStorage.getItem("platformsEnum") ?? "[]"),
+  );
+  const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(new Map());
   const [disableLauncherCreation, setDisableLauncherCreation] = useState(false);
+  const [listVersions, setListVersions] = useState<Versions[]>([]);
+  const [listPackages, setListPackages] = useState<{ name: string; published: boolean }[]>([]);
   const [availableBinaries, setAvailableBinaries] = useState<string[]>([]);
-
   const [selectedEvent, setSelectedEvent] = useState<EventType>(0);
   const [broadcastError, setBroadcastError] = useState<string | null>(null);
-
   const [pluginName, setPluginName] = useState("");
   const [bgFile, setBgFile] = useState<File | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const SparusClient = useContext(SparusRPC);
   const speedupdateClient = useContext(SpeedupdateRPC);
@@ -453,6 +471,18 @@ function Launcher() {
             </Stack>
             <Divider sx={{ my: 3 }} />
             <SpeedupdateOptions binaryType="launcher" />
+            <VersionsTable
+            client={speedupdateClient}
+            currentRepo={currentRepo}
+            listVersions={listVersions}
+            onError={setError}
+          />
+          <PackagesTable
+            client={speedupdateClient}
+            currentRepo={currentRepo}
+            listPackages={listPackages}
+            onError={setError}
+          />
             <BinariesTable
               client={speedupdateClient}
               currentRepo={currentRepo}
