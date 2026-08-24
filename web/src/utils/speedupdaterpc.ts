@@ -22,7 +22,11 @@ export const isInit = async (client: any, path: string, platforms: any, type: st
 };
 
 export const setCurrentVersion = async (
-  client: any, path: string, version: string, platforms: any, type: string,
+  client: any,
+  path: string,
+  version: string,
+  platforms: any,
+  type: string,
 ) => {
   const headers = setHeaders();
   for (const folder of platforms) {
@@ -31,7 +35,12 @@ export const setCurrentVersion = async (
 };
 
 export const registerVersion = async (
-  client: any, path: string, version: string, description: string, platforms: any, type: string,
+  client: any,
+  path: string,
+  version: string,
+  description: string,
+  platforms: any,
+  type: string,
 ) => {
   const headers = setHeaders();
   for (const folder of platforms) {
@@ -43,38 +52,41 @@ export const registerVersion = async (
 };
 
 export const unregisterVersion = async (
-  client: any, path: string, version: string, platforms: any, type: string,
+  client: any,
+  path: string,
+  version: string,
+  platforms: any,
+  type: string,
 ) => {
   const headers = setHeaders();
   for (const folder of platforms) {
-    client.unregisterVersion(
-      { path: path.concat("/", type, "/", folder), version },
-      { headers },
-    );
+    client.unregisterVersion({ path: path.concat("/", type, "/", folder), version }, { headers });
   }
 };
 
 export const registerPackage = async (
-  client: any, path: string, name: string, platforms: any, type: string,
+  client: any,
+  path: string,
+  name: string,
+  platforms: any,
+  type: string,
 ) => {
   const headers = setHeaders();
   for (const folder of platforms) {
-    client.registerPackage(
-      { path: path.concat("/", type, "/", folder), name },
-      { headers },
-    );
+    client.registerPackage({ path: path.concat("/", type, "/", folder), name }, { headers });
   }
 };
 
 export const unregisterPackage = async (
-  client: any, path: string, name: string, platforms: any, type: string,
+  client: any,
+  path: string,
+  name: string,
+  platforms: any,
+  type: string,
 ) => {
   const headers = setHeaders();
   for (const folder of platforms) {
-    client.unregisterPackage(
-      { path: path.concat("/", type, "/", folder), name },
-      { headers },
-    );
+    client.unregisterPackage({ path: path.concat("/", type, "/", folder), name }, { headers });
   }
 };
 
