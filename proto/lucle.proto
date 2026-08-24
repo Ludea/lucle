@@ -3,20 +3,20 @@ syntax = "proto3";
 package luclerpc;
 
 service Lucle {
-  rpc create_db (Database) returns (Empty);
-  rpc login (Credentials) returns (User);
-  rpc create_user (UserCreation) returns (Empty);
-  rpc register_update_server (UpdateServer) returns (Empty); 
-  rpc join_update_server (UpdateServer) returns (Empty);
-  rpc list_update_server_by_user (Username) returns (ListUpdateServer);
-  rpc delete_repo (UpdateServer) returns (Empty);
-  rpc is_database_created (Empty) returns (Empty);
-  rpc is_default_user_created (Empty) returns (Empty);
-  rpc forgot_password (ResetPassword) returns (Empty);
-  rpc ListPlugins   (Empty)   returns (ListPluginsResponse);
-  rpc InstallPlugin (InstallPluginRequest) returns (InstalledPlugin);
-  rpc TogglePlugin  (TogglePluginRequest)  returns (InstalledPlugin);
-  rpc RemovePlugin  (RemovePluginRequest)  returns (Empty);
+  rpc create_db                    (Database)            returns (Empty);
+  rpc login                        (Credentials)         returns (User);
+  rpc create_user                  (UserCreation)        returns (Empty);
+  rpc register_update_server       (UpdateServer)        returns (Empty);
+  rpc join_update_server           (UpdateServer)        returns (Empty);
+  rpc list_update_server_by_user   (Username)            returns (ListUpdateServer);
+  rpc delete_repo                  (UpdateServer)        returns (Empty);
+  rpc is_database_created          (Empty)               returns (Empty);
+  rpc is_default_user_created      (Empty)               returns (Empty);
+  rpc forgot_password              (ResetPassword)       returns (Empty);
+  rpc list_plugins                 (Empty)               returns (ListPluginsResponse);
+  rpc install_plugin               (InstallPluginRequest) returns (InstalledPlugin);
+  rpc toggle_plugin                (TogglePluginRequest) returns (InstalledPlugin);
+  rpc remove_plugin                (RemovePluginRequest) returns (Empty);
 }
 
 enum DatabaseType {
@@ -43,7 +43,7 @@ message Database_Connection {
 message Database {
   DatabaseType db_type = 1;
   optional string db_name = 2;
-  optional Database_Connection db_connection = 4; 
+  optional Database_Connection db_connection = 4;
 }
 
 message UpdateServer {
@@ -58,7 +58,7 @@ message Username {
 }
 
 message ListUpdateServer {
-  repeated string repositories =1;
+  repeated string repositories = 1;
 }
 
 message Credentials {
@@ -85,23 +85,25 @@ message ResetPassword {
 message Empty {}
 
 message InstalledPlugin {
-  string   id           = 1;
-  string   name         = 2;
-  string   icon         = 3;
-  string   author       = 4;
-  string   version      = 5;
-  string   category     = 6;
-  string   price_type   = 7;
-  string   description  = 8;
-  repeated string tags  = 9;
-  int32    downloads    = 10;
-  int32    stars        = 11;
-  bool     featured     = 12;
-  bool     enabled      = 13;
-  int64    installed_at = 14;
+  string          id           = 1;
+  string          name         = 2;
+  string          icon         = 3;
+  string          author       = 4;
+  string          version      = 5;
+  string          category     = 6;
+  string          price_type   = 7;
+  string          description  = 8;
+  repeated string tags         = 9;
+  int32           downloads    = 10;
+  int32           stars        = 11;
+  bool            featured     = 12;
+  bool            enabled      = 13;
+  int64           installed_at = 14;
 }
 
-message ListPluginsResponse { repeated InstalledPlugin plugins = 1; }
+message ListPluginsResponse {
+  repeated InstalledPlugin plugins = 1;
+}
 
 message InstallPluginRequest {
   string          id          = 1;
@@ -118,5 +120,10 @@ message InstallPluginRequest {
   bool            featured    = 12;
 }
 
-message TogglePluginRequest { string id = 1; }
-message RemovePluginRequest { string id = 1; }
+message TogglePluginRequest {
+  string id = 1;
+}
+
+message RemovePluginRequest {
+  string id = 1;
+}

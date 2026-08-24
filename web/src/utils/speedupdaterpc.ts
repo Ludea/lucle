@@ -6,149 +6,92 @@ const setHeaders = (): Headers => {
 };
 
 export const init = async (client: any, path: string, platforms: any) => {
-  let headers = setHeaders();
+  const headers = setHeaders();
   const subPath = Object.keys(platforms).filter((key) => platforms[key] === true);
   for (const folder of subPath) {
-    client.init(
-      {
-        path: path.concat("/game/", folder),
-      },
-      { headers },
-    );
-    client.init(
-      {
-        path: path.concat("/launcher/", folder),
-      },
-      { headers },
-    );
+    client.init({ path: path.concat("/game/", folder) }, { headers });
+    client.init({ path: path.concat("/launcher/", folder) }, { headers });
   }
 };
 
 export const isInit = async (client: any, path: string, platforms: any, type: string) => {
-  let headers = setHeaders();
+  const headers = setHeaders();
   for (const folder of platforms) {
-    client.is_init(
-      {
-        path: path.concat("/", type, "/", folder),
-      },
-      { headers },
-    );
+    client.isInit({ path: path.concat("/", type, "/", folder) }, { headers });
   }
 };
 
 export const setCurrentVersion = async (
-  client: any,
-  path: string,
-  version: string,
-  platforms: any,
-  type: string,
+  client: any, path: string, version: string, platforms: any, type: string,
 ) => {
-  let headers = setHeaders();
+  const headers = setHeaders();
   for (const folder of platforms) {
-    client.set_current_version(
-      {
-        path: path.concat("/", type, "/", folder),
-        version,
-      },
-      { headers },
-    );
+    client.setCurrentVersion({ path: path.concat("/", type, "/", folder), version }, { headers });
   }
 };
 
 export const registerVersion = async (
-  client: any,
-  path: string,
-  version: string,
-  description: string,
-  platforms: any,
-  type: string,
+  client: any, path: string, version: string, description: string, platforms: any, type: string,
 ) => {
-  let headers = setHeaders();
+  const headers = setHeaders();
   for (const folder of platforms) {
-    client.register_version(
-      {
-        path: path.concat("/", type, "/", folder),
-        version,
-        description,
-      },
+    client.registerVersion(
+      { path: path.concat("/", type, "/", folder), version, description },
       { headers },
     );
   }
 };
 
 export const unregisterVersion = async (
-  client: any,
-  path: string,
-  version: string,
-  platforms: any,
-  type: string,
+  client: any, path: string, version: string, platforms: any, type: string,
 ) => {
-  let headers = setHeaders();
+  const headers = setHeaders();
   for (const folder of platforms) {
-    client.unregister_version(
-      {
-        path: path.concat("/", type, "/", folder),
-        version,
-      },
+    client.unregisterVersion(
+      { path: path.concat("/", type, "/", folder), version },
       { headers },
     );
   }
 };
 
 export const registerPackage = async (
-  client: any,
-  path: string,
-  name: string,
-  platforms: any,
-  type: string,
+  client: any, path: string, name: string, platforms: any, type: string,
 ) => {
-  let headers = setHeaders();
+  const headers = setHeaders();
   for (const folder of platforms) {
-    client.register_package(
-      {
-        path: path.concat("/", type, "/", folder),
-        name,
-      },
+    client.registerPackage(
+      { path: path.concat("/", type, "/", folder), name },
       { headers },
     );
   }
 };
 
 export const unregisterPackage = async (
-  client: any,
-  path: string,
-  name: string,
-  platforms: any,
-  type: string,
+  client: any, path: string, name: string, platforms: any, type: string,
 ) => {
-  let headers = setHeaders();
+  const headers = setHeaders();
   for (const folder of platforms) {
-    client.unregister_package(
-      {
-        path: path.concat("/", type, "/", folder),
-        name,
-      },
+    client.unregisterPackage(
+      { path: path.concat("/", type, "/", folder), name },
       { headers },
     );
   }
 };
 
 export const repoToDelete = async (client: any, path: string) => {
-  let headers = setHeaders();
-  client.delete_repo({ path: path }, { headers });
+  const headers = setHeaders();
+  client.deleteRepo({ path }, { headers });
 };
 
 export const fileToDelete = async (client: any, file: string, platforms: any, type: string) => {
-  let headers = setHeaders();
+  const headers = setHeaders();
   for (const folder of platforms) {
-    client.delete_file({ file: folder.concat("/", type, "/", file) }, { headers });
+    client.deleteFile({ file: folder.concat("/", type, "/", file) }, { headers });
   }
 };
 
 export const compareStatus = (oldStatus: any, newStatus: any) => {
   if (oldStatus.currentVersion !== newStatus.currentVersion) return false;
-  if (oldStatus.versions.revision !== newStatus.versions.revision) return false;
-  if (oldStatus.versions.description !== newStatus.versions.description) return false;
   if (oldStatus.packages.length !== newStatus.packages.length) return false;
   if (oldStatus.availablePackages.length !== newStatus.availablePackages.length) return false;
   if (oldStatus.availableBinaries.length !== newStatus.availableBinaries.length) return false;
@@ -158,42 +101,39 @@ export const compareStatus = (oldStatus: any, newStatus: any) => {
 export async function status(client: any, path: string, platforms: any, type: string, opt: any) {
   return new ReadableStream({
     async start(controller) {
-      let headers = setHeaders();
+      const headers = setHeaders();
       const call = client.status(
         {
           path: path.concat("/", type),
-          platforms: platforms,
+          platforms,
           options: opt,
         },
         { headers },
       );
       for await (const repo of call) {
-        const compare_repo = repo.status.every((state: any) =>
-          compareStatus(repo.status[0], state),
-        );
-        if (compare_repo) {
-          const firstRepo = repo.status[0];
-          const fullListPackages: { name: string; published: boolean }[] = [];
-          firstRepo.packages.map((row: any) => {
-            fullListPackages.push({ name: row, published: true });
-          });
-          firstRepo.availablePackages.map((row: any) => {
-            fullListPackages.push({ name: row, published: false });
-          });
+        const statuses = repo.status;
+        if (!statuses?.length) continue;
 
-          let repo_state = {
+        const compare_repo = statuses.every((state: any) => compareStatus(statuses[0], state));
+        if (compare_repo) {
+          const firstRepo = statuses[0];
+          const fullListPackages: { name: string; published: boolean }[] = [
+            ...firstRepo.packages.map((name: string) => ({ name, published: true })),
+            ...firstRepo.availablePackages.map((name: string) => ({ name, published: false })),
+          ];
+
+          controller.enqueue({
             versions: firstRepo.versions,
             packages: fullListPackages,
             binaries: firstRepo.availableBinaries,
             size: firstRepo.size,
             currentVersion: firstRepo.currentVersion,
-          };
-
-          controller.enqueue(repo_state);
+          });
         } else {
           console.log("Repository are not sync between platforms");
         }
       }
+      controller.close();
     },
   });
 }
