@@ -23,6 +23,8 @@
     "@mui/x-data-grid": "^9.10.0",
     "@mui/x-date-pickers": "^9.10.0",
     "@octokit/rest": "^22.0.0",
+    "@stripe/react-stripe-js": "^6.8.2",
+    "@stripe/stripe-js": "^9.14.0",
     "dayjs": "^1.11.21",
     "minio": "^8.0.0",
     "mui2-file-dropzone": "7.1.1",
