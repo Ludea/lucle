@@ -1,33 +1,44 @@
 import { useContext } from "react";
 import { SpeedupdateRPC } from "context/Speedupdate";
 import SpeedupdateOptions from "components/Speedupdate/Options";
-import VersionsTable from "views/Speedupdate/VersionsTable";
-import PackagesTable from "views/Speedupdate/PackagesTable";
-import BinariesTable from "views/Speedupdate/BinariesTable";
-import { Versions } from "gen/speedupdate_pb";
+import VersionsTable from "components/Speedupdate/VersionsTable";
+import PackagesTable from "components/Speedupdate/PackagesTable";
+import BinariesTable from "components/Speedupdate/BinariesTable";
+import { useSpeedupdateStatus } from "utils/useSpeedupdateStatus";
 
 interface Props {
-  binaryType:        "game" | "launcher";
-  currentRepo:       Map<string, string[]>;
-  listVersions:      Versions[];
-  listPackages:      { name: string; published: boolean }[];
-  availableBinaries: string[];
-  onError:           (err: string | null) => void;
+  binaryType: "game" | "launcher";
+  onError:    (err: string | null) => void;
 }
 
-export default function SpeedupdateTables({
-  binaryType,
-  currentRepo,
-  listVersions,
-  listPackages,
-  availableBinaries,
-  onError,
-}: Props) {
+export default function SpeedupdateTables({ binaryType, onError }: Props) {
   const client = useContext(SpeedupdateRPC);
+
+  const {
+    currentRepo,
+    setCurrentRepo,
+    setPlatformsEnum,
+    listVersions,
+    listPackages,
+    availableBinaries,
+    currentVer,
+    size,
+    error,
+    setError,
+  } = useSpeedupdateStatus(binaryType);
 
   return (
     <>
-      <SpeedupdateOptions binaryType={binaryType} />
+      <SpeedupdateOptions
+        binaryType={binaryType}
+        currentRepo={currentRepo}
+        setCurrentRepo={setCurrentRepo}
+        setPlatformsEnum={setPlatformsEnum}
+        currentVer={currentVer}
+        size={size}
+        error={error}
+        setError={setError}
+      />
       <VersionsTable
         client={client}
         currentRepo={currentRepo}

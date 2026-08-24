@@ -6,9 +6,14 @@ import { SpeedupdateRPC } from "context/Speedupdate";
 
 interface SpeedupdateStatus {
   currentRepo:       Map<string, string[]>;
+  setCurrentRepo:    (repo: Map<string, string[]>) => void;
+  platformsEnum:     Platforms[];
+  setPlatformsEnum:  (platforms: Platforms[]) => void;
   listVersions:      Versions[];
   listPackages:      { name: string; published: boolean }[];
   availableBinaries: string[];
+  currentVer:        string;
+  size:              number | undefined;
   error:             string | null;
   setError:          (err: string | null) => void;
 }
@@ -17,12 +22,14 @@ export function useSpeedupdateStatus(binaryType: "game" | "launcher"): Speedupda
   const speedupdateClient = useContext(SpeedupdateRPC);
 
   const [currentRepo, setCurrentRepo] = useState<Map<string, string[]>>(new Map());
-  const [platformsEnum] = useState<Platforms[]>(
+  const [platformsEnum, setPlatformsEnum] = useState<Platforms[]>(
     JSON.parse(localStorage.getItem("platformsEnum") ?? "[]"),
   );
   const [listVersions, setListVersions] = useState<Versions[]>([]);
   const [listPackages, setListPackages] = useState<{ name: string; published: boolean }[]>([]);
   const [availableBinaries, setAvailableBinaries] = useState<string[]>([]);
+  const [currentVer, setCurrentVer] = useState<string>("");
+  const [size, setSize] = useState<number | undefined>(undefined);
   const [statusAlreadyStarted, setStatusAlreadyStarted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +57,8 @@ export function useSpeedupdateStatus(binaryType: "game" | "launcher"): Speedupda
           setListVersions(result.value.versions);
           setListPackages(result.value.packages);
           setAvailableBinaries(result.value.binaries);
+          setCurrentVer(result.value.currentVersion);
+          setSize(result.value.size);
         }
       }
       readStream().catch((err: unknown) => setError(JSON.stringify(err)));
@@ -67,7 +76,20 @@ export function useSpeedupdateStatus(binaryType: "game" | "launcher"): Speedupda
     };
 
     return () => eventSource.close();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentRepo]);
 
-  return { currentRepo, listVersions, listPackages, availableBinaries, error, setError };
+  return {
+    currentRepo,
+    setCurrentRepo,
+    platformsEnum,
+    setPlatformsEnum,
+    listVersions,
+    listPackages,
+    availableBinaries,
+    currentVer,
+    size,
+    error,
+    setError,
+  };
 }
