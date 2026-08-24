@@ -8,7 +8,7 @@ import { useSpeedupdateStatus } from "utils/useSpeedupdateStatus";
 
 interface Props {
   binaryType: "game" | "launcher";
-  onError:    (err: string | null) => void;
+  onError: (err: string | null) => void;
 }
 
 export default function SpeedupdateTables({ binaryType, onError }: Props) {

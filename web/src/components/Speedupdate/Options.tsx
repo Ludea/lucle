@@ -15,10 +15,10 @@ import TagIcon from "@mui/icons-material/Tag";
 import { Platforms } from "gen/speedupdate_pb";
 
 function formatSize(total: number): string {
-  if (total < 1024)       return `${total} B`;
-  if (total < 1024 ** 2)  return `${(total / 1024).toFixed(1)} kB`;
-  if (total < 1024 ** 3)  return `${(total / 1024 ** 2).toFixed(1)} MB`;
-  if (total < 1024 ** 4)  return `${(total / 1024 ** 3).toFixed(1)} GB`;
+  if (total < 1024) return `${total} B`;
+  if (total < 1024 ** 2) return `${(total / 1024).toFixed(1)} kB`;
+  if (total < 1024 ** 3) return `${(total / 1024 ** 2).toFixed(1)} MB`;
+  if (total < 1024 ** 4) return `${(total / 1024 ** 3).toFixed(1)} GB`;
   return `${(total / 1024 ** 4).toFixed(1)} TB`;
 }
 
@@ -49,14 +49,14 @@ const StatRow = styled(Stack)(({ theme }) => ({
 }));
 
 interface SpeedupdateOptionsProps {
-  binaryType:       "game" | "launcher";
-  currentRepo:      Map<string, string[]>;
-  setCurrentRepo:   (repo: Map<string, string[]>) => void;
+  binaryType: "game" | "launcher";
+  currentRepo: Map<string, string[]>;
+  setCurrentRepo: (repo: Map<string, string[]>) => void;
   setPlatformsEnum: (platforms: Platforms[]) => void;
-  currentVer:       string;
-  size:             number | undefined;
-  error:            string | null;
-  setError:         (err: string | null) => void;
+  currentVer: string;
+  size: number | undefined;
+  error: string | null;
+  setError: (err: string | null) => void;
 }
 
 function SpeedupdateOptions({
@@ -78,8 +78,11 @@ function SpeedupdateOptions({
               <Typography variant="caption" color="text.secondary" display="block">
                 Current version
               </Typography>
-              <Typography variant="body2" fontWeight={600}
-                sx={{ fontFamily: "JetBrains Mono, monospace" }}>
+              <Typography
+                variant="body2"
+                fontWeight={600}
+                sx={{ fontFamily: "JetBrains Mono, monospace" }}
+              >
                 {currentVer || "—"}
               </Typography>
             </Box>
@@ -92,8 +95,11 @@ function SpeedupdateOptions({
               <Typography variant="caption" color="text.secondary" display="block">
                 Packages size
               </Typography>
-              <Typography variant="body2" fontWeight={600}
-                sx={{ fontFamily: "JetBrains Mono, monospace" }}>
+              <Typography
+                variant="body2"
+                fontWeight={600}
+                sx={{ fontFamily: "JetBrains Mono, monospace" }}
+              >
                 {size !== undefined ? formatSize(size) : "—"}
               </Typography>
             </Box>
@@ -102,24 +108,46 @@ function SpeedupdateOptions({
       </Grid>
 
       <Divider sx={{ mb: 2.5 }}>
-        <Chip label="Paths" size="small" variant="outlined"
-          sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.65rem" }} />
+        <Chip
+          label="Paths"
+          size="small"
+          variant="outlined"
+          sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.65rem" }}
+        />
       </Divider>
 
       <Grid container spacing={1.5}>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField id="build-path" label="Build path" size="small" fullWidth
+          <TextField
+            id="build-path"
+            label="Build path"
+            size="small"
+            fullWidth
             slotProps={{
-              input: { startAdornment: <FolderOpenIcon sx={{ fontSize: 16, mr: 0.5, color: "text.disabled" }} /> },
+              input: {
+                startAdornment: (
+                  <FolderOpenIcon sx={{ fontSize: 16, mr: 0.5, color: "text.disabled" }} />
+                ),
+              },
               htmlInput: { style: { fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" } },
-            }} />
+            }}
+          />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField id="upload-path" label="Upload path" size="small" fullWidth
+          <TextField
+            id="upload-path"
+            label="Upload path"
+            size="small"
+            fullWidth
             slotProps={{
-              input: { startAdornment: <CloudUploadIcon sx={{ fontSize: 16, mr: 0.5, color: "text.disabled" }} /> },
+              input: {
+                startAdornment: (
+                  <CloudUploadIcon sx={{ fontSize: 16, mr: 0.5, color: "text.disabled" }} />
+                ),
+              },
               htmlInput: { style: { fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" } },
-            }} />
+            }}
+          />
         </Grid>
       </Grid>
 

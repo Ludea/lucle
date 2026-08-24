@@ -70,7 +70,6 @@ function Game() {
   return (
     <Box sx={{ width: "100%" }}>
       <SpeedupdateTables binaryType="game" onError={() => {}} />
-
       Upload Binaries
       <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
         <InputLabel id="hosts">Hosts</InputLabel>
@@ -86,9 +85,7 @@ function Game() {
           <MenuItem value={3}>Linux</MenuItem>
         </Select>
       </FormControl>
-
       <DropzoneArea key={key} onChange={(newFiles) => setFiles(newFiles)} />
-
       <Grid container sx={{ alignItems: "center" }}>
         <Grid size={9}>
           {uploadProgression !== null && (
@@ -97,7 +94,9 @@ function Game() {
         </Grid>
         <Grid size={1}>
           {uploadProgression === null && (
-            <Button color="primary" onClick={uploadFile}>Submit</Button>
+            <Button color="primary" onClick={uploadFile}>
+              Submit
+            </Button>
           )}
         </Grid>
       </Grid>

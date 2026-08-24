@@ -72,10 +72,10 @@ const monoInput = { style: { fontFamily: "JetBrains Mono, monospace" } };
 // ─── FilePicker ───────────────────────────────────────────────────────────────
 
 interface FilePickerProps {
-  label:     string;
-  icon:      ReactNode;
-  accept?:   string;
-  onFile:    (file: File | null) => void;
+  label: string;
+  icon: ReactNode;
+  accept?: string;
+  onFile: (file: File | null) => void;
   fileName?: string;
 }
 
@@ -101,8 +101,12 @@ function FilePicker({ label, icon, accept, onFile, fileName }: FilePickerProps) 
         }}
       >
         {displayName ?? label}
-        <HiddenInput ref={inputRef} type="file" accept={accept}
-          onChange={(e) => onFile(e.target.files?.[0] ?? null)} />
+        <HiddenInput
+          ref={inputRef}
+          type="file"
+          accept={accept}
+          onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+        />
       </Button>
     </Tooltip>
   );
@@ -112,12 +116,15 @@ function FilePicker({ label, icon, accept, onFile, fileName }: FilePickerProps) 
 
 const UrlAdornment = (
   <InputAdornment position="start">
-    <Typography component="span" sx={{
-      fontFamily: "JetBrains Mono, monospace",
-      fontSize: "0.72rem",
-      color: "primary.main",
-      userSelect: "none",
-    }}>
+    <Typography
+      component="span"
+      sx={{
+        fontFamily: "JetBrains Mono, monospace",
+        fontSize: "0.72rem",
+        color: "primary.main",
+        userSelect: "none",
+      }}
+    >
       https://
     </Typography>
   </InputAdornment>
@@ -130,11 +137,11 @@ function BuildLauncherDialog({
   onClose,
   SparusClient,
 }: {
-  open:         boolean;
-  onClose:      () => void;
+  open: boolean;
+  onClose: () => void;
   SparusClient: unknown;
 }) {
-  const theme    = useTheme();
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [launcherName, setLauncherName] = useState("");
@@ -177,7 +184,10 @@ function BuildLauncherDialog({
 
   function handleBuild() {
     const err = validate();
-    if (err) { setError(err); return; }
+    if (err) {
+      setError(err);
+      return;
+    }
 
     setError(null);
     setBuilding(true);
@@ -206,17 +216,15 @@ function BuildLauncherDialog({
       fullScreen={isMobile}
       PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3 } }}
     >
-      {building && (
-        <LinearProgress
-          sx={{ position: "absolute", top: 0, left: 0, right: 0 }}
-        />
-      )}
+      {building && <LinearProgress sx={{ position: "absolute", top: 0, left: 0, right: 0 }} />}
 
       <DialogTitle>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Stack direction="row" alignItems="center" spacing={1.5}>
             <BuildIcon color="primary" fontSize="small" />
-            <Typography variant="subtitle1" fontWeight={700}>Build launcher</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>
+              Build launcher
+            </Typography>
           </Stack>
           {isMobile && (
             <IconButton size="small" onClick={handleClose} disabled={building}>
@@ -234,51 +242,104 @@ function BuildLauncherDialog({
             </Alert>
           )}
           {error && (
-            <Alert severity="error" sx={{ mb: 1 }} onClose={() => setError(null)}>{error}</Alert>
+            <Alert severity="error" sx={{ mb: 1 }} onClose={() => setError(null)}>
+              {error}
+            </Alert>
           )}
 
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField fullWidth required size="small" label="Launcher name"
-                value={launcherName} onChange={(e) => setLauncherName(e.target.value)}
-                disabled={building} slotProps={{ htmlInput: monoInput }} />
+              <TextField
+                fullWidth
+                required
+                size="small"
+                label="Launcher name"
+                value={launcherName}
+                onChange={(e) => setLauncherName(e.target.value)}
+                disabled={building}
+                slotProps={{ htmlInput: monoInput }}
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField fullWidth required size="small" label="Repository name"
-                value={repositoryName} onChange={(e) => setRepositoryName(e.target.value)}
-                disabled={building} slotProps={{ htmlInput: monoInput }} />
+              <TextField
+                fullWidth
+                required
+                size="small"
+                label="Repository name"
+                value={repositoryName}
+                onChange={(e) => setRepositoryName(e.target.value)}
+                disabled={building}
+                slotProps={{ htmlInput: monoInput }}
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField fullWidth required size="small" label="Game name"
-                value={gameName} onChange={(e) => setGameName(e.target.value)}
-                disabled={building} slotProps={{ htmlInput: monoInput }} />
+              <TextField
+                fullWidth
+                required
+                size="small"
+                label="Game name"
+                value={gameName}
+                onChange={(e) => setGameName(e.target.value)}
+                disabled={building}
+                slotProps={{ htmlInput: monoInput }}
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField fullWidth required size="small" label="Config file"
-                value={configName} onChange={(e) => setConfigName(e.target.value)}
-                disabled={building} slotProps={{ htmlInput: monoInput }} />
+              <TextField
+                fullWidth
+                required
+                size="small"
+                label="Config file"
+                value={configName}
+                onChange={(e) => setConfigName(e.target.value)}
+                disabled={building}
+                slotProps={{ htmlInput: monoInput }}
+              />
             </Grid>
             <Grid size={12}>
-              <TextField fullWidth required size="small" label="Update server"
-                value={updateURL} onChange={(e) => setUpdateURL(e.target.value)}
+              <TextField
+                fullWidth
+                required
+                size="small"
+                label="Update server"
+                value={updateURL}
+                onChange={(e) => setUpdateURL(e.target.value)}
                 disabled={building}
-                slotProps={{ input: { startAdornment: UrlAdornment, ...monoInput } }} />
+                slotProps={{ input: { startAdornment: UrlAdornment, ...monoInput } }}
+              />
             </Grid>
             <Grid size={12}>
-              <TextField fullWidth size="small" label="CMS URL"
-                value={cmsURL} onChange={(e) => setCmsURL(e.target.value)}
+              <TextField
+                fullWidth
+                size="small"
+                label="CMS URL"
+                value={cmsURL}
+                onChange={(e) => setCmsURL(e.target.value)}
                 disabled={building}
-                slotProps={{ input: { startAdornment: UrlAdornment, ...monoInput } }} />
+                slotProps={{ input: { startAdornment: UrlAdornment, ...monoInput } }}
+              />
             </Grid>
             <Grid size={12}>
               <Divider sx={{ mb: 1.5 }}>
-                <Typography variant="caption" color="text.secondary">Assets</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Assets
+                </Typography>
               </Divider>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
-                <FilePicker label="Background" icon={<ImageIcon />} accept="image/*"
-                  onFile={setBgFile} fileName={bgFile?.name} />
-                <FilePicker label="Logo" icon={<CloudUploadIcon />} accept="image/*"
-                  onFile={setLogoFile} fileName={logoFile?.name} />
+                <FilePicker
+                  label="Background"
+                  icon={<ImageIcon />}
+                  accept="image/*"
+                  onFile={setBgFile}
+                  fileName={bgFile?.name}
+                />
+                <FilePicker
+                  label="Logo"
+                  icon={<CloudUploadIcon />}
+                  accept="image/*"
+                  onFile={setLogoFile}
+                  fileName={logoFile?.name}
+                />
               </Stack>
             </Grid>
           </Grid>
@@ -329,11 +390,11 @@ function WorkflowDialog({
   onClose,
   SparusClient,
 }: {
-  open:         boolean;
-  onClose:      () => void;
+  open: boolean;
+  onClose: () => void;
   SparusClient: unknown;
 }) {
-  const theme    = useTheme();
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [selectedEvent, setSelectedEvent] = useState<EventType>(0);
@@ -353,9 +414,7 @@ function WorkflowDialog({
     setSent(false);
     send_event_all(SparusClient, selectedEvent, pluginName)
       .then(() => setSent(true))
-      .catch((err: unknown) =>
-        setError(err instanceof Error ? err.message : "Broadcast failed")
-      );
+      .catch((err: unknown) => setError(err instanceof Error ? err.message : "Broadcast failed"));
   }
 
   return (
@@ -371,7 +430,9 @@ function WorkflowDialog({
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Stack direction="row" alignItems="center" spacing={1.5}>
             <RocketLaunchIcon color="primary" fontSize="small" />
-            <Typography variant="subtitle1" fontWeight={700}>Deploy event</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>
+              Deploy event
+            </Typography>
           </Stack>
           {isMobile && (
             <IconButton size="small" onClick={handleClose}>
@@ -389,7 +450,9 @@ function WorkflowDialog({
             </Alert>
           )}
           {error && (
-            <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+            <Alert severity="error" onClose={() => setError(null)}>
+              {error}
+            </Alert>
           )}
 
           <FormControl fullWidth size="small">
@@ -413,8 +476,12 @@ function WorkflowDialog({
                 const event = Number(value) as EventType;
                 return (
                   <MenuItem key={event} value={event}>
-                    <Chip label={label} color={eventColors[event]} size="small"
-                      sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", mr: 1 }} />
+                    <Chip
+                      label={label}
+                      color={eventColors[event]}
+                      size="small"
+                      sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", mr: 1 }}
+                    />
                     {label}
                   </MenuItem>
                 );
@@ -423,10 +490,15 @@ function WorkflowDialog({
           </FormControl>
 
           <TextField
-            fullWidth size="small" label="Plugin name"
-            value={pluginName} onChange={(e) => setPluginName(e.target.value)}
+            fullWidth
+            size="small"
+            label="Plugin name"
+            value={pluginName}
+            onChange={(e) => setPluginName(e.target.value)}
             placeholder="my-plugin"
-            onKeyDown={(e) => { if (e.key === "Enter") handleBroadcast(); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleBroadcast();
+            }}
             slotProps={{ htmlInput: { style: { fontFamily: "JetBrains Mono, monospace" } } }}
           />
         </Stack>
@@ -434,7 +506,9 @@ function WorkflowDialog({
 
       <DialogActions sx={{ px: 3, pb: isMobile ? 3 : 2.5 }}>
         {!isMobile && (
-          <Button onClick={handleClose} variant="outlined" size="small">Cancel</Button>
+          <Button onClick={handleClose} variant="outlined" size="small">
+            Cancel
+          </Button>
         )}
         <Button
           onClick={handleBroadcast}

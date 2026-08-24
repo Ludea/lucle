@@ -53,7 +53,12 @@ function BinaryCard({
       <Checkbox size="small" color="primary" checked={selected} sx={{ p: 0 }} />
       <Typography
         variant="body2"
-        sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem", flexGrow: 1, wordBreak: "break-all" }}
+        sx={{
+          fontFamily: "JetBrains Mono, monospace",
+          fontSize: "0.8rem",
+          flexGrow: 1,
+          wordBreak: "break-all",
+        }}
       >
         {binary}
       </Typography>
@@ -96,8 +101,8 @@ function BinariesTable({
     const platforms = currentRepo.get(repo_name);
     selected.forEach((bin) =>
       fileToDelete(client, bin, platforms, "game").catch((err: unknown) =>
-        onError(ConnectError.from(err).message)
-      )
+        onError(ConnectError.from(err).message),
+      ),
     );
     setSelected(new Set());
   };
@@ -114,21 +119,31 @@ function BinariesTable({
         sx={(theme) => ({
           px: 2,
           py: 1.25,
-          bgcolor: numSelected > 0
-            ? `rgba(${theme.vars?.palette.primary.mainChannel ?? "99,102,241"} / 0.08)`
-            : "transparent",
+          bgcolor:
+            numSelected > 0
+              ? `rgba(${theme.vars?.palette.primary.mainChannel ?? "99,102,241"} / 0.08)`
+              : "transparent",
           transition: "background-color 0.2s",
         })}
       >
         {numSelected > 0 ? (
-          <Chip label={`${numSelected} selected`} size="small" color="primary" variant="filled"
-            sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem" }} />
+          <Chip
+            label={`${numSelected} selected`}
+            size="small"
+            color="primary"
+            variant="filled"
+            sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem" }}
+          />
         ) : (
           <Stack direction="row" alignItems="center" spacing={1}>
             <FolderIcon sx={{ fontSize: 16, color: "primary.main" }} />
             <SectionLabel>Binaries</SectionLabel>
-            <Chip label={availableBinaries.length} size="small" variant="outlined"
-              sx={{ height: 18, fontSize: "0.65rem" }} />
+            <Chip
+              label={availableBinaries.length}
+              size="small"
+              variant="outlined"
+              sx={{ height: 18, fontSize: "0.65rem" }}
+            />
           </Stack>
         )}
         {numSelected > 0 && (
@@ -149,8 +164,12 @@ function BinariesTable({
         </Stack>
       ) : isMobile ? (
         visible.map((binary) => (
-          <BinaryCard key={binary} binary={binary} selected={selected.has(binary)}
-            onToggle={() => toggle(binary)} />
+          <BinaryCard
+            key={binary}
+            binary={binary}
+            selected={selected.has(binary)}
+            onToggle={() => toggle(binary)}
+          />
         ))
       ) : (
         <TableContainer>
@@ -163,8 +182,13 @@ function BinariesTable({
             </TableHead>
             <TableBody>
               {visible.map((binary) => (
-                <TableRow key={binary} hover selected={selected.has(binary)}
-                  onClick={() => toggle(binary)} sx={{ cursor: "pointer" }}>
+                <TableRow
+                  key={binary}
+                  hover
+                  selected={selected.has(binary)}
+                  onClick={() => toggle(binary)}
+                  sx={{ cursor: "pointer" }}
+                >
                   <TableCell padding="checkbox">
                     <Checkbox size="small" color="primary" checked={selected.has(binary)} />
                   </TableCell>
@@ -186,7 +210,10 @@ function BinariesTable({
         page={page}
         labelRowsPerPage={isMobile ? "" : "Per page"}
         onPageChange={(_, p) => setPage(p)}
-        onRowsPerPageChange={(e) => { setPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+        onRowsPerPageChange={(e) => {
+          setPerPage(parseInt(e.target.value, 10));
+          setPage(0);
+        }}
       />
     </SectionCard>
   );

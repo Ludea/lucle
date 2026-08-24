@@ -5,17 +5,17 @@ import { status } from "utils/speedupdaterpc";
 import { SpeedupdateRPC } from "context/Speedupdate";
 
 interface SpeedupdateStatus {
-  currentRepo:       Map<string, string[]>;
-  setCurrentRepo:    (repo: Map<string, string[]>) => void;
-  platformsEnum:     Platforms[];
-  setPlatformsEnum:  (platforms: Platforms[]) => void;
-  listVersions:      Versions[];
-  listPackages:      { name: string; published: boolean }[];
+  currentRepo: Map<string, string[]>;
+  setCurrentRepo: (repo: Map<string, string[]>) => void;
+  platformsEnum: Platforms[];
+  setPlatformsEnum: (platforms: Platforms[]) => void;
+  listVersions: Versions[];
+  listPackages: { name: string; published: boolean }[];
   availableBinaries: string[];
-  currentVer:        string;
-  size:              number | undefined;
-  error:             string | null;
-  setError:          (err: string | null) => void;
+  currentVer: string;
+  size: number | undefined;
+  error: string | null;
+  setError: (err: string | null) => void;
 }
 
 export function useSpeedupdateStatus(binaryType: "game" | "launcher"): SpeedupdateStatus {
@@ -76,7 +76,7 @@ export function useSpeedupdateStatus(binaryType: "game" | "launcher"): Speedupda
     };
 
     return () => eventSource.close();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentRepo]);
 
   return {

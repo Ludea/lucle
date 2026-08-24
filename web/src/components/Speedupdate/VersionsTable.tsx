@@ -42,8 +42,11 @@ function VersionCard({
     <Box
       onClick={onToggle}
       sx={(theme) => ({
-        px: 2, py: 1.25,
-        display: "flex", alignItems: "center", gap: 1.5,
+        px: 2,
+        py: 1.25,
+        display: "flex",
+        alignItems: "center",
+        gap: 1.5,
         cursor: "pointer",
         bgcolor: selected
           ? `rgba(${theme.vars?.palette.primary.mainChannel ?? "99,102,241"} / 0.06)`
@@ -120,7 +123,7 @@ function VersionsTable({
     selected.forEach((revision) =>
       unregisterVersion(client, repoName(), revision, platforms(), "game")
         .then(() => clearSelection())
-        .catch((err: unknown) => onError(ConnectError.from(err).message))
+        .catch((err: unknown) => onError(ConnectError.from(err).message)),
     );
   };
 
@@ -128,8 +131,14 @@ function VersionsTable({
     if (!newVersion.trim()) return;
     onError(null);
     const [repo_name] = currentRepo.keys();
-    registerVersion(client, repo_name, newVersion.trim(), newDescription.trim(), platforms(), "game")
-      .catch((err: unknown) => onError(ConnectError.from(err).message));
+    registerVersion(
+      client,
+      repo_name,
+      newVersion.trim(),
+      newDescription.trim(),
+      platforms(),
+      "game",
+    ).catch((err: unknown) => onError(ConnectError.from(err).message));
     setNewVersion("");
     setNewDescription("");
   };
@@ -138,24 +147,37 @@ function VersionsTable({
     <SectionCard>
       {/* Header */}
       <Stack
-        direction="row" alignItems="center" justifyContent="space-between"
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
         sx={(theme) => ({
-          px: 2, py: 1.25,
-          bgcolor: numSelected > 0
-            ? `rgba(${theme.vars?.palette.primary.mainChannel ?? "99,102,241"} / 0.08)`
-            : "transparent",
+          px: 2,
+          py: 1.25,
+          bgcolor:
+            numSelected > 0
+              ? `rgba(${theme.vars?.palette.primary.mainChannel ?? "99,102,241"} / 0.08)`
+              : "transparent",
           transition: "background-color 0.2s",
         })}
       >
         {numSelected > 0 ? (
-          <Chip label={`${numSelected} selected`} size="small" color="primary" variant="filled"
-            sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem" }} />
+          <Chip
+            label={`${numSelected} selected`}
+            size="small"
+            color="primary"
+            variant="filled"
+            sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem" }}
+          />
         ) : (
           <Stack direction="row" alignItems="center" spacing={1}>
             <HistoryIcon sx={{ fontSize: 16, color: "primary.main" }} />
             <SectionLabel>Versions</SectionLabel>
-            <Chip label={listVersions.length} size="small" variant="outlined"
-              sx={{ height: 18, fontSize: "0.65rem" }} />
+            <Chip
+              label={listVersions.length}
+              size="small"
+              variant="outlined"
+              sx={{ height: 18, fontSize: "0.65rem" }}
+            />
           </Stack>
         )}
         {numSelected > 0 && (
@@ -186,8 +208,12 @@ function VersionsTable({
         </Stack>
       ) : isMobile ? (
         visible.map((ver) => (
-          <VersionCard key={ver.revision} ver={ver} selected={selected.has(ver.revision)}
-            onToggle={() => toggle(ver.revision)} />
+          <VersionCard
+            key={ver.revision}
+            ver={ver}
+            selected={selected.has(ver.revision)}
+            onToggle={() => toggle(ver.revision)}
+          />
         ))
       ) : (
         <TableContainer>
@@ -201,14 +227,28 @@ function VersionsTable({
             </TableHead>
             <TableBody>
               {visible.map((ver) => (
-                <TableRow key={ver.revision} hover selected={selected.has(ver.revision)}
-                  onClick={() => toggle(ver.revision)} sx={{ cursor: "pointer" }}>
+                <TableRow
+                  key={ver.revision}
+                  hover
+                  selected={selected.has(ver.revision)}
+                  onClick={() => toggle(ver.revision)}
+                  sx={{ cursor: "pointer" }}
+                >
                   <TableCell padding="checkbox">
                     <Checkbox size="small" color="primary" checked={selected.has(ver.revision)} />
                   </TableCell>
                   <MonoCell>
-                    <Chip label={ver.revision} size="small" variant="outlined" color="primary"
-                      sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", height: 20 }} />
+                    <Chip
+                      label={ver.revision}
+                      size="small"
+                      variant="outlined"
+                      color="primary"
+                      sx={{
+                        fontFamily: "JetBrains Mono, monospace",
+                        fontSize: "0.7rem",
+                        height: 20,
+                      }}
+                    />
                   </MonoCell>
                   <TableCell>
                     <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.8rem" }}>
@@ -231,16 +271,22 @@ function VersionsTable({
         spacing={1}
         sx={(theme) => ({ px: 2, py: 1.5, bgcolor: theme.palette.action.hover })}
       >
-        <TagIcon sx={{ fontSize: 16, color: "text.disabled", display: { xs: "none", sm: "block" } }} />
+        <TagIcon
+          sx={{ fontSize: 16, color: "text.disabled", display: { xs: "none", sm: "block" } }}
+        />
         <TextField
           size="small"
           placeholder="1.0.0"
           label="Version"
           value={newVersion}
           onChange={(e) => setNewVersion(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") handleAdd(); }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleAdd();
+          }}
           sx={{ width: { xs: "100%", sm: 140 } }}
-          slotProps={{ htmlInput: { style: { fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" } } }}
+          slotProps={{
+            htmlInput: { style: { fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" } },
+          }}
         />
         <TextField
           size="small"
@@ -248,13 +294,20 @@ function VersionsTable({
           label="Description"
           value={newDescription}
           onChange={(e) => setNewDescription(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") handleAdd(); }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleAdd();
+          }}
           sx={{ flexGrow: 1, width: { xs: "100%", sm: "auto" } }}
           slotProps={{ htmlInput: { style: { fontSize: "0.8rem" } } }}
         />
         <Tooltip title="Add version">
           <span>
-            <IconButton size="small" color="primary" onClick={handleAdd} disabled={!newVersion.trim()}>
+            <IconButton
+              size="small"
+              color="primary"
+              onClick={handleAdd}
+              disabled={!newVersion.trim()}
+            >
               <AddIcon fontSize="small" />
             </IconButton>
           </span>
@@ -271,7 +324,10 @@ function VersionsTable({
         page={page}
         labelRowsPerPage={isMobile ? "" : "Per page"}
         onPageChange={(_, p) => setPage(p)}
-        onRowsPerPageChange={(e) => { setPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+        onRowsPerPageChange={(e) => {
+          setPerPage(parseInt(e.target.value, 10));
+          setPage(0);
+        }}
       />
     </SectionCard>
   );

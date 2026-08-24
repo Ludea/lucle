@@ -53,8 +53,11 @@ function PackageCard({
     <Box
       onClick={onToggle}
       sx={(theme) => ({
-        px: 2, py: 1.25,
-        display: "flex", alignItems: "center", gap: 1.5,
+        px: 2,
+        py: 1.25,
+        display: "flex",
+        alignItems: "center",
+        gap: 1.5,
         cursor: "pointer",
         bgcolor: selected
           ? `rgba(${theme.vars?.palette.primary.mainChannel ?? "99,102,241"} / 0.06)`
@@ -65,8 +68,14 @@ function PackageCard({
     >
       <Checkbox size="small" color="primary" checked={selected} sx={{ p: 0 }} />
       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-        <Typography variant="body2"
-          sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem", wordBreak: "break-all" }}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontFamily: "JetBrains Mono, monospace",
+            fontSize: "0.8rem",
+            wordBreak: "break-all",
+          }}
+        >
           {pack.name}
         </Typography>
       </Box>
@@ -119,8 +128,9 @@ function PackagesTable({
   const registerPackages = () => {
     onError(null);
     selected.forEach((pack) =>
-      registerPackage(client, repoName(), pack, platforms(), "game")
-        .catch((err: unknown) => onError(ConnectError.from(err).message))
+      registerPackage(client, repoName(), pack, platforms(), "game").catch((err: unknown) =>
+        onError(ConnectError.from(err).message),
+      ),
     );
     clearSelection();
   };
@@ -128,8 +138,9 @@ function PackagesTable({
   const unregisterPackages = () => {
     onError(null);
     selected.forEach((pack) =>
-      unregisterPackage(client, repoName(), pack, platforms(), "game")
-        .catch((err: unknown) => onError(ConnectError.from(err).message))
+      unregisterPackage(client, repoName(), pack, platforms(), "game").catch((err: unknown) =>
+        onError(ConnectError.from(err).message),
+      ),
     );
     clearSelection();
   };
@@ -138,11 +149,13 @@ function PackagesTable({
     onError(null);
     selectedEntries.forEach((pack) => {
       if (pack.published) {
-        unregisterPackage(client, repoName(), pack.name, platforms(), "game")
-          .catch((err: unknown) => onError(ConnectError.from(err).message));
+        unregisterPackage(client, repoName(), pack.name, platforms(), "game").catch(
+          (err: unknown) => onError(ConnectError.from(err).message),
+        );
       }
-      fileToDelete(client, pack.name, platforms(), "game")
-        .catch((err: unknown) => onError(ConnectError.from(err).message));
+      fileToDelete(client, pack.name, platforms(), "game").catch((err: unknown) =>
+        onError(ConnectError.from(err).message),
+      );
     });
     clearSelection();
   };
@@ -153,24 +166,37 @@ function PackagesTable({
     <SectionCard>
       {/* Header */}
       <Stack
-        direction="row" alignItems="center" justifyContent="space-between"
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
         sx={(theme) => ({
-          px: 2, py: 1.25,
-          bgcolor: numSelected > 0
-            ? `rgba(${theme.vars?.palette.primary.mainChannel ?? "99,102,241"} / 0.08)`
-            : "transparent",
+          px: 2,
+          py: 1.25,
+          bgcolor:
+            numSelected > 0
+              ? `rgba(${theme.vars?.palette.primary.mainChannel ?? "99,102,241"} / 0.08)`
+              : "transparent",
           transition: "background-color 0.2s",
         })}
       >
         {numSelected > 0 ? (
-          <Chip label={`${numSelected} selected`} size="small" color="primary" variant="filled"
-            sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem" }} />
+          <Chip
+            label={`${numSelected} selected`}
+            size="small"
+            color="primary"
+            variant="filled"
+            sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem" }}
+          />
         ) : (
           <Stack direction="row" alignItems="center" spacing={1}>
             <InventoryIcon sx={{ fontSize: 16, color: "primary.main" }} />
             <SectionLabel>Packages</SectionLabel>
-            <Chip label={listPackages.length} size="small" variant="outlined"
-              sx={{ height: 18, fontSize: "0.65rem" }} />
+            <Chip
+              label={listPackages.length}
+              size="small"
+              variant="outlined"
+              sx={{ height: 18, fontSize: "0.65rem" }}
+            />
           </Stack>
         )}
         {numSelected > 0 && (
@@ -207,8 +233,12 @@ function PackagesTable({
         </Stack>
       ) : isMobile ? (
         visible.map((pack) => (
-          <PackageCard key={pack.name} pack={pack} selected={selected.has(pack.name)}
-            onToggle={() => toggle(pack.name)} />
+          <PackageCard
+            key={pack.name}
+            pack={pack}
+            selected={selected.has(pack.name)}
+            onToggle={() => toggle(pack.name)}
+          />
         ))
       ) : (
         <TableContainer>
@@ -222,13 +252,20 @@ function PackagesTable({
             </TableHead>
             <TableBody>
               {visible.map((pack) => (
-                <TableRow key={pack.name} hover selected={selected.has(pack.name)}
-                  onClick={() => toggle(pack.name)} sx={{ cursor: "pointer" }}>
+                <TableRow
+                  key={pack.name}
+                  hover
+                  selected={selected.has(pack.name)}
+                  onClick={() => toggle(pack.name)}
+                  sx={{ cursor: "pointer" }}
+                >
                   <TableCell padding="checkbox">
                     <Checkbox size="small" color="primary" checked={selected.has(pack.name)} />
                   </TableCell>
                   <MonoCell>{pack.name}</MonoCell>
-                  <TableCell><PublishedChip published={pack.published} /></TableCell>
+                  <TableCell>
+                    <PublishedChip published={pack.published} />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -246,7 +283,10 @@ function PackagesTable({
         page={page}
         labelRowsPerPage={isMobile ? "" : "Per page"}
         onPageChange={(_, p) => setPage(p)}
-        onRowsPerPageChange={(e) => { setPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+        onRowsPerPageChange={(e) => {
+          setPerPage(parseInt(e.target.value, 10));
+          setPage(0);
+        }}
       />
     </SectionCard>
   );

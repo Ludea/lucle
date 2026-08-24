@@ -15,17 +15,17 @@ import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 import HelpRoundedIcon from "@mui/icons-material/HelpRounded";
 
 const mainListItems = [
-  { text: "Repositories",   icon: <HomeRoundedIcon />,   path: "/"               },
-  { text: "Game",           icon: <SportsEsportsIcon />, path: "/game"           },
-  { text: "Launcher",       icon: <RocketLaunchIcon />,  path: "/launcher"       },
-  { text: "Plugin Store",   icon: <ExtensionIcon />,     path: "/plugins"        },
-  { text: "Plugin Manager", icon: <TuneIcon />,          path: "/admin/plugins"  },
+  { text: "Repositories", icon: <HomeRoundedIcon />, path: "/" },
+  { text: "Game", icon: <SportsEsportsIcon />, path: "/game" },
+  { text: "Launcher", icon: <RocketLaunchIcon />, path: "/launcher" },
+  { text: "Plugin Store", icon: <ExtensionIcon />, path: "/plugins" },
+  { text: "Plugin Manager", icon: <TuneIcon />, path: "/admin/plugins" },
 ];
 
 const secondaryListItems = [
   { text: "Settings", icon: <SettingsRoundedIcon />, path: "/settings" },
-  { text: "About",    icon: <InfoRoundedIcon />,     path: "/about"    },
-  { text: "Feedback", icon: <HelpRoundedIcon />,     path: "/feedback" },
+  { text: "About", icon: <InfoRoundedIcon />, path: "/about" },
+  { text: "Feedback", icon: <HelpRoundedIcon />, path: "/feedback" },
 ];
 
 export default function MenuContent() {
@@ -40,10 +40,7 @@ export default function MenuContent() {
       <List dense>
         {mainListItems.map((item) => (
           <ListItem key={item.path} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              selected={isSelected(item.path)}
-              onClick={() => navigate(item.path)}
-            >
+            <ListItemButton selected={isSelected(item.path)} onClick={() => navigate(item.path)}>
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
@@ -53,10 +50,7 @@ export default function MenuContent() {
       <List dense>
         {secondaryListItems.map((item) => (
           <ListItem key={item.path} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              selected={isSelected(item.path)}
-              onClick={() => navigate(item.path)}
-            >
+            <ListItemButton selected={isSelected(item.path)} onClick={() => navigate(item.path)}>
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
