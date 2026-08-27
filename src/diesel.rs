@@ -1,7 +1,6 @@
 use super::query_helper;
 use crate::errors::Error;
 use crate::models::{NewRepository, NewUser, Permission, Repository, User, UsersRepositories};
-use crate::plugin_db::get_plugin_version;
 use crate::rpc::{
     luclerpc::{Platforms, UpdateServer, User as LucleUser},
     Hosts,
@@ -881,6 +880,7 @@ fn login_user(
 #[cfg(test)]
 mod temp_sqlite_verification {
     use super::*;
+    use crate::plugin_db::get_plugin_version;
 
     // SyncConnectionWrapper (SQLite) needs a multi-threaded runtime for its
     // internal spawn_blocking calls — the default #[tokio::test] runtime is
