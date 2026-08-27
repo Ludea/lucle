@@ -1,7 +1,7 @@
 use std::{fs, path::Path};
 use wasmtime::component::{bindgen, Component, HasSelf, Linker, ResourceTable};
 use wasmtime::*;
-use wasmtime_wasi::{DirPerms, FilePerms, WasiCtx, WasiCtxBuilder, WasiCtxView, WasiView};
+use wasmtime_wasi::{FsPerms, WasiCtx, WasiCtxBuilder, WasiCtxView, WasiView};
 
 bindgen!("lucleworld" in "wit/lucle.wit");
 
@@ -39,7 +39,7 @@ pub async fn load_wasm_runtime() -> Result<()> {
         .inherit_stdio()
         .inherit_stdout()
         .inherit_args()
-        .preopened_dir(".", ".", DirPerms::all(), FilePerms::all())?
+        .preopened_dir(".", ".", FsPerms::ReadOnly)?
         .build();
 
     let state = ComponentRunStates {
