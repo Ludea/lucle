@@ -36,7 +36,7 @@ import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import CheckoutDialog from "components/Speedupdate/CheckoutDialog";
 
 import { listPlugins, installPlugin, removePlugin } from "utils/rpc";
-import type { InstalledPlugin as ProtoPlugin } from "gen/luclerpc_pb";
+import type { InstalledPlugin as ProtoPlugin } from "gen/lucle_pb";
 
 type Category = "all" | "ui" | "backend" | "auth" | "devtools" | "gaming" | "theme";
 

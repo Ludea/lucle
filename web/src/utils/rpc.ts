@@ -1,4 +1,4 @@
-import type { InstalledPlugin, InstallPluginRequest } from "gen/luclerpc_pb";
+import type { InstalledPlugin, InstallPluginRequest } from "gen/lucle_pb";
 
 export const checkIfInstalled = async (client: any) => client.is_database_created();
 

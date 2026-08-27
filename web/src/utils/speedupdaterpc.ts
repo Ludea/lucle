@@ -5,23 +5,27 @@ const setHeaders = (): Headers => {
   return headers;
 };
 
-export const init = async (client: any, path: string, platforms: any) => {
+export const init = (client: any, path: string, platforms: any) => {
   const headers = setHeaders();
   const subPath = Object.keys(platforms).filter((key) => platforms[key] === true);
-  for (const folder of subPath) {
-    client.init({ path: path.concat("/game/", folder) }, { headers });
-    client.init({ path: path.concat("/launcher/", folder) }, { headers });
-  }
+  return Promise.all(
+    subPath.flatMap((folder) => [
+      client.init({ path: path.concat("/game/", folder) }, { headers }),
+      client.init({ path: path.concat("/launcher/", folder) }, { headers }),
+    ]),
+  );
 };
 
-export const isInit = async (client: any, path: string, platforms: any, type: string) => {
+export const isInit = (client: any, path: string, platforms: any, type: string) => {
   const headers = setHeaders();
-  for (const folder of platforms) {
-    client.isInit({ path: path.concat("/", type, "/", folder) }, { headers });
-  }
+  return Promise.all(
+    platforms.map((folder: string) =>
+      client.isInit({ path: path.concat("/", type, "/", folder) }, { headers }),
+    ),
+  );
 };
 
-export const setCurrentVersion = async (
+export const setCurrentVersion = (
   client: any,
   path: string,
   version: string,
@@ -29,12 +33,14 @@ export const setCurrentVersion = async (
   type: string,
 ) => {
   const headers = setHeaders();
-  for (const folder of platforms) {
-    client.setCurrentVersion({ path: path.concat("/", type, "/", folder), version }, { headers });
-  }
+  return Promise.all(
+    platforms.map((folder: string) =>
+      client.setCurrentVersion({ path: path.concat("/", type, "/", folder), version }, { headers }),
+    ),
+  );
 };
 
-export const registerVersion = async (
+export const registerVersion = (
   client: any,
   path: string,
   version: string,
@@ -43,15 +49,17 @@ export const registerVersion = async (
   type: string,
 ) => {
   const headers = setHeaders();
-  for (const folder of platforms) {
-    client.registerVersion(
-      { path: path.concat("/", type, "/", folder), version, description },
-      { headers },
-    );
-  }
+  return Promise.all(
+    platforms.map((folder: string) =>
+      client.registerVersion(
+        { path: path.concat("/", type, "/", folder), version, description },
+        { headers },
+      ),
+    ),
+  );
 };
 
-export const unregisterVersion = async (
+export const unregisterVersion = (
   client: any,
   path: string,
   version: string,
@@ -59,12 +67,14 @@ export const unregisterVersion = async (
   type: string,
 ) => {
   const headers = setHeaders();
-  for (const folder of platforms) {
-    client.unregisterVersion({ path: path.concat("/", type, "/", folder), version }, { headers });
-  }
+  return Promise.all(
+    platforms.map((folder: string) =>
+      client.unregisterVersion({ path: path.concat("/", type, "/", folder), version }, { headers }),
+    ),
+  );
 };
 
-export const registerPackage = async (
+export const registerPackage = (
   client: any,
   path: string,
   name: string,
@@ -72,12 +82,14 @@ export const registerPackage = async (
   type: string,
 ) => {
   const headers = setHeaders();
-  for (const folder of platforms) {
-    client.registerPackage({ path: path.concat("/", type, "/", folder), name }, { headers });
-  }
+  return Promise.all(
+    platforms.map((folder: string) =>
+      client.registerPackage({ path: path.concat("/", type, "/", folder), name }, { headers }),
+    ),
+  );
 };
 
-export const unregisterPackage = async (
+export const unregisterPackage = (
   client: any,
   path: string,
   name: string,
@@ -85,21 +97,25 @@ export const unregisterPackage = async (
   type: string,
 ) => {
   const headers = setHeaders();
-  for (const folder of platforms) {
-    client.unregisterPackage({ path: path.concat("/", type, "/", folder), name }, { headers });
-  }
+  return Promise.all(
+    platforms.map((folder: string) =>
+      client.unregisterPackage({ path: path.concat("/", type, "/", folder), name }, { headers }),
+    ),
+  );
 };
 
-export const repoToDelete = async (client: any, path: string) => {
+export const repoToDelete = (client: any, path: string) => {
   const headers = setHeaders();
-  client.deleteRepo({ path }, { headers });
+  return client.deleteRepo({ path }, { headers });
 };
 
-export const fileToDelete = async (client: any, file: string, platforms: any, type: string) => {
+export const fileToDelete = (client: any, file: string, platforms: any, type: string) => {
   const headers = setHeaders();
-  for (const folder of platforms) {
-    client.deleteFile({ file: folder.concat("/", type, "/", file) }, { headers });
-  }
+  return Promise.all(
+    platforms.map((folder: string) =>
+      client.deleteFile({ file: folder.concat("/", type, "/", file) }, { headers }),
+    ),
+  );
 };
 
 export const compareStatus = (oldStatus: any, newStatus: any) => {
@@ -110,42 +126,63 @@ export const compareStatus = (oldStatus: any, newStatus: any) => {
   return true;
 };
 
-export async function status(client: any, path: string, platforms: any, type: string, opt: any) {
-  return new ReadableStream({
-    async start(controller) {
-      const headers = setHeaders();
-      const call = client.status(
-        {
-          path: path.concat("/", type),
-          platforms,
-          options: opt,
-        },
-        { headers },
-      );
-      for await (const repo of call) {
-        const statuses = repo.status;
-        if (!statuses?.length) continue;
+export function status(client: any, path: string, platforms: any, type: string, opt: any) {
+  return Promise.resolve(
+    new ReadableStream({
+      start(controller) {
+        const headers = setHeaders();
+        const call = client.status(
+          {
+            path: path.concat("/", type),
+            platforms,
+            options: opt,
+          },
+          { headers },
+        );
+        const iterator = call[Symbol.asyncIterator]();
 
-        const compare_repo = statuses.every((state: any) => compareStatus(statuses[0], state));
-        if (compare_repo) {
-          const firstRepo = statuses[0];
-          const fullListPackages: { name: string; published: boolean }[] = [
-            ...firstRepo.packages.map((name: string) => ({ name, published: true })),
-            ...firstRepo.availablePackages.map((name: string) => ({ name, published: false })),
-          ];
+        const readNext = (): Promise<void> =>
+          iterator
+            .next()
+            .then((result: any) => {
+              if (result.done) {
+                controller.close();
+                return;
+              }
 
-          controller.enqueue({
-            versions: firstRepo.versions,
-            packages: fullListPackages,
-            binaries: firstRepo.availableBinaries,
-            size: firstRepo.size,
-            currentVersion: firstRepo.currentVersion,
-          });
-        } else {
-          console.log("Repository are not sync between platforms");
-        }
-      }
-      controller.close();
-    },
-  });
+              const statuses = result.value.status;
+              if (statuses?.length) {
+                const compare_repo = statuses.every((state: any) =>
+                  compareStatus(statuses[0], state),
+                );
+                if (compare_repo) {
+                  const firstRepo = statuses[0];
+                  const fullListPackages: { name: string; published: boolean }[] = [
+                    ...firstRepo.packages.map((name: string) => ({ name, published: true })),
+                    ...firstRepo.availablePackages.map((name: string) => ({
+                      name,
+                      published: false,
+                    })),
+                  ];
+
+                  controller.enqueue({
+                    versions: firstRepo.versions,
+                    packages: fullListPackages,
+                    binaries: firstRepo.availableBinaries,
+                    size: firstRepo.size,
+                    currentVersion: firstRepo.currentVersion,
+                  });
+                } else {
+                  console.log("Repository are not sync between platforms");
+                }
+              }
+
+              return readNext();
+            })
+            .catch((error: unknown) => controller.error(error));
+
+        return readNext();
+      },
+    }),
+  );
 }
