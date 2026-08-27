@@ -325,11 +325,7 @@ function StepPlan({
       <Button variant="contained" size="large" fullWidth onClick={onNext}>
         Continue to payment
       </Button>
-      <Stack
-        direction="row"
-        spacing={0.5}
-        sx={{ alignItems: "center", justifyContent: "center" }}
-      >
+      <Stack direction="row" spacing={0.5} sx={{ alignItems: "center", justifyContent: "center" }}>
         <LockOutlinedIcon sx={{ fontSize: 13, color: "text.disabled" }} />
         <Typography variant="caption" color="text.disabled">
           Secured by Stripe · Cancel anytime
@@ -489,11 +485,7 @@ function StripePaymentForm({ plugin, cycle, clientSecret, onBack, onSuccess }: S
       >
         {paying ? "Processing…" : `Pay $${total}`}
       </Button>
-      <Stack
-        direction="row"
-        spacing={0.5}
-        sx={{ alignItems: "center", justifyContent: "center" }}
-      >
+      <Stack direction="row" spacing={0.5} sx={{ alignItems: "center", justifyContent: "center" }}>
         <LockOutlinedIcon sx={{ fontSize: 12, color: "text.disabled" }} />
         <Typography variant="caption" color="text.disabled">
           256-bit TLS · Powered by Stripe

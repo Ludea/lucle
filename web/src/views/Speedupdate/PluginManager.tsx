@@ -448,10 +448,7 @@ function UninstallDialog({
 function Toolbar() {
   return (
     <GridToolbarContainer sx={{ px: 2, py: 1, gap: 1 }}>
-      <GridToolbarQuickFilter
-        placeholder="Search plugins…"
-        sx={{ flexGrow: 1, maxWidth: 320 }}
-      />
+      <GridToolbarQuickFilter placeholder="Search plugins…" sx={{ flexGrow: 1, maxWidth: 320 }} />
       <GridToolbarFilterButton />
       <GridToolbarColumnsButton />
     </GridToolbarContainer>
@@ -477,19 +474,25 @@ export default function PluginManager() {
       .finally(() => setLoading(false));
   }, [lucleClient]);
 
-  const handleToggle = useCallback((id: string) => {
-    togglePlugin(lucleClient, id)
-      .then((updated) =>
-        setPlugins((prev) => prev.map((p) => (p.id === id ? protoToPlugin(updated) : p))),
-      )
-      .catch((e: Error) => setError(e.message));
-  }, [lucleClient]);
+  const handleToggle = useCallback(
+    (id: string) => {
+      togglePlugin(lucleClient, id)
+        .then((updated) =>
+          setPlugins((prev) => prev.map((p) => (p.id === id ? protoToPlugin(updated) : p))),
+        )
+        .catch((e: Error) => setError(e.message));
+    },
+    [lucleClient],
+  );
 
-  const handleUninstall = useCallback((id: string) => {
-    return removePlugin(lucleClient, id).then(() =>
-      setPlugins((prev) => prev.filter((p) => p.id !== id)),
-    );
-  }, [lucleClient]);
+  const handleUninstall = useCallback(
+    (id: string) => {
+      return removePlugin(lucleClient, id).then(() =>
+        setPlugins((prev) => prev.filter((p) => p.id !== id)),
+      );
+    },
+    [lucleClient],
+  );
 
   const columns: GridColDef<InstalledPlugin>[] = [
     {
