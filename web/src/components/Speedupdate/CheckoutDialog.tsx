@@ -80,7 +80,7 @@ function Stepper({ step }: { step: Step }) {
   const current = STEPS.indexOf(step);
   return (
     <Box sx={{ px: 3, pt: 1.5 }}>
-      <Stack direction="row" spacing={0.5} alignItems="center">
+      <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
         {STEPS.map((s, i) => (
           <Fragment key={s}>
             <Box
@@ -119,7 +119,7 @@ function Stepper({ step }: { step: Step }) {
           </Fragment>
         ))}
       </Stack>
-      <Stack direction="row" justifyContent="space-between" mt={0.5} px={0.25}>
+      <Stack direction="row" sx={{ justifyContent: "space-between", mt: 0.5, px: 0.25 }}>
         {["Plan", "Payment", "Done"].map((label) => (
           <Typography
             key={label}
@@ -158,7 +158,7 @@ function OrderSummary({
         p: 2,
       })}
     >
-      <Stack direction="row" spacing={1.5} alignItems="center" mb={2}>
+      <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mb: 2 }}>
         <Avatar
           sx={(theme) => ({
             width: 36,
@@ -171,7 +171,7 @@ function OrderSummary({
           {plugin.icon}
         </Avatar>
         <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-          <Typography variant="subtitle2" fontWeight={600} noWrap>
+          <Typography variant="subtitle2" noWrap sx={{ fontWeight: 600 }}>
             {plugin.name}
           </Typography>
           <Typography variant="caption" color="text.secondary">
@@ -187,7 +187,7 @@ function OrderSummary({
       </Stack>
       <Divider sx={{ mb: 1.5 }} />
       <Stack spacing={0.75}>
-        <Stack direction="row" justifyContent="space-between">
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
           <Typography variant="body2" color="text.secondary">
             {isSub
               ? cycle === "yearly"
@@ -198,7 +198,7 @@ function OrderSummary({
           <Typography variant="body2">${basePrice}</Typography>
         </Stack>
         {promoApplied && (
-          <Stack direction="row" justifyContent="space-between">
+          <Stack direction="row" sx={{ justifyContent: "space-between" }}>
             <Typography variant="body2" color="success.main">
               Promo LUCLE10 (−10%)
             </Typography>
@@ -208,11 +208,11 @@ function OrderSummary({
           </Stack>
         )}
         <Divider />
-        <Stack direction="row" justifyContent="space-between">
-          <Typography variant="subtitle2" fontWeight={700}>
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
             Total
           </Typography>
-          <Typography variant="subtitle2" fontWeight={700} color="primary.main">
+          <Typography variant="subtitle2" color="primary.main" sx={{ fontWeight: 700 }}>
             ${total}
             {isSub && (
               <Typography component="span" variant="caption" color="text.secondary">
@@ -243,7 +243,7 @@ function StepPlan({
   return (
     <Stack spacing={3}>
       <Box>
-        <Typography variant="h6" fontWeight={700} gutterBottom>
+        <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
           Choose your plan
         </Typography>
         <Typography variant="body2" color="text.secondary">
@@ -253,7 +253,7 @@ function StepPlan({
 
       {isSub && (
         <Box>
-          <Typography variant="caption" color="text.secondary" mb={1} display="block">
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block" }}>
             Billing cycle
           </Typography>
           <ToggleButtonGroup
@@ -275,7 +275,7 @@ function StepPlan({
                 },
               }}
             >
-              <Typography variant="subtitle2" fontWeight={600}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                 Monthly
               </Typography>
               <Typography variant="caption" sx={{ opacity: 0.85 }}>
@@ -311,7 +311,7 @@ function StepPlan({
                   }}
                 />
               )}
-              <Typography variant="subtitle2" fontWeight={600}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                 Yearly
               </Typography>
               <Typography variant="caption" sx={{ opacity: 0.85 }}>
@@ -325,7 +325,11 @@ function StepPlan({
       <Button variant="contained" size="large" fullWidth onClick={onNext}>
         Continue to payment
       </Button>
-      <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5}>
+      <Stack
+        direction="row"
+        spacing={0.5}
+        sx={{ alignItems: "center", justifyContent: "center" }}
+      >
         <LockOutlinedIcon sx={{ fontSize: 13, color: "text.disabled" }} />
         <Typography variant="caption" color="text.disabled">
           Secured by Stripe · Cancel anytime
@@ -398,11 +402,11 @@ function StripePaymentForm({ plugin, cycle, clientSecret, onBack, onSuccess }: S
 
   return (
     <Stack spacing={2.5}>
-      <Stack direction="row" alignItems="center" spacing={1}>
+      <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
         <IconButton size="small" onClick={onBack} disabled={paying}>
           <ArrowBackIcon fontSize="small" />
         </IconButton>
-        <Typography variant="h6" fontWeight={700}>
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>
           Payment details
         </Typography>
       </Stack>
@@ -425,7 +429,7 @@ function StripePaymentForm({ plugin, cycle, clientSecret, onBack, onSuccess }: S
         )}
         <PaymentElement onReady={() => setReady(true)} options={{ layout: "tabs" }} />
       </Box>
-      <Stack direction="row" spacing={1} alignItems="flex-start">
+      <Stack direction="row" spacing={1} sx={{ alignItems: "flex-start" }}>
         <TextField
           label="Promo code"
           size="small"
@@ -485,7 +489,11 @@ function StripePaymentForm({ plugin, cycle, clientSecret, onBack, onSuccess }: S
       >
         {paying ? "Processing…" : `Pay $${total}`}
       </Button>
-      <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5}>
+      <Stack
+        direction="row"
+        spacing={0.5}
+        sx={{ alignItems: "center", justifyContent: "center" }}
+      >
         <LockOutlinedIcon sx={{ fontSize: 12, color: "text.disabled" }} />
         <Typography variant="caption" color="text.disabled">
           256-bit TLS · Powered by Stripe
@@ -565,11 +573,11 @@ function StepPayment({
   if (fetchError) {
     return (
       <Stack spacing={2}>
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
           <IconButton size="small" onClick={onBack}>
             <ArrowBackIcon fontSize="small" />
           </IconButton>
-          <Typography variant="h6" fontWeight={700}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
             Payment details
           </Typography>
         </Stack>
@@ -590,11 +598,11 @@ function StepPayment({
   if (!clientSecret) {
     return (
       <Stack spacing={2.5}>
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
           <IconButton size="small" onClick={onBack}>
             <ArrowBackIcon fontSize="small" />
           </IconButton>
-          <Typography variant="h6" fontWeight={700}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
             Payment details
           </Typography>
         </Stack>
@@ -635,7 +643,7 @@ function StepPayment({
 function StepSuccess({ plugin, onClose }: { plugin: CheckoutPlugin; onClose: () => void }) {
   return (
     <Fade in>
-      <Stack spacing={3} alignItems="center" textAlign="center" py={2}>
+      <Stack spacing={3} sx={{ alignItems: "center", textAlign: "center", py: 2 }}>
         <Box sx={{ position: "relative" }}>
           <Avatar
             sx={(theme) => ({
@@ -661,7 +669,7 @@ function StepSuccess({ plugin, onClose }: { plugin: CheckoutPlugin; onClose: () 
           />
         </Box>
         <Box>
-          <Typography variant="h6" fontWeight={700} gutterBottom>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
             Purchase complete!
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -678,11 +686,11 @@ function StepSuccess({ plugin, onClose }: { plugin: CheckoutPlugin; onClose: () 
             width: "100%",
           })}
         >
-          <Typography variant="caption" color="success.main" fontWeight={600}>
+          <Typography variant="caption" color="success.main" sx={{ fontWeight: 600 }}>
             A receipt has been sent to your email address.
           </Typography>
         </Box>
-        <Stack direction="row" spacing={1.5} width="100%">
+        <Stack direction="row" spacing={1.5} sx={{ width: "100%" }}>
           <Button variant="outlined" fullWidth startIcon={<ExtensionIcon />} onClick={onClose}>
             Back to store
           </Button>
@@ -719,7 +727,7 @@ export default function CheckoutDialog({ open, plugin, onClose, onSuccess }: Pro
       onClose={step === "success" ? handleClose : undefined}
       maxWidth="xs"
       fullWidth
-      PaperProps={{ sx: { borderRadius: 3 } }}
+      slotProps={{ paper: { sx: { borderRadius: 3 } } }}
     >
       <Box
         sx={(theme) => ({
@@ -732,7 +740,7 @@ export default function CheckoutDialog({ open, plugin, onClose, onSuccess }: Pro
           borderBottom: `1px solid ${theme.palette.divider}`,
         })}
       >
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
           <LockOutlinedIcon fontSize="small" color="action" />
           <Typography variant="subtitle2" color="text.secondary">
             Secure checkout

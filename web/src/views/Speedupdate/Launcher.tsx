@@ -20,6 +20,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Select, { type SelectChangeEvent } from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 
 import BuildIcon from "@mui/icons-material/Build";
@@ -214,15 +215,15 @@ function BuildLauncherDialog({
       maxWidth="sm"
       fullWidth
       fullScreen={isMobile}
-      PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3 } }}
+      slotProps={{ paper: { sx: { borderRadius: isMobile ? 0 : 3 } } }}
     >
       {building && <LinearProgress sx={{ position: "absolute", top: 0, left: 0, right: 0 }} />}
 
       <DialogTitle>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Stack direction="row" alignItems="center" spacing={1.5}>
+        <Stack direction="row" sx={{ alignItems: "center", justifyContent: "space-between" }}>
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
             <BuildIcon color="primary" fontSize="small" />
-            <Typography variant="subtitle1" fontWeight={700}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
               Build launcher
             </Typography>
           </Stack>
@@ -424,13 +425,13 @@ function WorkflowDialog({
       maxWidth="xs"
       fullWidth
       fullScreen={isMobile}
-      PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3 } }}
+      slotProps={{ paper: { sx: { borderRadius: isMobile ? 0 : 3 } } }}
     >
       <DialogTitle>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Stack direction="row" alignItems="center" spacing={1.5}>
+        <Stack direction="row" sx={{ alignItems: "center", justifyContent: "space-between" }}>
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
             <RocketLaunchIcon color="primary" fontSize="small" />
-            <Typography variant="subtitle1" fontWeight={700}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
               Deploy event
             </Typography>
           </Stack>
@@ -462,7 +463,7 @@ function WorkflowDialog({
                 setSelectedEvent(e.target.value as EventType)
               }
               renderValue={(value: number) => (
-                <Stack direction="row" alignItems="center" spacing={1}>
+                <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                   <Chip
                     label={eventLabels[value as EventType]}
                     color={eventColors[value as EventType]}
@@ -538,9 +539,8 @@ function Launcher() {
       {/* Page header */}
       <Stack
         direction={{ xs: "column", sm: "row" }}
-        alignItems={{ sm: "center" }}
-        justifyContent="space-between"
         spacing={1}
+        sx={{ alignItems: { sm: "center" }, justifyContent: "space-between" }}
       >
         <Box>
           <SectionLabel sx={{ mb: 0 }}>// Launcher</SectionLabel>

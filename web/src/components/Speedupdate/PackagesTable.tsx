@@ -121,7 +121,8 @@ function PackagesTable({
   const toggle = (name: string) =>
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(name) ? next.delete(name) : next.add(name);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
       return next;
     });
 
@@ -167,9 +168,9 @@ function PackagesTable({
       {/* Header */}
       <Stack
         direction="row"
-        alignItems="center"
-        justifyContent="space-between"
         sx={(theme) => ({
+          alignItems: "center",
+          justifyContent: "space-between",
           px: 2,
           py: 1.25,
           bgcolor:
@@ -188,7 +189,7 @@ function PackagesTable({
             sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem" }}
           />
         ) : (
-          <Stack direction="row" alignItems="center" spacing={1}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <InventoryIcon sx={{ fontSize: 16, color: "primary.main" }} />
             <SectionLabel>Packages</SectionLabel>
             <Chip
@@ -227,7 +228,7 @@ function PackagesTable({
       <Divider />
 
       {listPackages.length === 0 ? (
-        <Stack alignItems="center" spacing={1} py={4} color="text.disabled">
+        <Stack spacing={1} sx={{ alignItems: "center", py: 4, color: "text.disabled" }}>
           <InboxIcon sx={{ fontSize: 36, opacity: 0.3 }} />
           <Typography variant="caption">No packages yet</Typography>
         </Stack>

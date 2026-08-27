@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, ChangeEvent } from "react";
+import { useState, useCallback, useContext, useEffect, ChangeEvent } from "react";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
@@ -31,7 +31,8 @@ import {
 } from "@mui/x-data-grid";
 
 import { listPlugins, togglePlugin, removePlugin, installPlugin } from "utils/rpc";
-import type { InstalledPlugin as ProtoPlugin } from "gen/luclerpc_pb";
+import { LucleRPC } from "context/Luclerpc";
+import type { InstalledPlugin as ProtoPlugin } from "gen/lucle_pb";
 
 //Icons
 import AddIcon from "@mui/icons-material/Add";
@@ -136,10 +137,12 @@ function AddPluginDialog({
   open,
   onClose,
   onAdded,
+  client,
 }: {
   open: boolean;
   onClose: () => void;
   onAdded: (plugin: ProtoPlugin) => void;
+  client: unknown;
 }) {
   const [form, setForm] = useState<PluginForm>(EMPTY_FORM);
   const [file, setFile] = useState<File | null>(null);
@@ -194,7 +197,7 @@ function AddPluginDialog({
     setLoading(true);
     setError(null);
 
-    installPlugin({
+    installPlugin(client, {
       id: form.id.trim(),
       name: form.name.trim(),
       icon: form.icon.trim() || "🔌",
@@ -225,12 +228,12 @@ function AddPluginDialog({
       onClose={handleClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{ sx: { borderRadius: 3 } }}
+      slotProps={{ paper: { sx: { borderRadius: 3 } } }}
     >
       <DialogTitle>
-        <Stack direction="row" alignItems="center" spacing={1.5}>
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
           <UploadFileIcon color="primary" />
-          <Typography variant="subtitle1" fontWeight={700}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
             Add plugin
           </Typography>
         </Stack>
@@ -390,11 +393,17 @@ function UninstallDialog({
   }
 
   return (
-    <Dialog open onClose={onClose} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+    <Dialog
+      open
+      onClose={onClose}
+      maxWidth="xs"
+      fullWidth
+      slotProps={{ paper: { sx: { borderRadius: 3 } } }}
+    >
       <DialogTitle>
-        <Stack direction="row" alignItems="center" spacing={1.5}>
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
           <WarningAmberIcon color="warning" />
-          <Typography variant="subtitle1" fontWeight={700}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
             Uninstall plugin
           </Typography>
         </Stack>
@@ -440,7 +449,6 @@ function Toolbar() {
   return (
     <GridToolbarContainer sx={{ px: 2, py: 1, gap: 1 }}>
       <GridToolbarQuickFilter
-        size="small"
         placeholder="Search plugins…"
         sx={{ flexGrow: 1, maxWidth: 320 }}
       />
@@ -451,6 +459,7 @@ function Toolbar() {
 }
 
 export default function PluginManager() {
+  const lucleClient = useContext(LucleRPC);
   const [plugins, setPlugins] = useState<InstalledPlugin[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -462,23 +471,25 @@ export default function PluginManager() {
   }, []);
 
   useEffect(() => {
-    listPlugins()
+    listPlugins(lucleClient)
       .then((rows) => setPlugins(rows.map(protoToPlugin)))
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [lucleClient]);
 
   const handleToggle = useCallback((id: string) => {
-    togglePlugin(id)
+    togglePlugin(lucleClient, id)
       .then((updated) =>
         setPlugins((prev) => prev.map((p) => (p.id === id ? protoToPlugin(updated) : p))),
       )
       .catch((e: Error) => setError(e.message));
-  }, []);
+  }, [lucleClient]);
 
   const handleUninstall = useCallback((id: string) => {
-    return removePlugin(id).then(() => setPlugins((prev) => prev.filter((p) => p.id !== id)));
-  }, []);
+    return removePlugin(lucleClient, id).then(() =>
+      setPlugins((prev) => prev.filter((p) => p.id !== id)),
+    );
+  }, [lucleClient]);
 
   const columns: GridColDef<InstalledPlugin>[] = [
     {
@@ -487,7 +498,7 @@ export default function PluginManager() {
       flex: 1.8,
       minWidth: 200,
       renderCell: (params: GridRenderCellParams<InstalledPlugin>) => (
-        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ py: 0.5 }}>
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", py: 0.5 }}>
           <Avatar
             sx={(theme) => ({
               width: 30,
@@ -501,8 +512,8 @@ export default function PluginManager() {
             {params.row.icon}
           </Avatar>
           <Box sx={{ minWidth: 0 }}>
-            <Stack direction="row" alignItems="center" spacing={0.5}>
-              <Typography variant="body2" fontWeight={600} noWrap>
+            <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
+              <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
                 {params.row.name}
               </Typography>
               {params.row.featured && (
@@ -565,7 +576,7 @@ export default function PluginManager() {
       headerName: "Downloads",
       width: 100,
       renderCell: (params) => (
-        <Stack direction="row" alignItems="center" spacing={0.4}>
+        <Stack direction="row" spacing={0.4} sx={{ alignItems: "center" }}>
           <DownloadIcon sx={{ fontSize: 13, color: "text.disabled" }} />
           <Typography variant="caption" color="text.secondary">
             {params.value >= 1000 ? `${(params.value / 1000).toFixed(1)}k` : params.value}
@@ -578,7 +589,7 @@ export default function PluginManager() {
       headerName: "Stars",
       width: 80,
       renderCell: (params) => (
-        <Stack direction="row" alignItems="center" spacing={0.4}>
+        <Stack direction="row" spacing={0.4} sx={{ alignItems: "center" }}>
           <StarIcon sx={{ fontSize: 13, color: "warning.main" }} />
           <Typography variant="caption" color="text.secondary">
             {params.value}
@@ -601,14 +612,14 @@ export default function PluginManager() {
       headerName: "Status",
       width: 130,
       renderCell: (params: GridRenderCellParams<InstalledPlugin>) => (
-        <Stack direction="row" alignItems="center" spacing={0.5}>
+        <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
           <Switch
             size="small"
             checked={params.row.enabled}
             onChange={() => handleToggle(params.row.id)}
             color="success"
           />
-          <Stack direction="row" alignItems="center" spacing={0.4}>
+          <Stack direction="row" spacing={0.4} sx={{ alignItems: "center" }}>
             <FiberManualRecordIcon
               sx={{
                 fontSize: 8,
@@ -644,16 +655,14 @@ export default function PluginManager() {
     <Box sx={{ width: "100%", maxWidth: 1200 }}>
       <Stack
         direction={{ xs: "column", sm: "row" }}
-        alignItems={{ sm: "center" }}
-        justifyContent="space-between"
         spacing={1}
-        mb={3}
+        sx={{ alignItems: { sm: "center" }, justifyContent: "space-between", mb: 3 }}
       >
         <Box>
-          <Typography variant="h5" fontWeight={700} letterSpacing="-0.02em">
+          <Typography variant="h5" sx={{ fontWeight: 700, letterSpacing: "-0.02em" }}>
             Installed Plugins
           </Typography>
-          <Typography variant="body2" color="text.secondary" mt={0.5}>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
             {plugins.length} installed · {activeCount} active
           </Typography>
         </Box>
@@ -717,7 +726,12 @@ export default function PluginManager() {
         />
       </Box>
 
-      <AddPluginDialog open={addOpen} onClose={() => setAddOpen(false)} onAdded={handleAdded} />
+      <AddPluginDialog
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onAdded={handleAdded}
+        client={lucleClient}
+      />
       <UninstallDialog
         plugin={uninstallPlugin}
         onConfirm={handleUninstall}

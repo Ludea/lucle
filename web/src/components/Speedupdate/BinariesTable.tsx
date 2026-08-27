@@ -91,7 +91,8 @@ function BinariesTable({
   const toggle = (bin: string) =>
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(bin) ? next.delete(bin) : next.add(bin);
+      if (next.has(bin)) next.delete(bin);
+      else next.add(bin);
       return next;
     });
 
@@ -114,9 +115,9 @@ function BinariesTable({
       {/* Header */}
       <Stack
         direction="row"
-        alignItems="center"
-        justifyContent="space-between"
         sx={(theme) => ({
+          alignItems: "center",
+          justifyContent: "space-between",
           px: 2,
           py: 1.25,
           bgcolor:
@@ -135,7 +136,7 @@ function BinariesTable({
             sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem" }}
           />
         ) : (
-          <Stack direction="row" alignItems="center" spacing={1}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <FolderIcon sx={{ fontSize: 16, color: "primary.main" }} />
             <SectionLabel>Binaries</SectionLabel>
             <Chip
@@ -158,7 +159,7 @@ function BinariesTable({
       <Divider />
 
       {availableBinaries.length === 0 ? (
-        <Stack alignItems="center" spacing={1} py={4} color="text.disabled">
+        <Stack spacing={1} sx={{ alignItems: "center", py: 4, color: "text.disabled" }}>
           <InboxIcon sx={{ fontSize: 36, opacity: 0.3 }} />
           <Typography variant="caption">No binaries available</Typography>
         </Stack>

@@ -1,4 +1,3 @@
-import { useContext } from "react";
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
@@ -72,16 +71,15 @@ function SpeedupdateOptions({
 
       <Grid container spacing={1.5} mb={2.5}>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <StatRow direction="row" alignItems="center" spacing={1}>
+          <StatRow direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <TagIcon sx={{ fontSize: 15, color: "primary.main", flexShrink: 0 }} />
             <Box>
-              <Typography variant="caption" color="text.secondary" display="block">
+              <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
                 Current version
               </Typography>
               <Typography
                 variant="body2"
-                fontWeight={600}
-                sx={{ fontFamily: "JetBrains Mono, monospace" }}
+                sx={{ fontFamily: "JetBrains Mono, monospace", fontWeight: 600 }}
               >
                 {currentVer || "—"}
               </Typography>
@@ -89,16 +87,15 @@ function SpeedupdateOptions({
           </StatRow>
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <StatRow direction="row" alignItems="center" spacing={1}>
+          <StatRow direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <StorageIcon sx={{ fontSize: 15, color: "primary.main", flexShrink: 0 }} />
             <Box>
-              <Typography variant="caption" color="text.secondary" display="block">
+              <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
                 Packages size
               </Typography>
               <Typography
                 variant="body2"
-                fontWeight={600}
-                sx={{ fontFamily: "JetBrains Mono, monospace" }}
+                sx={{ fontFamily: "JetBrains Mono, monospace", fontWeight: 600 }}
               >
                 {size !== undefined ? formatSize(size) : "—"}
               </Typography>

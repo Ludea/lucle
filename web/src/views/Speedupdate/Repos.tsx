@@ -137,12 +137,12 @@ function DeleteRepoDialog({
       onClose={handleClose}
       maxWidth="xs"
       fullWidth
-      PaperProps={{ sx: { borderRadius: 3 } }}
+      slotProps={{ paper: { sx: { borderRadius: 3 } } }}
     >
       <DialogTitle>
-        <Stack direction="row" alignItems="center" spacing={1.5}>
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
           <WarningAmberIcon color="error" />
-          <Typography variant="subtitle1" fontWeight={700}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
             Delete repository
           </Typography>
         </Stack>
@@ -153,7 +153,7 @@ function DeleteRepoDialog({
           This will permanently delete all data. This action cannot be undone.
         </Alert>
 
-        <Typography variant="body2" color="text.secondary" mb={2}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Select what to delete for <strong>{repoName}</strong>:
         </Typography>
 
@@ -185,7 +185,7 @@ function DeleteRepoDialog({
           >
             <SportsEsportsIcon fontSize="small" />
             <Box sx={{ textAlign: "left" }}>
-              <Typography variant="body2" fontWeight={600} lineHeight={1.2}>
+              <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
                 Game
               </Typography>
               <Typography variant="caption" sx={{ opacity: 0.75 }}>
@@ -213,7 +213,7 @@ function DeleteRepoDialog({
           >
             <RocketLaunchIcon fontSize="small" />
             <Box sx={{ textAlign: "left" }}>
-              <Typography variant="body2" fontWeight={600} lineHeight={1.2}>
+              <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
                 Launcher
               </Typography>
               <Typography variant="caption" sx={{ opacity: 0.75 }}>
@@ -241,7 +241,7 @@ function DeleteRepoDialog({
           >
             <DeleteOutlineIcon fontSize="small" />
             <Box sx={{ textAlign: "left" }}>
-              <Typography variant="body2" fontWeight={600} lineHeight={1.2}>
+              <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
                 Both
               </Typography>
               <Typography variant="caption" sx={{ opacity: 0.75 }}>
@@ -338,7 +338,8 @@ function ListRepo() {
 
   const handleDeleteConfirm = (repoName: string, target: DeleteTarget) => {
     setError(null);
-    const doDelete = (binaryType: "game" | "launcher") => repoToDelete(speedupdateClient, repoName);
+    const doDelete = (_binaryType: "game" | "launcher") =>
+      repoToDelete(speedupdateClient, repoName);
 
     const tasks: Promise<unknown>[] = [];
 

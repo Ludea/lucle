@@ -65,7 +65,7 @@ function VersionCard({
           sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem", height: 20, mb: 0.25 }}
         />
         {ver.description && (
-          <Typography variant="caption" color="text.secondary" display="block" noWrap>
+          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block" }}>
             {ver.description}
           </Typography>
         )}
@@ -106,7 +106,8 @@ function VersionsTable({
   const toggle = (revision: string) =>
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(revision) ? next.delete(revision) : next.add(revision);
+      if (next.has(revision)) next.delete(revision);
+      else next.add(revision);
       return next;
     });
 
@@ -148,9 +149,9 @@ function VersionsTable({
       {/* Header */}
       <Stack
         direction="row"
-        alignItems="center"
-        justifyContent="space-between"
         sx={(theme) => ({
+          alignItems: "center",
+          justifyContent: "space-between",
           px: 2,
           py: 1.25,
           bgcolor:
@@ -169,7 +170,7 @@ function VersionsTable({
             sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.7rem" }}
           />
         ) : (
-          <Stack direction="row" alignItems="center" spacing={1}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <HistoryIcon sx={{ fontSize: 16, color: "primary.main" }} />
             <SectionLabel>Versions</SectionLabel>
             <Chip
@@ -202,7 +203,7 @@ function VersionsTable({
 
       {/* Content */}
       {listVersions.length === 0 ? (
-        <Stack alignItems="center" spacing={1} py={4} color="text.disabled">
+        <Stack spacing={1} sx={{ alignItems: "center", py: 4, color: "text.disabled" }}>
           <InboxIcon sx={{ fontSize: 36, opacity: 0.3 }} />
           <Typography variant="caption">No versions yet</Typography>
         </Stack>
@@ -267,9 +268,13 @@ function VersionsTable({
       {/* Add version footer */}
       <Stack
         direction={{ xs: "column", sm: "row" }}
-        alignItems={{ sm: "center" }}
         spacing={1}
-        sx={(theme) => ({ px: 2, py: 1.5, bgcolor: theme.palette.action.hover })}
+        sx={(theme) => ({
+          alignItems: { sm: "center" },
+          px: 2,
+          py: 1.5,
+          bgcolor: theme.palette.action.hover,
+        })}
       >
         <TagIcon
           sx={{ fontSize: 16, color: "text.disabled", display: { xs: "none", sm: "block" } }}
