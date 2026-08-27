@@ -1,6 +1,7 @@
 use super::query_helper;
 use crate::errors::Error;
 use crate::models::{NewRepository, NewUser, Permission, Repository, User, UsersRepositories};
+use crate::plugin_db::get_plugin_version;
 use crate::rpc::{
     luclerpc::{Platforms, UpdateServer, User as LucleUser},
     Hosts,
