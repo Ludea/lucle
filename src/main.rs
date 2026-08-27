@@ -115,6 +115,7 @@ async fn main() {
 
     let cors_layer = CorsLayer::new()
         .allow_origin(Any)
+        .allow_methods(Any)
         .allow_headers(Any)
         .expose_headers(Any);
 
