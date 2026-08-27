@@ -37,6 +37,8 @@ import CheckoutDialog from "components/Speedupdate/CheckoutDialog";
 
 import { listPlugins, installPlugin, removePlugin } from "utils/rpc";
 import type { InstalledPlugin as ProtoPlugin } from "gen/lucle_pb";
+import { InstallPluginRequestSchema } from "gen/lucle_pb";
+import { create } from "@bufbuild/protobuf";
 
 type Category = "all" | "ui" | "backend" | "auth" | "devtools" | "gaming" | "theme";
 
@@ -460,20 +462,22 @@ export default function PluginStore() {
         .catch((e: Error) => setError(e.message));
     } else {
       setPlugins((prev) => prev.map((p) => (p.id !== id ? p : { ...p, installing: true })));
-      installPlugin({
-        id: plugin.id,
-        name: plugin.name,
-        icon: plugin.icon,
-        author: plugin.author,
-        version: plugin.version,
-        category: plugin.category,
-        priceType: plugin.priceType,
-        description: plugin.description,
-        tags: plugin.tags,
-        downloads: plugin.downloads,
-        stars: plugin.stars,
-        featured: plugin.featured,
-      })
+      installPlugin(
+        create(InstallPluginRequestSchema, {
+          id: plugin.id,
+          name: plugin.name,
+          icon: plugin.icon,
+          author: plugin.author,
+          version: plugin.version,
+          category: plugin.category,
+          priceType: plugin.priceType,
+          description: plugin.description,
+          tags: plugin.tags,
+          downloads: plugin.downloads,
+          stars: plugin.stars,
+          featured: plugin.featured,
+        }),
+      )
         .then((proto) =>
           setPlugins((prev) =>
             prev.map((p) =>

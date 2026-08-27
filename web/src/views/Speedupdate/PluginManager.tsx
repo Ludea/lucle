@@ -32,7 +32,9 @@ import {
 
 import { listPlugins, togglePlugin, removePlugin, installPlugin } from "utils/rpc";
 import { LucleRPC } from "context/Luclerpc";
+import { InstallPluginRequestSchema } from "gen/lucle_pb";
 import type { InstalledPlugin as ProtoPlugin } from "gen/lucle_pb";
+import { create } from "@bufbuild/protobuf";
 
 //Icons
 import AddIcon from "@mui/icons-material/Add";
@@ -197,23 +199,26 @@ function AddPluginDialog({
     setLoading(true);
     setError(null);
 
-    installPlugin(client, {
-      id: form.id.trim(),
-      name: form.name.trim(),
-      icon: form.icon.trim() || "🔌",
-      author: form.author.trim(),
-      version: form.version.trim(),
-      category: form.category,
-      priceType: form.priceType,
-      description: form.description.trim(),
-      tags: form.tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
-      downloads: form.downloads,
-      stars: form.stars,
-      featured: form.featured,
-    })
+    installPlugin(
+      client,
+      create(InstallPluginRequestSchema, {
+        id: form.id.trim(),
+        name: form.name.trim(),
+        icon: form.icon.trim() || "🔌",
+        author: form.author.trim(),
+        version: form.version.trim(),
+        category: form.category,
+        priceType: form.priceType,
+        description: form.description.trim(),
+        tags: form.tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+        downloads: form.downloads,
+        stars: form.stars,
+        featured: form.featured,
+      }),
+    )
       .then((plugin) => {
         onAdded(plugin);
         handleClose();
