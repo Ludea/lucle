@@ -24,10 +24,10 @@ import {
   DataGrid,
   GridColDef,
   GridRenderCellParams,
-  GridToolbarQuickFilter,
-  GridToolbarContainer,
-  GridToolbarFilterButton,
-  GridToolbarColumnsButton,
+  QuickFilter,
+  Toolbar as DataGridToolbar,
+  FilterPanelTrigger,
+  ColumnsPanelTrigger,
 } from "@mui/x-data-grid";
 
 import { listPlugins, togglePlugin, removePlugin, installPlugin } from "utils/rpc";
@@ -447,11 +447,11 @@ function UninstallDialog({
 
 function Toolbar() {
   return (
-    <GridToolbarContainer sx={{ px: 2, py: 1, gap: 1 }}>
-      <GridToolbarQuickFilter placeholder="Search plugins…" sx={{ flexGrow: 1, maxWidth: 320 }} />
-      <GridToolbarFilterButton />
-      <GridToolbarColumnsButton />
-    </GridToolbarContainer>
+    <DataGridToolbar>
+      <QuickFilter />
+      <FilterPanelTrigger />
+      <ColumnsPanelTrigger />
+    </DataGridToolbar>
   );
 }
 
@@ -710,6 +710,7 @@ export default function PluginManager() {
             sorting: { sortModel: [{ field: "installedAt", sort: "desc" }] },
           }}
           slots={{ toolbar: Toolbar }}
+          slotProps={{ toolbar: { sx: { px: 2, py: 1, gap: 1 } } }}
           sx={(theme) => ({
             border: "none",
             "& .MuiDataGrid-columnHeaders": {

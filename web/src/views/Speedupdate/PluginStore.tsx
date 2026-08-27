@@ -272,7 +272,7 @@ function PluginCard({
       )}
 
       <CardContent sx={{ flexGrow: 1, pb: 1 }}>
-        <Stack direction="row" alignItems="flex-start" spacing={1.5} mb={1.5}>
+        <Stack direction="row" sx={{ alignItems: "flex-start", mb: 1.5 }} spacing={1.5}>
           <Box sx={{ position: "relative", flexShrink: 0 }}>
             <Avatar
               sx={(theme) => ({
@@ -309,8 +309,8 @@ function PluginCard({
           </Box>
 
           <Box sx={{ minWidth: 0, flexGrow: 1 }}>
-            <Stack direction="row" alignItems="center" spacing={0.75} flexWrap="wrap">
-              <Typography variant="subtitle2" fontWeight={600} noWrap>
+            <Stack direction="row" sx={{ alignItems: "center", flexWrap: "wrap" }} spacing={0.75}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }} noWrap>
                 {plugin.name}
               </Typography>
               {plugin.featured && (
@@ -352,7 +352,7 @@ function PluginCard({
           {plugin.description}
         </Typography>
 
-        <Stack direction="row" flexWrap="wrap" gap={0.5}>
+        <Stack direction="row" sx={{ flexWrap: "wrap", gap: 0.5 }}>
           {plugin.tags.map((tag) => (
             <Chip
               key={tag}
@@ -373,9 +373,9 @@ function PluginCard({
       <Divider />
 
       <CardActions sx={{ px: 2, py: 1, justifyContent: "space-between" }}>
-        <Stack direction="row" spacing={1.5} alignItems="center">
+        <Stack direction="row" sx={{ spacing: 1.5, alignItems: "center" }}>
           <Tooltip title="Downloads">
-            <Stack direction="row" alignItems="center" spacing={0.4}>
+            <Stack direction="row" sx={{ alignItems: "center" }} spacing={0.4}>
               <DownloadIcon sx={{ fontSize: 13, color: "text.disabled" }} />
               <Typography variant="caption" color="text.secondary">
                 {fmtDownloads(plugin.downloads)}
@@ -383,7 +383,7 @@ function PluginCard({
             </Stack>
           </Tooltip>
           <Tooltip title="Stars">
-            <Stack direction="row" alignItems="center" spacing={0.4}>
+            <Stack direction="row" sx={{ alignItems: "center" }} spacing={0.4}>
               <StarIcon sx={{ fontSize: 13, color: "warning.main" }} />
               <Typography variant="caption" color="text.secondary">
                 {plugin.stars}
@@ -402,7 +402,7 @@ function CardSkeleton() {
   return (
     <Card variant="outlined" sx={{ height: 220 }}>
       <CardContent>
-        <Stack direction="row" spacing={1.5} mb={1.5}>
+        <Stack direction="row" sx={{ spacing: 1.5, mb: 1.5 }}>
           <Skeleton variant="circular" width={40} height={40} />
           <Box sx={{ flexGrow: 1 }}>
             <Skeleton variant="text" width="60%" />
@@ -502,13 +502,11 @@ export default function PluginStore() {
     <Box sx={{ width: "100%", maxWidth: 1200 }}>
       <Stack
         direction={{ xs: "column", sm: "row" }}
-        alignItems={{ sm: "center" }}
-        justifyContent="space-between"
+        sx={{ alignItems: { sm: "center" }, mb: 3, justifyContent: "space-between" }}
         spacing={1}
-        mb={3}
       >
         <Box>
-          <Typography variant="h5" fontWeight={700} letterSpacing="-0.02em">
+          <Typography variant="h5" sx={{ fontWeight: 700, letterSpacing: "-0.02em" }}>
             Plugin Store
           </Typography>
           <Typography variant="body2" color="text.secondary">

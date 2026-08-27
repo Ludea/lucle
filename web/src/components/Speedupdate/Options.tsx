@@ -69,7 +69,7 @@ function SpeedupdateOptions({
     <SectionCard>
       <SectionLabel sx={{ mb: 2 }}>// {binaryType} options</SectionLabel>
 
-      <Grid container spacing={1.5} mb={2.5}>
+      <Grid container spacing={1.5} sx={{ mb: 2.5 }}>
         <Grid size={{ xs: 12, sm: 6 }}>
           <StatRow direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <TagIcon sx={{ fontSize: 15, color: "primary.main", flexShrink: 0 }} />
