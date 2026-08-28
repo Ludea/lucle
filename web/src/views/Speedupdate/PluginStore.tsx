@@ -429,7 +429,7 @@ export default function PluginStore() {
   const [checkoutPlugin, setCheckoutPlugin] = useState<StorePlugin | null>(null);
 
   const client = useContext(LucleRPC);
-  
+
   useEffect(() => {
     listPlugins(client)
       .then((rows) => setPlugins(rows.map(protoToStore)))
