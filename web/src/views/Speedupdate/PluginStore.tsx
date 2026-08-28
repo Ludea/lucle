@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, ReactNode } from "react";
+import { useState, useMemo, useEffect, useContext, ReactNode } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -35,6 +35,7 @@ import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 
 import CheckoutDialog from "components/Speedupdate/CheckoutDialog";
 
+import { LucleRPC } from "context/Luclerpc";
 import { listPlugins, installPlugin, removePlugin } from "utils/rpc";
 import type { InstalledPlugin as ProtoPlugin } from "gen/lucle_pb";
 import { InstallPluginRequestSchema } from "gen/lucle_pb";
@@ -427,8 +428,10 @@ export default function PluginStore() {
   const [category, setCategory] = useState<Category>("all");
   const [checkoutPlugin, setCheckoutPlugin] = useState<StorePlugin | null>(null);
 
+  const client = useContext(LucleRPC);
+  
   useEffect(() => {
-    listPlugins()
+    listPlugins(client)
       .then((rows) => setPlugins(rows.map(protoToStore)))
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -455,7 +458,7 @@ export default function PluginStore() {
     if (!plugin) return;
 
     if (plugin.installed) {
-      removePlugin(id)
+      removePlugin(client, id)
         .then(() =>
           setPlugins((prev) => prev.map((p) => (p.id !== id ? p : { ...p, installed: false }))),
         )
@@ -463,6 +466,7 @@ export default function PluginStore() {
     } else {
       setPlugins((prev) => prev.map((p) => (p.id !== id ? p : { ...p, installing: true })));
       installPlugin(
+        client,
         create(InstallPluginRequestSchema, {
           id: plugin.id,
           name: plugin.name,
