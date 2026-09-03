@@ -28,7 +28,7 @@ rcgen = "0.14.1"
 rustls-pemfile = "2.0.0"
 octocrab = "0.54"
 dirs = "6.0"
-argon2 = { version = "0.5.2", features = ["std"] }
+argon2 = { version = "0.6.0", features = ["std"] }
 lettre = { version = "0.11.1", default-features = false, features = ["smtp-transport", "pool", "hostname", "builder", "rustls-tls", "file-transport"] }
 email-address-parser = "2.0.0"
 tera = "2.0.0"
