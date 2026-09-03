@@ -36,7 +36,10 @@ export const setCurrentVersion = (
   const headers = setHeaders();
   return Promise.all(
     platforms.map((folder: string) =>
-      client.set_current_version({ path: path.concat("/", type, "/", folder), version }, { headers }),
+      client.set_current_version(
+        { path: path.concat("/", type, "/", folder), version },
+        { headers },
+      ),
     ),
   );
 };
@@ -70,7 +73,10 @@ export const unregisterVersion = (
   const headers = setHeaders();
   return Promise.all(
     platforms.map((folder: string) =>
-      client.unregister_version({ path: path.concat("/", type, "/", folder), version }, { headers }),
+      client.unregister_version(
+        { path: path.concat("/", type, "/", folder), version },
+        { headers },
+      ),
     ),
   );
 };

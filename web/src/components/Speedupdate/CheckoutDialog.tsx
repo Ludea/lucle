@@ -37,19 +37,19 @@ type PriceModel =
   | { type: "subscription"; monthly: number; yearly: number; currency: string };
 
 export interface CheckoutPlugin {
-  id:          string;
-  name:        string;
+  id: string;
+  name: string;
   description: string;
-  author:      string;
-  version:     string;
-  icon:        string;
-  price:       PriceModel;
+  author: string;
+  version: string;
+  icon: string;
+  price: PriceModel;
 }
 
 export interface Props {
-  open:      boolean;
-  plugin:    CheckoutPlugin | null;
-  onClose:   () => void;
+  open: boolean;
+  plugin: CheckoutPlugin | null;
+  onClose: () => void;
   onSuccess: (pluginId: string) => void;
 }
 
@@ -60,8 +60,7 @@ type Step = "plan" | "payment" | "success";
 
 function getPrice(price: PriceModel, cycle: BillingCycle): number {
   if (price.type === "paid") return price.amount;
-  if (price.type === "subscription")
-    return cycle === "yearly" ? price.yearly : price.monthly;
+  if (price.type === "subscription") return cycle === "yearly" ? price.yearly : price.monthly;
   return 0;
 }
 
@@ -86,29 +85,50 @@ function Stepper({ step }: { step: Step }) {
       <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
         {STEPS.map((s, i) => (
           <Fragment key={s}>
-            <Box sx={{
-              width: 24, height: 24, borderRadius: "50%",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "0.65rem", fontWeight: 700,
-              bgcolor: current === i ? "primary.main" : current > i ? "success.main" : "action.disabledBackground",
-              color: current >= i ? "#fff" : "text.disabled",
-              transition: "background-color 0.3s",
-            }}>
+            <Box
+              sx={{
+                width: 24,
+                height: 24,
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "0.65rem",
+                fontWeight: 700,
+                bgcolor:
+                  current === i
+                    ? "primary.main"
+                    : current > i
+                      ? "success.main"
+                      : "action.disabledBackground",
+                color: current >= i ? "#fff" : "text.disabled",
+                transition: "background-color 0.3s",
+              }}
+            >
               {current > i ? "✓" : i + 1}
             </Box>
             {i < STEPS.length - 1 && (
-              <Box sx={(theme) => ({
-                flex: 1, height: 2, borderRadius: 1,
-                bgcolor: current > i ? "success.main" : theme.palette.action.disabledBackground,
-                transition: "background-color 0.3s",
-              })} />
+              <Box
+                sx={(theme) => ({
+                  flex: 1,
+                  height: 2,
+                  borderRadius: 1,
+                  bgcolor: current > i ? "success.main" : theme.palette.action.disabledBackground,
+                  transition: "background-color 0.3s",
+                })}
+              />
             )}
           </Fragment>
         ))}
       </Stack>
       <Stack direction="row" sx={{ justifyContent: "space-between", mt: 0.5, px: 0.25 }}>
         {["Plan", "Payment", "Done"].map((label) => (
-          <Typography key={label} variant="caption" color="text.disabled" sx={{ fontSize: "0.6rem" }}>
+          <Typography
+            key={label}
+            variant="caption"
+            color="text.disabled"
+            sx={{ fontSize: "0.6rem" }}
+          >
             {label}
           </Typography>
         ))}
@@ -124,39 +144,48 @@ function OrderSummary({
   cycle,
   promoApplied,
 }: {
-  plugin:       CheckoutPlugin;
-  cycle:        BillingCycle;
+  plugin: CheckoutPlugin;
+  cycle: BillingCycle;
   promoApplied: boolean;
 }) {
   const basePrice = getPrice(plugin.price, cycle);
-  const discount  = promoApplied ? Math.round(basePrice * 0.1) : 0;
-  const total     = basePrice - discount;
-  const isSub     = plugin.price.type === "subscription";
+  const discount = promoApplied ? Math.round(basePrice * 0.1) : 0;
+  const total = basePrice - discount;
+  const isSub = plugin.price.type === "subscription";
 
   return (
-    <Box sx={(theme) => ({
-      bgcolor: theme.palette.action.hover,
-      border: `1px solid ${theme.palette.divider}`,
-      borderRadius: 2,
-      p: 2,
-    })}>
+    <Box
+      sx={(theme) => ({
+        bgcolor: theme.palette.action.hover,
+        border: `1px solid ${theme.palette.divider}`,
+        borderRadius: 2,
+        p: 2,
+      })}
+    >
       <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mb: 2 }}>
-        <Avatar sx={(theme) => ({
-          width: 36, height: 36, fontSize: "1.1rem",
-          bgcolor: theme.palette.background.paper,
-          border: `1px solid ${theme.palette.divider}`,
-        })}>
+        <Avatar
+          sx={(theme) => ({
+            width: 36,
+            height: 36,
+            fontSize: "1.1rem",
+            bgcolor: theme.palette.background.paper,
+            border: `1px solid ${theme.palette.divider}`,
+          })}
+        >
           {plugin.icon}
         </Avatar>
         <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600 }} noWrap>{plugin.name}</Typography>
+          <Typography variant="subtitle2" sx={{ fontWeight: 600 }} noWrap>
+            {plugin.name}
+          </Typography>
           <Typography variant="caption" color="text.secondary">
             v{plugin.version} · by {plugin.author}
           </Typography>
         </Box>
         <Chip
           label={isSub ? (cycle === "yearly" ? "Annual" : "Monthly") : "One-time"}
-          size="small" variant="outlined"
+          size="small"
+          variant="outlined"
           sx={{ fontSize: "0.65rem", height: 20 }}
         />
       </Stack>
@@ -166,19 +195,29 @@ function OrderSummary({
       <Stack spacing={0.75}>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
           <Typography variant="body2" color="text.secondary">
-            {isSub ? (cycle === "yearly" ? "Annual subscription" : "Monthly subscription") : "License (one-time)"}
+            {isSub
+              ? cycle === "yearly"
+                ? "Annual subscription"
+                : "Monthly subscription"
+              : "License (one-time)"}
           </Typography>
           <Typography variant="body2">${basePrice}</Typography>
         </Stack>
         {promoApplied && (
           <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-            <Typography variant="body2" color="success.main">Promo LUCLE10 (−10%)</Typography>
-            <Typography variant="body2" color="success.main">−${discount}</Typography>
+            <Typography variant="body2" color="success.main">
+              Promo LUCLE10 (−10%)
+            </Typography>
+            <Typography variant="body2" color="success.main">
+              −${discount}
+            </Typography>
           </Stack>
         )}
         <Divider />
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Total</Typography>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+            Total
+          </Typography>
           <Typography variant="subtitle2" sx={{ fontWeight: 700 }} color="primary.main">
             ${total}
             {isSub && (
@@ -201,19 +240,23 @@ function StepPlan({
   onCycleChange,
   onNext,
 }: {
-  plugin:        CheckoutPlugin;
-  cycle:         BillingCycle;
+  plugin: CheckoutPlugin;
+  cycle: BillingCycle;
   onCycleChange: (c: BillingCycle) => void;
-  onNext:        () => void;
+  onNext: () => void;
 }) {
-  const isSub   = plugin.price.type === "subscription";
+  const isSub = plugin.price.type === "subscription";
   const savings = getSavings(plugin.price);
 
   return (
     <Stack spacing={3}>
       <Box>
-        <Typography variant="h6" sx={{ fontWeight: 700 }} gutterBottom>Choose your plan</Typography>
-        <Typography variant="body2" color="text.secondary">{plugin.description}</Typography>
+        <Typography variant="h6" sx={{ fontWeight: 700 }} gutterBottom>
+          Choose your plan
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {plugin.description}
+        </Typography>
       </Box>
 
       {isSub && (
@@ -221,26 +264,57 @@ function StepPlan({
           <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block" }}>
             Billing cycle
           </Typography>
-          <ToggleButtonGroup value={cycle} exclusive fullWidth size="small"
-            onChange={(_, v) => v && onCycleChange(v)}>
-            <ToggleButton value="monthly" sx={{
-              textTransform: "none", flexDirection: "column", py: 1.5,
-              "&.Mui-selected": { bgcolor: "primary.main", color: "primary.contrastText" },
-            }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Monthly</Typography>
+          <ToggleButtonGroup
+            value={cycle}
+            exclusive
+            fullWidth
+            size="small"
+            onChange={(_, v) => v && onCycleChange(v)}
+          >
+            <ToggleButton
+              value="monthly"
+              sx={{
+                textTransform: "none",
+                flexDirection: "column",
+                py: 1.5,
+                "&.Mui-selected": { bgcolor: "primary.main", color: "primary.contrastText" },
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                Monthly
+              </Typography>
               <Typography variant="caption" sx={{ opacity: 0.85 }}>
                 ${(plugin.price as { monthly: number }).monthly}/mo
               </Typography>
             </ToggleButton>
-            <ToggleButton value="yearly" sx={{
-              textTransform: "none", flexDirection: "column", py: 1.5, position: "relative",
-              "&.Mui-selected": { bgcolor: "primary.main", color: "primary.contrastText" },
-            }}>
+            <ToggleButton
+              value="yearly"
+              sx={{
+                textTransform: "none",
+                flexDirection: "column",
+                py: 1.5,
+                position: "relative",
+                "&.Mui-selected": { bgcolor: "primary.main", color: "primary.contrastText" },
+              }}
+            >
               {savings && (
-                <Chip label={`Save ${savings}%`} size="small" color="success"
-                  sx={{ position: "absolute", top: -10, right: 8, height: 18, fontSize: "0.6rem", fontWeight: 700 }} />
+                <Chip
+                  label={`Save ${savings}%`}
+                  size="small"
+                  color="success"
+                  sx={{
+                    position: "absolute",
+                    top: -10,
+                    right: 8,
+                    height: 18,
+                    fontSize: "0.6rem",
+                    fontWeight: 700,
+                  }}
+                />
               )}
-              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Yearly</Typography>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                Yearly
+              </Typography>
               <Typography variant="caption" sx={{ opacity: 0.85 }}>
                 ${(plugin.price as { yearly: number }).yearly}/yr
               </Typography>
@@ -268,7 +342,11 @@ function StepPlan({
 // ─── Card form helpers ────────────────────────────────────────────────────────
 
 function formatCardNumber(value: string) {
-  return value.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+  return value
+    .replace(/\D/g, "")
+    .slice(0, 16)
+    .replace(/(.{4})/g, "$1 ")
+    .trim();
 }
 
 function formatExpiry(value: string) {
@@ -284,28 +362,28 @@ function StepPayment({
   onBack,
   onSuccess,
 }: {
-  plugin:    CheckoutPlugin;
-  cycle:     BillingCycle;
-  onBack:    () => void;
+  plugin: CheckoutPlugin;
+  cycle: BillingCycle;
+  onBack: () => void;
   onSuccess: () => void;
 }) {
   const client = useContext(LucleRPC);
 
-  const [paying, setPaying]           = useState(false);
-  const [error, setError]             = useState<string | null>(null);
-  const [promoInput, setPromoInput]   = useState("");
-  const [promoState, setPromoState]   = useState<"idle" | "applied" | "invalid">("idle");
+  const [paying, setPaying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [promoInput, setPromoInput] = useState("");
+  const [promoState, setPromoState] = useState<"idle" | "applied" | "invalid">("idle");
 
-  const [cardNumber, setCardNumber]   = useState("");
-  const [expiry, setExpiry]           = useState("");
-  const [cvc, setCvc]                 = useState("");
-  const [cardName, setCardName]       = useState("");
-  const [email, setEmail]             = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvc, setCvc] = useState("");
+  const [cardName, setCardName] = useState("");
+  const [email, setEmail] = useState("");
 
   const promoApplied = promoState === "applied";
-  const basePrice    = getPrice(plugin.price, cycle);
-  const discount     = promoApplied ? Math.round(basePrice * 0.1) : 0;
-  const total        = basePrice - discount;
+  const basePrice = getPrice(plugin.price, cycle);
+  const discount = promoApplied ? Math.round(basePrice * 0.1) : 0;
+  const total = basePrice - discount;
 
   function applyPromo() {
     if (promoInput.trim().toUpperCase() === "LUCLE10") {
@@ -316,17 +394,20 @@ function StepPayment({
   }
 
   function validate(): string | null {
-    if (!cardName.trim())                              return "Cardholder name is required";
-    if (!email.trim() || !email.includes("@"))        return "Valid email is required";
-    if (cardNumber.replace(/\s/g, "").length < 16)    return "Invalid card number";
-    if (expiry.length < 5)                            return "Invalid expiry date";
-    if (cvc.length < 3)                               return "Invalid CVC";
+    if (!cardName.trim()) return "Cardholder name is required";
+    if (!email.trim() || !email.includes("@")) return "Valid email is required";
+    if (cardNumber.replace(/\s/g, "").length < 16) return "Invalid card number";
+    if (expiry.length < 5) return "Invalid expiry date";
+    if (cvc.length < 3) return "Invalid CVC";
     return null;
   }
 
   function handlePay() {
     const err = validate();
-    if (err) { setError(err); return; }
+    if (err) {
+      setError(err);
+      return;
+    }
 
     setError(null);
     setPaying(true);
@@ -335,29 +416,29 @@ function StepPayment({
 
     callWasmPlugin(
       client,
-    create(WasmPluginRequestSchema, {
-    pluginName: plugin.id,
-    function: "payment",
-    argsJson: JSON.stringify([
-      {
-        amount:       Number(BigInt(toCents(total))),
-        currency:     "usd",
-        billingCycle: cycle,
-        promoCode:    promoApplied ? "LUCLE10" : "",
-        card: {
-          number:   cardNumber.replace(/\s/g, ""),
-          expMonth,
-          expYear:  2000 + expYear,
-          cvc,
-        },
-        customer: {
-          name:  cardName.trim(),
-          email: email.trim(),
-        },
-      },
-    ]),
-  }),
-)
+      create(WasmPluginRequestSchema, {
+        pluginName: plugin.id,
+        function: "payment",
+        argsJson: JSON.stringify([
+          {
+            amount: Number(BigInt(toCents(total))),
+            currency: "usd",
+            billingCycle: cycle,
+            promoCode: promoApplied ? "LUCLE10" : "",
+            card: {
+              number: cardNumber.replace(/\s/g, ""),
+              expMonth,
+              expYear: 2000 + expYear,
+              cvc,
+            },
+            customer: {
+              name: cardName.trim(),
+              email: email.trim(),
+            },
+          },
+        ]),
+      }),
+    )
       .then(() => onSuccess())
       .catch((e: Error) => setError(e.message))
       .finally(() => setPaying(false));
@@ -369,52 +450,88 @@ function StepPayment({
         <IconButton size="small" onClick={onBack} disabled={paying}>
           <ArrowBackIcon fontSize="small" />
         </IconButton>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>Payment details</Typography>
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          Payment details
+        </Typography>
       </Stack>
 
       <OrderSummary plugin={plugin} cycle={cycle} promoApplied={promoApplied} />
 
       {/* Card form */}
-      <Box sx={(theme) => ({
-        border: `1px solid ${theme.palette.divider}`,
-        borderRadius: 2,
-        p: 2,
-      })}>
+      <Box
+        sx={(theme) => ({
+          border: `1px solid ${theme.palette.divider}`,
+          borderRadius: 2,
+          p: 2,
+        })}
+      >
         <Stack direction="row" sx={{ alignItems: "center", mb: 2 }} spacing={1}>
           <CreditCardIcon fontSize="small" color="action" />
-          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Card information</Typography>
+          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+            Card information
+          </Typography>
         </Stack>
         <Stack spacing={1.5}>
-          <TextField label="Cardholder name" size="small" fullWidth
-            value={cardName} onChange={(e) => setCardName(e.target.value)}
-            disabled={paying} placeholder="Jane Doe" />
-          <TextField label="Email" size="small" fullWidth
-            value={email} onChange={(e) => setEmail(e.target.value)}
-            disabled={paying} placeholder="jane@example.com"
-            slotProps={{ htmlInput: { type: "email" } }} />
-          <TextField label="Card number" size="small" fullWidth
+          <TextField
+            label="Cardholder name"
+            size="small"
+            fullWidth
+            value={cardName}
+            onChange={(e) => setCardName(e.target.value)}
+            disabled={paying}
+            placeholder="Jane Doe"
+          />
+          <TextField
+            label="Email"
+            size="small"
+            fullWidth
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={paying}
+            placeholder="jane@example.com"
+            slotProps={{ htmlInput: { type: "email" } }}
+          />
+          <TextField
+            label="Card number"
+            size="small"
+            fullWidth
             value={cardNumber}
             onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-            disabled={paying} placeholder="1234 5678 9012 3456"
-            slotProps={{ htmlInput: { inputMode: "numeric" } }} />
+            disabled={paying}
+            placeholder="1234 5678 9012 3456"
+            slotProps={{ htmlInput: { inputMode: "numeric" } }}
+          />
           <Stack direction="row" spacing={1.5}>
-            <TextField label="Expiry" size="small" fullWidth
+            <TextField
+              label="Expiry"
+              size="small"
+              fullWidth
               value={expiry}
               onChange={(e) => setExpiry(formatExpiry(e.target.value))}
-              disabled={paying} placeholder="MM/YY"
-              slotProps={{ htmlInput: { inputMode: "numeric" } }} />
-            <TextField label="CVC" size="small" fullWidth
+              disabled={paying}
+              placeholder="MM/YY"
+              slotProps={{ htmlInput: { inputMode: "numeric" } }}
+            />
+            <TextField
+              label="CVC"
+              size="small"
+              fullWidth
               value={cvc}
               onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              disabled={paying} placeholder="•••"
-              slotProps={{ htmlInput: { inputMode: "numeric" } }} />
+              disabled={paying}
+              placeholder="•••"
+              slotProps={{ htmlInput: { inputMode: "numeric" } }}
+            />
           </Stack>
         </Stack>
       </Box>
 
       {/* Promo code */}
       <Stack direction="row" spacing={1} sx={{ alignItems: "flex-start" }}>
-        <TextField label="Promo code" size="small" fullWidth
+        <TextField
+          label="Promo code"
+          size="small"
+          fullWidth
           value={promoInput}
           onChange={(e) => {
             setPromoInput(e.target.value.toUpperCase());
@@ -425,8 +542,8 @@ function StepPayment({
             promoState === "invalid"
               ? "Invalid promo code"
               : promoApplied
-              ? "✓ LUCLE10 applied — 10% off"
-              : ""
+                ? "✓ LUCLE10 applied — 10% off"
+                : ""
           }
           disabled={promoApplied || paying}
           placeholder="LUCLE10"
@@ -441,22 +558,33 @@ function StepPayment({
             formHelperText: { sx: { color: promoApplied ? "success.main" : undefined } },
           }}
         />
-        <Button variant="outlined" size="small" onClick={applyPromo}
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={applyPromo}
           disabled={promoApplied || paying || !promoInput}
-          sx={{ mt: 0.5, flexShrink: 0, height: 40 }}>
+          sx={{ mt: 0.5, flexShrink: 0, height: 40 }}
+        >
           Apply
         </Button>
       </Stack>
 
       {error && (
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       )}
 
       {paying && <LinearProgress />}
 
-      <Button variant="contained" size="large" fullWidth
-        onClick={handlePay} disabled={paying}
-        startIcon={<CreditCardIcon />}>
+      <Button
+        variant="contained"
+        size="large"
+        fullWidth
+        onClick={handlePay}
+        disabled={paying}
+        startIcon={<CreditCardIcon />}
+      >
         {paying ? "Processing…" : `Pay $${total}`}
       </Button>
 
@@ -477,39 +605,55 @@ function StepSuccess({ plugin, onClose }: { plugin: CheckoutPlugin; onClose: () 
     <Fade in>
       <Stack spacing={3} sx={{ alignItems: "center", textAlign: "center", py: 2 }}>
         <Box sx={{ position: "relative" }}>
-          <Avatar sx={(theme) => ({
-            width: 64, height: 64, fontSize: "2rem",
-            bgcolor: theme.palette.action.hover,
-            border: `2px solid ${theme.palette.success.main}`,
-          })}>
+          <Avatar
+            sx={(theme) => ({
+              width: 64,
+              height: 64,
+              fontSize: "2rem",
+              bgcolor: theme.palette.action.hover,
+              border: `2px solid ${theme.palette.success.main}`,
+            })}
+          >
             {plugin.icon}
           </Avatar>
-          <CheckCircleIcon sx={(theme) => ({
-            position: "absolute", bottom: -4, right: -4, fontSize: 24,
-            color: "success.main",
-            bgcolor: theme.palette.background.paper,
-            borderRadius: "50%",
-          })} />
+          <CheckCircleIcon
+            sx={(theme) => ({
+              position: "absolute",
+              bottom: -4,
+              right: -4,
+              fontSize: 24,
+              color: "success.main",
+              bgcolor: theme.palette.background.paper,
+              borderRadius: "50%",
+            })}
+          />
         </Box>
 
         <Box>
-          <Typography variant="h6" sx={{ fontWeight: 700 }} gutterBottom>Purchase complete!</Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700 }} gutterBottom>
+            Purchase complete!
+          </Typography>
           <Typography variant="body2" color="text.secondary">
             <strong>{plugin.name}</strong> is now unlocked. You can install it right away.
           </Typography>
         </Box>
 
-        <Box sx={(theme) => ({
-          bgcolor: theme.palette.success.main + "12",
-          border: `1px solid ${theme.palette.success.main}44`,
-          borderRadius: 2, px: 3, py: 1.5, width: "100%",
-        })}>
+        <Box
+          sx={(theme) => ({
+            bgcolor: theme.palette.success.main + "12",
+            border: `1px solid ${theme.palette.success.main}44`,
+            borderRadius: 2,
+            px: 3,
+            py: 1.5,
+            width: "100%",
+          })}
+        >
           <Typography variant="caption" color="success.main" sx={{ fontWeight: 600 }}>
             A receipt has been sent to your email address.
           </Typography>
         </Box>
 
-        <Stack direction="row" spacing={1.5} sx={{ width: "100%"}}>
+        <Stack direction="row" spacing={1.5} sx={{ width: "100%" }}>
           <Button variant="outlined" fullWidth startIcon={<ExtensionIcon />} onClick={onClose}>
             Back to store
           </Button>
@@ -525,11 +669,14 @@ function StepSuccess({ plugin, onClose }: { plugin: CheckoutPlugin; onClose: () 
 // ─── CheckoutDialog ───────────────────────────────────────────────────────────
 
 export default function CheckoutDialog({ open, plugin, onClose, onSuccess }: Props) {
-  const [step, setStep]   = useState<Step>("plan");
+  const [step, setStep] = useState<Step>("plan");
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
 
   useEffect(() => {
-    if (open) { setStep("plan"); setCycle("monthly"); }
+    if (open) {
+      setStep("plan");
+      setCycle("monthly");
+    }
   }, [open, plugin?.id]);
 
   if (!plugin) return null;
@@ -547,14 +694,22 @@ export default function CheckoutDialog({ open, plugin, onClose, onSuccess }: Pro
       fullWidth
       slotProps={{ paper: { sx: { borderRadius: 3 } } }}
     >
-      <Box sx={(theme) => ({
-        px: 3, pt: 2.5, pb: 1,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        borderBottom: `1px solid ${theme.palette.divider}`,
-      })}>
+      <Box
+        sx={(theme) => ({
+          px: 3,
+          pt: 2.5,
+          pb: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderBottom: `1px solid ${theme.palette.divider}`,
+        })}
+      >
         <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
           <LockOutlinedIcon fontSize="small" color="action" />
-          <Typography variant="subtitle2" color="text.secondary">Secure checkout</Typography>
+          <Typography variant="subtitle2" color="text.secondary">
+            Secure checkout
+          </Typography>
         </Stack>
         <IconButton size="small" onClick={handleClose}>
           <CloseIcon fontSize="small" />
@@ -565,16 +720,22 @@ export default function CheckoutDialog({ open, plugin, onClose, onSuccess }: Pro
 
       <DialogContent sx={{ pt: 2, pb: 3 }}>
         {step === "plan" && (
-          <StepPlan plugin={plugin} cycle={cycle} onCycleChange={setCycle}
-            onNext={() => setStep("payment")} />
+          <StepPlan
+            plugin={plugin}
+            cycle={cycle}
+            onCycleChange={setCycle}
+            onNext={() => setStep("payment")}
+          />
         )}
         {step === "payment" && (
-          <StepPayment plugin={plugin} cycle={cycle}
-            onBack={() => setStep("plan")} onSuccess={() => setStep("success")} />
+          <StepPayment
+            plugin={plugin}
+            cycle={cycle}
+            onBack={() => setStep("plan")}
+            onSuccess={() => setStep("success")}
+          />
         )}
-        {step === "success" && (
-          <StepSuccess plugin={plugin} onClose={handleClose} />
-        )}
+        {step === "success" && <StepSuccess plugin={plugin} onClose={handleClose} />}
       </DialogContent>
     </Dialog>
   );

@@ -46,9 +46,9 @@ import { registerUpdateServer, deleteRepo, listRepositories } from "utils/rpc";
 
 interface AuthContextValue {
   username: string | null;
-  token:    string | null;
-  Login:    (credentials: { username: string; password: string }) => Promise<unknown>;
-  Logout:   () => void;
+  token: string | null;
+  Login: (credentials: { username: string; password: string }) => Promise<unknown>;
+  Logout: () => void;
 }
 
 // ─── Styled ───────────────────────────────────────────────────────────────────
@@ -90,17 +90,17 @@ type PlatformKey = "win64" | "macos_x86_64" | "macos_arm64" | "linux";
 type DeleteTarget = "game" | "launcher" | "both";
 
 const PLATFORMS: { key: PlatformKey; label: string; enum: Platforms }[] = [
-  { key: "win64",        label: "Windows x64",   enum: Platforms.WIN64 },
-  { key: "macos_x86_64", label: "macOS x86_64",  enum: Platforms.MACOS_X86_64 },
-  { key: "macos_arm64",  label: "macOS arm64",   enum: Platforms.MACOS_ARM64 },
-  { key: "linux",        label: "Linux",          enum: Platforms.LINUX },
+  { key: "win64", label: "Windows x64", enum: Platforms.WIN64 },
+  { key: "macos_x86_64", label: "macOS x86_64", enum: Platforms.MACOS_X86_64 },
+  { key: "macos_arm64", label: "macOS arm64", enum: Platforms.MACOS_ARM64 },
+  { key: "linux", label: "Linux", enum: Platforms.LINUX },
 ];
 
 const PLATFORM_COLORS: Record<PlatformKey, "default" | "primary" | "secondary" | "warning"> = {
-  win64:        "primary",
+  win64: "primary",
   macos_x86_64: "secondary",
-  macos_arm64:  "secondary",
-  linux:        "warning",
+  macos_arm64: "secondary",
+  linux: "warning",
 };
 
 // ─── DeleteRepoDialog ─────────────────────────────────────────────────────────
@@ -111,9 +111,9 @@ function DeleteRepoDialog({
   onClose,
   onConfirm,
 }: {
-  repoName:  string;
-  open:      boolean;
-  onClose:   () => void;
+  repoName: string;
+  open: boolean;
+  onClose: () => void;
   onConfirm: (target: DeleteTarget) => void;
 }) {
   const [target, setTarget] = useState<DeleteTarget>("both");
@@ -124,12 +124,19 @@ function DeleteRepoDialog({
   }
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth
-      slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="xs"
+      fullWidth
+      slotProps={{ paper: { sx: { borderRadius: 3 } } }}
+    >
       <DialogTitle>
         <Stack direction="row" sx={{ alignItems: "center" }} spacing={1.5}>
           <WarningAmberIcon color="error" />
-          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Delete repository</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+            Delete repository
+          </Typography>
         </Stack>
       </DialogTitle>
 
@@ -170,7 +177,9 @@ function DeleteRepoDialog({
           >
             <SportsEsportsIcon fontSize="small" />
             <Box sx={{ textAlign: "left" }}>
-              <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>Game</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+                Game
+              </Typography>
               <Typography variant="caption" sx={{ opacity: 0.75 }}>
                 Delete game binaries, packages and versions
               </Typography>
@@ -196,7 +205,9 @@ function DeleteRepoDialog({
           >
             <RocketLaunchIcon fontSize="small" />
             <Box sx={{ textAlign: "left" }}>
-              <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>Launcher</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+                Launcher
+              </Typography>
               <Typography variant="caption" sx={{ opacity: 0.75 }}>
                 Delete launcher binaries, packages and versions
               </Typography>
@@ -222,7 +233,9 @@ function DeleteRepoDialog({
           >
             <DeleteOutlineIcon fontSize="small" />
             <Box sx={{ textAlign: "left" }}>
-              <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>Both</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+                Both
+              </Typography>
               <Typography variant="caption" sx={{ opacity: 0.75 }}>
                 Delete the entire repository and all its data
               </Typography>
@@ -232,9 +245,14 @@ function DeleteRepoDialog({
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2.5 }}>
-        <Button onClick={handleClose} variant="outlined" size="small">Cancel</Button>
+        <Button onClick={handleClose} variant="outlined" size="small">
+          Cancel
+        </Button>
         <Button
-          onClick={() => { onConfirm(target); handleClose(); }}
+          onClick={() => {
+            onConfirm(target);
+            handleClose();
+          }}
           variant="contained"
           color="error"
           size="small"
@@ -251,19 +269,22 @@ function DeleteRepoDialog({
 
 function ListRepo() {
   const [listRepo, setListRepo] = useState<Map<string, string[]>>(new Map());
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [joinPath, setJoinPath] = useState("");
   const [createPath, setCreatePath] = useState("");
   const [deleteRepo_, setDeleteRepo_] = useState<string | null>(null);
   const [checked, setChecked] = useState<Record<PlatformKey, boolean>>({
-    win64: false, macos_x86_64: false, macos_arm64: false, linux: false,
+    win64: false,
+    macos_x86_64: false,
+    macos_arm64: false,
+    linux: false,
   });
 
-  const lucleClient       = useContext(LucleRPC);
+  const lucleClient = useContext(LucleRPC);
   const speedupdateClient = useContext(SpeedupdateRPC);
-  const auth              = useAuth() as AuthContextValue | undefined;
-  const navigate          = useNavigate();
+  const auth = useAuth() as AuthContextValue | undefined;
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!auth?.username) return;
@@ -283,11 +304,9 @@ function ListRepo() {
   const getSelectedPlatforms = (): Platforms[] =>
     PLATFORMS.filter((p) => checked[p.key]).map((p) => p.enum);
 
-  const getSelectedKeys = (): string[] =>
-    PLATFORMS.filter((p) => checked[p.key]).map((p) => p.key);
+  const getSelectedKeys = (): string[] => PLATFORMS.filter((p) => checked[p.key]).map((p) => p.key);
 
-  const handleToggle = (key: PlatformKey) =>
-    setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+  const handleToggle = (key: PlatformKey) => setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const navigateToRepo = (repo_name: string, type: "game" | "launcher") => {
     setError(null);
@@ -311,8 +330,9 @@ function ListRepo() {
         setListRepo(updated);
         setCreatePath("");
         if (auth?.username) {
-          registerUpdateServer(lucleClient, auth.username, createPath, platformsEnum)
-            .catch((err: unknown) => setError(ConnectError.from(err).message));
+          registerUpdateServer(lucleClient, auth.username, createPath, platformsEnum).catch(
+            (err: unknown) => setError(ConnectError.from(err).message),
+          );
         }
       })
       .catch((err: unknown) => setError(ConnectError.from(err).message));
@@ -320,8 +340,7 @@ function ListRepo() {
 
   const handleDeleteConfirm = (repoName: string, target: DeleteTarget) => {
     setError(null);
-    const doDelete = (binaryType: "game" | "launcher") =>
-      repoToDelete(speedupdateClient, repoName);
+    const doDelete = (binaryType: "game" | "launcher") => repoToDelete(speedupdateClient, repoName);
 
     const tasks: Promise<unknown>[] = [];
 
@@ -332,10 +351,10 @@ function ListRepo() {
       .then(() => {
         if (target === "both") {
           return deleteRepo(lucleClient, repoName).then(() => {
-              const updated = new Map(listRepo);
-              updated.delete(repoName);
-              setListRepo(updated);
-            });
+            const updated = new Map(listRepo);
+            updated.delete(repoName);
+            setListRepo(updated);
+          });
         }
       })
       .catch((err: unknown) => setError(ConnectError.from(err).message));
@@ -346,8 +365,11 @@ function ListRepo() {
   return (
     <Stack spacing={3}>
       {error && (
-        <Alert severity="error" onClose={() => setError(null)}
-          sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" }}>
+        <Alert
+          severity="error"
+          onClose={() => setError(null)}
+          sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" }}
+        >
           {error}
         </Alert>
       )}
@@ -369,51 +391,81 @@ function ListRepo() {
             ))}
           </Stack>
         ) : listRepo.size === 0 ? (
-          <Typography variant="body2" color="text.secondary"
-            sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" }}
+          >
             No repositories found.
           </Typography>
         ) : (
           Array.from(listRepo.entries()).map(([repo_name, platforms]) => (
             <RepoRow key={repo_name}>
               <Box sx={{ minWidth: 0 }}>
-                <Stack direction="row" spacing={1} sx={{ minWidth: 0, mb: 0.5, alignItems: "center" }}>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ minWidth: 0, mb: 0.5, alignItems: "center" }}
+                >
                   <StorageIcon fontSize="small" color="action" sx={{ flexShrink: 0 }} />
-                  <Typography sx={{
-                    fontFamily: "JetBrains Mono, monospace",
-                    fontSize: "0.85rem",
-                    fontWeight: 600,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "JetBrains Mono, monospace",
+                      fontSize: "0.85rem",
+                      fontWeight: 600,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {repo_name}
                   </Typography>
                 </Stack>
-                <Stack direction="row" spacing={0.5} useFlexGap sx={{ pl: "28px", flexWrap: "wrap" }}>
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  useFlexGap
+                  sx={{ pl: "28px", flexWrap: "wrap" }}
+                >
                   {platforms.map((p) => (
-                    <Chip key={p} label={p} size="small"
+                    <Chip
+                      key={p}
+                      label={p}
+                      size="small"
                       color={PLATFORM_COLORS[p as PlatformKey] ?? "default"}
-                      sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.65rem" }} />
+                      sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.65rem" }}
+                    />
                   ))}
                 </Stack>
               </Box>
 
-              <Stack direction="row" spacing={1} sx={{
-                flexShrink: 0,
-                "& .MuiButton-root": { flex: { xs: 1, sm: "none" } },
-              }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  flexShrink: 0,
+                  "& .MuiButton-root": { flex: { xs: 1, sm: "none" } },
+                }}
+              >
                 <Tooltip title="Open in game mode">
-                  <Button size="small" variant="outlined" startIcon={<SportsEsportsIcon />}
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<SportsEsportsIcon />}
                     onClick={() => navigateToRepo(repo_name, "game")}
-                    sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem" }}>
+                    sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem" }}
+                  >
                     Game
                   </Button>
                 </Tooltip>
                 <Tooltip title="Open in launcher mode">
-                  <Button size="small" variant="outlined" startIcon={<RocketLaunchIcon />}
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<RocketLaunchIcon />}
                     onClick={() => navigateToRepo(repo_name, "launcher")}
-                    sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem" }}>
+                    sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem" }}
+                  >
                     Launcher
                   </Button>
                 </Tooltip>
@@ -449,8 +501,12 @@ function ListRepo() {
           <SectionCard sx={{ height: "100%" }}>
             <SectionLabel>// Join Repository</SectionLabel>
             <Stack spacing={2}>
-              <TextField fullWidth size="small" label="Path"
-                value={joinPath} onChange={(e) => setJoinPath(e.target.value)}
+              <TextField
+                fullWidth
+                size="small"
+                label="Path"
+                value={joinPath}
+                onChange={(e) => setJoinPath(e.target.value)}
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -460,9 +516,15 @@ function ListRepo() {
                     ),
                     style: { fontFamily: "JetBrains Mono, monospace" },
                   },
-                }} />
-              <Button variant="contained" startIcon={<LinkIcon />}
-                disabled={!joinPath.trim()} fullWidth sx={{ maxWidth: { sm: 200 } }}>
+                }}
+              />
+              <Button
+                variant="contained"
+                startIcon={<LinkIcon />}
+                disabled={!joinPath.trim()}
+                fullWidth
+                sx={{ maxWidth: { sm: 200 } }}
+              >
                 Join Repository
               </Button>
             </Stack>
@@ -473,8 +535,12 @@ function ListRepo() {
           <SectionCard sx={{ height: "100%" }}>
             <SectionLabel>// Create Repository</SectionLabel>
             <Stack spacing={2}>
-              <TextField fullWidth size="small" label="Path"
-                value={createPath} onChange={(e) => setCreatePath(e.target.value)}
+              <TextField
+                fullWidth
+                size="small"
+                label="Path"
+                value={createPath}
+                onChange={(e) => setCreatePath(e.target.value)}
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -484,14 +550,17 @@ function ListRepo() {
                     ),
                     style: { fontFamily: "JetBrains Mono, monospace" },
                   },
-                }} />
+                }}
+              />
               <Box>
-                <FormLabel sx={{
-                  fontSize: "0.75rem",
-                  fontFamily: "JetBrains Mono, monospace",
-                  mb: 1,
-                  display: "block",
-                }}>
+                <FormLabel
+                  sx={{
+                    fontSize: "0.75rem",
+                    fontFamily: "JetBrains Mono, monospace",
+                    mb: 1,
+                    display: "block",
+                  }}
+                >
                   Platforms
                 </FormLabel>
                 <FormGroup>
@@ -500,11 +569,16 @@ function ListRepo() {
                       <Grid key={p.key} size={{ xs: 6 }}>
                         <FormControlLabel
                           control={
-                            <Checkbox size="small" checked={checked[p.key]}
-                              onChange={() => handleToggle(p.key)} />
+                            <Checkbox
+                              size="small"
+                              checked={checked[p.key]}
+                              onChange={() => handleToggle(p.key)}
+                            />
                           }
                           label={
-                            <Typography sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.78rem" }}>
+                            <Typography
+                              sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.78rem" }}
+                            >
                               {p.label}
                             </Typography>
                           }
@@ -514,9 +588,14 @@ function ListRepo() {
                   </Grid>
                 </FormGroup>
               </Box>
-              <Button variant="contained" startIcon={<AddIcon />}
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
                 disabled={!createPath.trim() || !anyPlatformSelected}
-                onClick={handleCreate} fullWidth sx={{ maxWidth: { sm: 220 } }}>
+                onClick={handleCreate}
+                fullWidth
+                sx={{ maxWidth: { sm: 220 } }}
+              >
                 Create Repository
               </Button>
             </Stack>
