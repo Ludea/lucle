@@ -17,7 +17,7 @@ service Lucle {
   rpc install_plugin               (InstallPluginRequest) returns (InstalledPlugin);
   rpc toggle_plugin                (TogglePluginRequest) returns (InstalledPlugin);
   rpc remove_plugin                (RemovePluginRequest) returns (Empty);
-  rpc CreateAndConfirmPayment      (CreateAndConfirmPaymentRequest) returns (CreateAndConfirmPaymentResponse);
+  rpc call_wasm_plugin             (WasmPluginRequest) returns (WasmPluginReply);
 }
 
 enum DatabaseType {
@@ -129,29 +129,12 @@ message RemovePluginRequest {
   string id = 1;
 }
 
-message CardDetails {
-  string number    = 1;
-  int32  exp_month = 2;
-  int32  exp_year  = 3;
-  string cvc       = 4;
+message WasmPluginRequest {
+  string plugin_name = 1;
+  string function    = 2;
+  string args_json   = 3; 
 }
 
-message CustomerDetails {
-  string name  = 1;
-  string email = 2;
-}
-
-message CreateAndConfirmPaymentRequest {
-  string          plugin_id     = 1;
-  uint64          amount        = 2;
-  string          currency      = 3;
-  string          billing_cycle = 4;
-  CardDetails     card          = 5;
-  CustomerDetails customer      = 6;
-  string          promo_code    = 7;
-}
-
-message CreateAndConfirmPaymentResponse {
-  string status            = 1;
-  string payment_intent_id = 2;
+message WasmPluginReply {
+  string result_json = 1;
 }

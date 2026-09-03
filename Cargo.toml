@@ -27,6 +27,7 @@ serde = { version = "1.0.0", features = ["derive"] }
 rcgen = "0.14.1"
 rustls-pemfile = "2.0.0"
 octocrab = "0.54"
+dirs = "6.0"
 argon2 = { version = "0.5.2", features = ["std"] }
 lettre = { version = "0.11.1", default-features = false, features = ["smtp-transport", "pool", "hostname", "builder", "rustls-tls", "file-transport"] }
 email-address-parser = "2.0.0"
@@ -42,7 +43,7 @@ reqwest = { version = "0.13.1", default-features = false }
 wasmsign2 = "0.2.6"
 semver = "1.0"
 wasmtime = { version = "48.0.0", features = ["async"] }
-wasmtime-wasi = "48.0.0"
+wasmtime-wasi = { version = "48.0.0", features = ["p3"] }
 
 # Database
 diesel = { version = "2.3", features = ["chrono", "serde_json"] }
@@ -55,7 +56,6 @@ libsqlite3-sys = { version = "0.37", features = ["bundled"] }
 # Database
 #mysqlclient-sys = { version = "0.4", features = ["bundled"] }
 #pq-sys = { version = "0.6.1", features = ["bundled"] }
-# Wasm runtime
 
 [build-dependencies]
 tonic-build = "0.14" 

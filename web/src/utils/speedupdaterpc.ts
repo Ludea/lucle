@@ -18,9 +18,10 @@ export const init = (client: any, path: string, platforms: any) => {
 
 export const isInit = (client: any, path: string, platforms: any, type: string) => {
   const headers = setHeaders();
+  console.log("12: ", client);
   return Promise.all(
     platforms.map((folder: string) =>
-      client.isInit({ path: path.concat("/", type, "/", folder) }, { headers }),
+      client.is_init({ path: path.concat("/", type, "/", folder) }, { headers }),
     ),
   );
 };
@@ -35,7 +36,7 @@ export const setCurrentVersion = (
   const headers = setHeaders();
   return Promise.all(
     platforms.map((folder: string) =>
-      client.setCurrentVersion({ path: path.concat("/", type, "/", folder), version }, { headers }),
+      client.set_current_version({ path: path.concat("/", type, "/", folder), version }, { headers }),
     ),
   );
 };
@@ -51,7 +52,7 @@ export const registerVersion = (
   const headers = setHeaders();
   return Promise.all(
     platforms.map((folder: string) =>
-      client.registerVersion(
+      client.register_version(
         { path: path.concat("/", type, "/", folder), version, description },
         { headers },
       ),
@@ -69,7 +70,7 @@ export const unregisterVersion = (
   const headers = setHeaders();
   return Promise.all(
     platforms.map((folder: string) =>
-      client.unregisterVersion({ path: path.concat("/", type, "/", folder), version }, { headers }),
+      client.unregister_version({ path: path.concat("/", type, "/", folder), version }, { headers }),
     ),
   );
 };
@@ -84,7 +85,7 @@ export const registerPackage = (
   const headers = setHeaders();
   return Promise.all(
     platforms.map((folder: string) =>
-      client.registerPackage({ path: path.concat("/", type, "/", folder), name }, { headers }),
+      client.register_package({ path: path.concat("/", type, "/", folder), name }, { headers }),
     ),
   );
 };
@@ -99,21 +100,21 @@ export const unregisterPackage = (
   const headers = setHeaders();
   return Promise.all(
     platforms.map((folder: string) =>
-      client.unregisterPackage({ path: path.concat("/", type, "/", folder), name }, { headers }),
+      client.unregister_package({ path: path.concat("/", type, "/", folder), name }, { headers }),
     ),
   );
 };
 
 export const repoToDelete = (client: any, path: string) => {
   const headers = setHeaders();
-  return client.deleteRepo({ path }, { headers });
+  return client.delete_repo({ path }, { headers });
 };
 
 export const fileToDelete = (client: any, file: string, platforms: any, type: string) => {
   const headers = setHeaders();
   return Promise.all(
     platforms.map((folder: string) =>
-      client.deleteFile({ file: folder.concat("/", type, "/", file) }, { headers }),
+      client.delete_file({ file: folder.concat("/", type, "/", file) }, { headers }),
     ),
   );
 };
@@ -139,6 +140,7 @@ export function status(client: any, path: string, platforms: any, type: string, 
           },
           { headers },
         );
+        console.log("call →", call, Object.keys(call));
         const iterator = call[Symbol.asyncIterator]();
 
         const readNext = (): Promise<void> =>

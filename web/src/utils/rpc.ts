@@ -1,4 +1,8 @@
 import type { InstalledPlugin, InstallPluginRequest } from "gen/lucle_pb";
+import type {
+  WasmPluginRequest,
+  WasmPluginReply,
+} from "gen/lucle_pb";
 
 export const checkIfInstalled = async (client: any) => client.is_database_created();
 
@@ -78,4 +82,11 @@ export async function togglePlugin(client: any, id: string): Promise<InstalledPl
 
 export async function removePlugin(client: any, id: string): Promise<void> {
   client.removePlugin({ id });
+}
+
+export async function callWasmPlugin(
+  client: any,
+  req: WasmPluginRequest,
+): Promise<WasmPluginReply> {
+  return client.call_wasm_plugin(req);
 }

@@ -25,9 +25,9 @@ import ExtensionIcon from "@mui/icons-material/Extension";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 
 import { LucleRPC } from "context/Luclerpc";
-import { createAndConfirmPayment } from "utils/rpc";
+import { callWasmPlugin } from "utils/rpc";
 import { create } from "@bufbuild/protobuf";
-import { CreateAndConfirmPaymentRequestSchema } from "gen/lucle_pb";
+import { WasmPluginRequestSchema } from "gen/lucle_pb";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -56,7 +56,7 @@ export interface Props {
 type BillingCycle = "monthly" | "yearly";
 type Step = "plan" | "payment" | "success";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Hepers ──────────────────────────────────────────────────────────────────
 
 function getPrice(price: PriceModel, cycle: BillingCycle): number {
   if (price.type === "paid") return price.amount;
@@ -333,11 +333,14 @@ function StepPayment({
 
     const [expMonth, expYear] = expiry.split("/").map(Number);
 
-    createAndConfirmPayment(
+    callWasmPlugin(
       client,
-      create(CreateAndConfirmPaymentRequestSchema, {
-        pluginId:     plugin.id,
-        amount:       BigInt(toCents(total)),
+    create(WasmPluginRequestSchema, {
+    pluginName: plugin.id,
+    function: "payment",
+    argsJson: JSON.stringify([
+      {
+        amount:       Number(BigInt(toCents(total))),
         currency:     "usd",
         billingCycle: cycle,
         promoCode:    promoApplied ? "LUCLE10" : "",
@@ -351,8 +354,10 @@ function StepPayment({
           name:  cardName.trim(),
           email: email.trim(),
         },
-      }),
-    )
+      },
+    ]),
+  }),
+)
       .then(() => onSuccess())
       .catch((e: Error) => setError(e.message))
       .finally(() => setPaying(false));

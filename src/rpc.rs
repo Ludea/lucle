@@ -2,6 +2,7 @@ use super::utils;
 use crate::diesel;
 use crate::errors::Error;
 use crate::plugin_db;
+use crate::plugins::{self, PluginSystem};
 use crate::DbType;
 use dotenvy::dotenv;
 use email_address_parser::EmailAddress;
@@ -9,7 +10,8 @@ use luclerpc::{
     lucle_server::{Lucle, LucleServer},
     Credentials, Database, DatabaseType, Empty, InstallPluginRequest, InstalledPlugin,
     ListPluginsResponse, ListUpdateServer, Platforms, RemovePluginRequest, ResetPassword,
-    TogglePluginRequest, UpdateServer, User, UserCreation, Username,
+    TogglePluginRequest, UpdateServer, User, UserCreation, Username, WasmPluginReply,
+    WasmPluginRequest,
 };
 use octocrab::Octocrab;
 use semver::Version;
@@ -55,8 +57,15 @@ pub enum Hosts {
     Linux,
 }
 
-#[derive(Default)]
-pub struct LucleApi {}
+pub struct LucleApi {
+    pub plugin_manager: Arc<PluginSystem>,
+}
+
+impl LucleApi {
+    pub fn new(plugin_manager: Arc<PluginSystem>) -> Self {
+        Self { plugin_manager }
+    }
+}
 
 #[tonic::async_trait]
 impl Lucle for LucleApi {
@@ -400,6 +409,35 @@ impl Lucle for LucleApi {
             }
         }
     }
+
+    async fn call_wasm_plugin(
+        &self,
+        request: Request<WasmPluginRequest>,
+    ) -> Result<Response<WasmPluginReply>, Status> {
+        let req = request.into_inner();
+        let plugin_name = req.plugin_name;
+        let function = req.function;
+
+        let args = plugins::json_array_to_args(req.args_json.as_bytes())
+            .map_err(|e| Status::invalid_argument(e.to_string()))?;
+
+        let plugin_folder = dirs::data_dir()
+            .ok_or_else(|| Error::Io(std::io::Error::other("Data dir unavailable")))
+            .map_err(|e| tonic::Status::internal(e.to_string()))?
+            .join(&plugin_name)
+            .join("plugins");
+        let result = self
+            .plugin_manager
+            .call(plugin_folder, plugin_name, function, args)
+            .await
+            .map_err(|e| Status::internal(e.to_string()))?;
+
+        let reply = WasmPluginReply {
+            result_json: result.to_string(),
+        };
+
+        Ok(Response::new(reply))
+    }
 }
 
 type SparusResult<T> = Result<Response<T>, Status>;
@@ -672,8 +710,8 @@ impl Event for EventRoute {
     }
 }
 
-pub fn rpc_api(_db: DbType) -> AxumRouter {
-    let api = LucleApi::default();
+pub fn rpc_api(_db: DbType, plugin_manager: Arc<PluginSystem>) -> AxumRouter {
+    let api = LucleApi::new(plugin_manager);
     let api = LucleServer::new(api);
 
     let event_route = EventRoute::new();

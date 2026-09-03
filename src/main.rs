@@ -1,6 +1,6 @@
 use axum::Router;
 use dotenvy::dotenv;
-use std::net::SocketAddr;
+use std::{net::SocketAddr, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -9,7 +9,6 @@ mod errors;
 mod http;
 pub mod models;
 mod plugin_db;
-#[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
 mod plugins;
 mod query_helper;
 mod rpc;
@@ -53,10 +52,7 @@ async fn main() {
         tracing::error!("{}", err);
     }
 
-    #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
-    if let Err(err) = plugins::load_wasm_runtime().await {
-        tracing::error!("{}", err);
-    }
+    let plugin_manager = Arc::new(plugins::PluginSystem::new());
 
     let mut database: DbType = DbType::NoDatabase;
     if let Some(db) = utils::get_config_key("database", "type") {
@@ -119,7 +115,7 @@ async fn main() {
         .allow_headers(Any)
         .expose_headers(Any);
 
-    let grpc = rpc::rpc_api(database);
+    let grpc = rpc::rpc_api(database, plugin_manager);
     let http = http::serve_dir();
     let app = Router::new().merge(grpc).merge(http).layer(cors_layer);
 
