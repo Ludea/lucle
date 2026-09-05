@@ -15,11 +15,11 @@ import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 import HelpRoundedIcon from "@mui/icons-material/HelpRounded";
 
 const mainListItems = [
-  { text: "Repositories", icon: <HomeRoundedIcon />, path: "/" },
+  { text: "Repositories", icon: <HomeRoundedIcon />, path: "/dashboard" },
   { text: "Game", icon: <SportsEsportsIcon />, path: "/game" },
   { text: "Launcher", icon: <RocketLaunchIcon />, path: "/launcher" },
   { text: "Plugin Store", icon: <ExtensionIcon />, path: "/plugins" },
-  { text: "Plugin Manager", icon: <TuneIcon />, path: "/admin/plugins" },
+  { text: "Plugin Manager", icon: <TuneIcon />, path: "/pluginmanagement" },
 ];
 
 const secondaryListItems = [

@@ -48,7 +48,7 @@ const routes = (isInstalled: boolean) => [
               { path: ":repo/game", element: <Game /> },
               { path: ":repo/launcher", element: <Launcher /> },
               { path: ":repo/plugins", element: <PluginStore /> },
-              { path: ":repo/pluginmanagement", element: <PluginManager /> },
+              { path: "pluginmanagement", element: <PluginManager /> },
             ],
           },
         ],
