@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import { useForkRef } from "@mui/material/utils";
 import Button from "@mui/material/Button";
@@ -20,9 +20,15 @@ function ButtonField(props: ButtonFieldProps) {
       ? parsedFormat
       : pickerContext.value.format(pickerContext.fieldFormat);
 
+  // Exclure les props non-DOM avant de les passer à <Button>
+  const { slotProps, inputRef, ...buttonProps } = forwardedProps as typeof forwardedProps & {
+    slotProps?: unknown;
+    inputRef?: unknown;
+  };
+
   return (
     <Button
-      {...forwardedProps}
+      {...buttonProps}
       variant="outlined"
       ref={handleRef}
       size="small"
@@ -36,7 +42,7 @@ function ButtonField(props: ButtonFieldProps) {
 }
 
 export default function CustomDatePicker() {
-  const [value, setValue] = React.useState<Dayjs | null>(dayjs("2023-04-17"));
+  const [value, setValue] = useState<Dayjs | null>(dayjs("2023-04-17"));
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
