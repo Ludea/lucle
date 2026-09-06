@@ -49,9 +49,9 @@ message Database {
 
 message UpdateServer {
   string path = 1;
-  string username = 2;
-  repeated Platforms platforms = 3;
-  repeated string plugins = 4;
+  repeated Platforms platforms = 2;
+  repeated string plugins = 3;
+  optional string username = 4;
 }
 
 message Username {
@@ -59,7 +59,7 @@ message Username {
 }
 
 message ListUpdateServer {
-  repeated string repositories = 1;
+  repeated UpdateServer repositories = 1;
 }
 
 message Credentials {
@@ -76,7 +76,6 @@ message UserCreation {
 message User {
   string username = 1;
   string token = 2;
-  repeated UpdateServer repositories = 3;
 }
 
 message ResetPassword {

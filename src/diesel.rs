@@ -368,7 +368,7 @@ pub async fn register_update_server(
     }
 }
 
-pub async fn list_update_server_by_user(username: String) -> Result<Vec<String>, Error> {
+pub async fn list_update_server_by_user(username: String) -> Result<Vec<UpdateServer>, Error> {
     if let Some(pool) = get_pool() {
         with_conn!(pool, |conn| {
             match users::table
@@ -387,9 +387,74 @@ pub async fn list_update_server_by_user(username: String) -> Result<Vec<String>,
                         .optional()
                     {
                         Ok(Some(list_repo)) => {
-                            let mut user_repo: Vec<String> = Vec::new();
+                            let mut user_repo: Vec<UpdateServer> = Vec::new();
+                            let mut repo_platforms: Vec<i32> = Vec::new();
+                            let mut list_plugins: Vec<String> = Vec::new();
+
+                            let mut new_repo = UpdateServer {
+                                path: "".to_string(),
+                                username: Some("".to_string()),
+                                platforms: Vec::new(),
+                                plugins: Vec::new(),
+                            };
                             for repo in list_repo {
-                                user_repo.push(repo.repository_name);
+                                match repositories::table
+                                    .filter(
+                                        repositories::dsl::name.eq(repo.repository_name.clone()),
+                                    )
+                                    .select(Repository::as_select())
+                                    .load(&mut conn)
+                                    .await
+                                    .optional()
+                                {
+                                    Ok(Some(repo)) => {
+                                      println!("12 : {:?}", repo);
+                                        for r in &repo {
+                                            let parsed_platforms: Value =
+                                                serde_json::from_str(&r.platforms)?;
+                                            let parsed_plugins: Value =
+                                                serde_json::from_str(&r.plugins)?;
+                                            if let Some(list_plug) = parsed_plugins.as_array() {
+                                                for list in list_plug {
+                                                    if let Some(p) = list.as_str() {
+                                                        list_plugins.push(p.into());
+                                                    }
+                                                }
+                                            }
+                                            if let Some(list_platforms) =
+                                                parsed_platforms.as_array()
+                                            {
+                                                for platform in list_platforms {
+                                                    if let Some(plat) = platform.as_str() {
+                                                        match plat {
+                                                            "Win64" => repo_platforms
+                                                                .push(Platforms::Win64.into()),
+                                                            "Macosx8664" => repo_platforms
+                                                                .push(Platforms::MacosX8664.into()),
+                                                            "Macosarm64" => repo_platforms
+                                                                .push(Platforms::MacosArm64.into()),
+                                                            "Linux" => repo_platforms
+                                                                .push(Platforms::Linux.into()),
+                                                            _ => {}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            new_repo = UpdateServer {
+                                                path: r.name.clone(),
+                                                username: Some(val.username.clone()),
+                                                platforms: repo_platforms.clone(),
+                                                plugins: list_plugins.clone(),
+                                            };
+                                            repo_platforms.clear();
+                                        }
+                                    }
+                                    Ok(None) => {}
+                                    Err(err) => {
+                                        return Err(crate::errors::Error::Query(err));
+                                    }
+                                }
+                                user_repo.push(new_repo.clone());
                             }
                             Ok(user_repo)
                         }
@@ -480,7 +545,7 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
 
                             let mut new_repo = UpdateServer {
                                 path: "".to_string(),
-                                username: "".to_string(),
+                                username: Some("".to_string()),
                                 platforms: Vec::new(),
                                 plugins: Vec::new(),
                             };
@@ -528,7 +593,7 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                                             }
                                             new_repo = UpdateServer {
                                                 path: r.name.clone(),
-                                                username: val.username.clone(),
+                                                username: Some(val.username.clone()),
                                                 platforms: repo_platforms.clone(),
                                                 plugins: list_plugins.clone(),
                                             };
@@ -615,7 +680,7 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
                                         }
                                         let new_repo = UpdateServer {
                                             path: repo.repository_name,
-                                            username: val.username.clone(),
+                                            username: Some(val.username.clone()),
                                             platforms: repo_platforms.clone(),
                                             plugins: list_plugins.clone(),
                                         };
@@ -713,7 +778,7 @@ pub async fn reset_password(email: String) -> Result<(), Error> {
 
                         let mut new_repo = UpdateServer {
                             path: "".to_string(),
-                            username: "".to_string(),
+                            username: Some("".to_string()),
                             platforms: Vec::new(),
                             plugins: Vec::new(),
                         };
@@ -757,7 +822,7 @@ pub async fn reset_password(email: String) -> Result<(), Error> {
                                         }
                                         new_repo = UpdateServer {
                                             path: r.name.clone(),
-                                            username: val.username.clone(),
+                                            username: Some(val.username.clone()),
                                             platforms: repo_platforms.clone(),
                                             plugins: list_plugins.clone(),
                                         };
@@ -870,11 +935,7 @@ fn login_user(
         .map(|update_server| update_server.path)
         .collect();
     let token = utils::generate_jwt(username.clone(), email, repo_string)?;
-    Ok(LucleUser {
-        username,
-        token,
-        repositories,
-    })
+    Ok(LucleUser { username, token })
 }
 
 #[cfg(test)]

@@ -194,6 +194,8 @@ impl Lucle for LucleApi {
         let list_plugins = inner.plugins;
         let reply = Empty {};
 
+        let username = username.ok_or(Status::not_found("Username argument not found"))?;
+
         let mut db_platforms = Vec::new();
         for host in platforms {
             match Platforms::try_from(host) {
@@ -232,6 +234,8 @@ impl Lucle for LucleApi {
         let path = inner.path;
         let username = inner.username;
         let reply = Empty {};
+
+        let username = username.ok_or(Status::not_found("Username argument not found"))?;
 
         match diesel::join_update_server(username.clone(), path.clone()).await {
             Ok(()) => {
