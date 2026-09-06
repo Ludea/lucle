@@ -1,46 +1,65 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router";
 
-// MUI
 import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
+import Paper from "@mui/material/Paper";
+import CircularProgress from "@mui/material/CircularProgress";
 
-// Components
 import CreateDB from "views/Install/createDB";
 import CreateDefaultUser from "views/Install/createUser";
 import { createUser, createDB } from "utils/rpc";
-
-// Context
 import { LucleRPC } from "context/Luclerpc";
 
 const steps = ["Create Database", "Create default user"];
 
-function InstallStep(
-  step: number,
-  handleDBtype: (DBType: number) => void,
-  selectedDB: number,
-  setUsername: (user: string) => void,
-  setPassword: (pass: string) => void,
-  setConfirmPassword: (confirmPass: string) => void,
-  setPasswordStrengh: (strengh: number) => void,
-  setEmail: (email: string) => void,
-  dbInfos: any,
-  setDBInfos: (infos: any) => void,
-  handleClick: () => void,
-) {
+export interface DBInfos {
+  dbName?: string;
+  hostname?: string;
+  port?: number;
+  username?: string;
+  password?: string;
+}
+
+interface InstallStepProps {
+  step: number;
+  selectedDB: number;
+  setSelectedDB: (dbType: number) => void;
+  setUsername: (user: string) => void;
+  setPassword: (pass: string) => void;
+  setConfirmPassword: (confirmPass: string) => void;
+  setPasswordStrength: (strength: number) => void;
+  setEmail: (email: string) => void;
+  dbInfos: DBInfos | undefined;
+  setDBInfos: (infos: DBInfos) => void;
+}
+
+const SQLITE_DB = 2;
+
+function InstallStep({
+  step,
+  selectedDB,
+  setSelectedDB,
+  setUsername,
+  setPassword,
+  setConfirmPassword,
+  setPasswordStrength,
+  setEmail,
+  dbInfos,
+  setDBInfos,
+}: InstallStepProps) {
   switch (step) {
     case 1:
       return (
         <CreateDB
           dbInfos={dbInfos}
-          setDBInfos={(infos: any) => {
-            setDBInfos(infos);
-          }}
-          setSelectedDB={handleDBtype}
+          setDBInfos={setDBInfos}
+          setSelectedDB={setSelectedDB}
           selectedDB={selectedDB}
         />
       );
@@ -50,142 +69,220 @@ function InstallStep(
           user={setUsername}
           password={setPassword}
           confirmPassword={setConfirmPassword}
-          passwordStrengh={setPasswordStrengh}
+          passwordStrength={setPasswordStrength}
           email={setEmail}
-          onCreatingUser={handleClick}
         />
       );
     default:
-      break;
+      return null;
   }
+}
+
+function validateStep0(selectedDB: number, dbInfos: DBInfos | undefined): string {
+  if (selectedDB === SQLITE_DB) {
+    if (!dbInfos?.dbName?.trim()) return "Please enter a database file path";
+  } else {
+    if (!dbInfos?.dbName?.trim()) return "Please enter a database name";
+    if (!dbInfos?.hostname?.trim()) return "Please enter a host";
+  }
+  return "";
+}
+
+function validateStep1(
+  username: string,
+  password: string,
+  confirmPassword: string,
+): string {
+  if (!username.trim()) return "Username is required";
+  if (!password) return "Password is required";
+  if (password !== confirmPassword) return "Passwords do not match";
+  return "";
 }
 
 export default function Install() {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [passwordStrengh, setPasswordStrengh] = useState(0);
+  const [passwordStrength, setPasswordStrength] = useState<number>(0);
   const [email, setEmail] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const [dbInfos, setDBInfos] = useState<any>();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [dbInfos, setDBInfos] = useState<DBInfos | undefined>(undefined);
   const [activeStep, setActiveStep] = useState<number>(0);
   const [selectedDB, setSelectedDB] = useState<number>(0);
   const navigate = useNavigate();
   const client = useContext(LucleRPC);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleDBtype = (DBType = 2) => {
-    setSelectedDB(DBType);
+  const handleSetSelectedDB = (dbType: number) => {
+    setSelectedDB(dbType);
+    setDBInfos(undefined); // reset infos on DB type change
   };
-
-  const isStepFailed = (step: number) => step === activeStep;
 
   const handleClick = () => {
     setError("");
+
     switch (activeStep) {
-      case 0:
-        {
-          createDB(client, selectedDB, dbInfos.dbName, dbInfos)
-            .then(() => {
-              setActiveStep((prevActiveStep) => prevActiveStep + 1);
-            })
-            .catch((err) => {
-              setError(err.rawMessage);
-            });
+      case 0: {
+        const validationError = validateStep0(selectedDB, dbInfos);
+        if (validationError) {
+          setError(validationError);
+          return;
         }
+        setLoading(true);
+        createDB(client, selectedDB, dbInfos?.dbName ?? "", dbInfos)
+          .then(() => {
+            setActiveStep((prev) => prev + 1);
+          })
+          .catch((err: { rawMessage: string }) => {
+            setError(err.rawMessage);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
         break;
-      case 1:
-        if (password === confirmPassword && password) {
-          createUser(client, username, password, email, "admin")
-            .then(() => {
-              setTimeout(() => navigate("/"), 5000);
-              setActiveStep((prevActiveStep) => prevActiveStep + 1);
-            })
-            .catch((err) => {
-              setError(err.rawMessage);
-            });
-        } else {
-          setError("Password doesn't match");
+      }
+      case 1: {
+        const validationError = validateStep1(username, password, confirmPassword);
+        if (validationError) {
+          setError(validationError);
+          return;
         }
+        setLoading(true);
+        createUser(client, username, password, email, "admin")
+          .then(() => {
+            setActiveStep((prev) => prev + 1);
+            timerRef.current = setTimeout(() => navigate("/"), 5000);
+          })
+          .catch((err: { rawMessage: string }) => {
+            setError(err.rawMessage);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
         break;
+      }
       default:
         break;
     }
   };
 
+  const isFinished = activeStep === steps.length;
+  const isLastStep = activeStep === steps.length - 1;
+
   return (
     <Box
-      sx={{ width: "100%" }}
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: { xs: "flex-start", sm: "center" },
+        justifyContent: "center",
+        bgcolor: "background.default",
+        p: { xs: 0, sm: 2 },
+      }}
       onKeyDown={(event) => {
-        if (event.key === "Enter") {
-          handleClick();
-        }
+        if (event.key === "Enter" && !loading) handleClick();
       }}
     >
-      <Stepper activeStep={activeStep}>
-        {steps.map((label, index) => {
-          const stepProps: {
-            completed?: boolean;
-            error?: boolean;
-          } = {};
-          if (isStepFailed(index)) {
-            stepProps.error = Boolean(error);
-          }
-          return (
-            <Step key={label} completed={stepProps.completed}>
-              <StepLabel error={stepProps.error}>{label}</StepLabel>
+      <Paper
+        sx={{
+          width: "100%",
+          maxWidth: { sm: 560 },
+          minHeight: { xs: "100vh", sm: "auto" },
+          p: { xs: 3, sm: 5 },
+          borderRadius: { xs: 0, sm: 2 },
+          boxShadow: { xs: "none", sm: undefined },
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Typography variant="h5" sx={{ fontWeight: 600, mb: 4, textAlign: "center" }}>
+          Lucle Setup
+        </Typography>
+
+        <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
+          {steps.map((label, index) => (
+            <Step key={label}>
+              <StepLabel error={index === activeStep && Boolean(error)}>
+                {label}
+              </StepLabel>
             </Step>
-          );
-        })}
-      </Stepper>
-      {activeStep === steps.length ? (
-        <>
-          <Typography sx={{ mt: 2, mb: 1 }}>
-            <p>All steps completed - you&apos;re finished</p>
-            <p>You will be redirect to home page into 5 secondes</p>
-          </Typography>
-          <Box sx={{ display: "flex", flexDirection: "roqw", pt: 2 }}>
-            <Box sx={{ flex: "1 1 auto" }} />
+          ))}
+        </Stepper>
+
+        {isFinished ? (
+          <Box
+            sx={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="h6" gutterBottom>
+              Setup complete
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Redirecting to the home page in 5 seconds…
+            </Typography>
           </Box>
-        </>
-      ) : (
-        <>
-          {InstallStep(
-            activeStep + 1,
-            handleDBtype,
-            selectedDB,
-            setUsername,
-            setPassword,
-            setConfirmPassword,
-            setPasswordStrengh,
-            setEmail,
-            dbInfos,
-            setDBInfos,
-            handleClick,
-          )}
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            <Button
-              color="inherit"
-              disabled={activeStep === 0}
-              onClick={() => {
-                setActiveStep((prevActiveStep) => prevActiveStep - 1);
-              }}
-              sx={{ mr: 1 }}
-            >
-              Back
-            </Button>
-            <Box sx={{ flex: "1 1 auto" }} />
-            <Button
-              disabled={activeStep === 2 && passwordStrengh < 3}
-              onClick={() => {
-                handleClick();
+        ) : (
+          <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+            <Box sx={{ flex: 1 }}>
+              <InstallStep
+                step={activeStep + 1}
+                selectedDB={selectedDB}
+                setSelectedDB={handleSetSelectedDB}
+                setUsername={setUsername}
+                setPassword={setPassword}
+                setConfirmPassword={setConfirmPassword}
+                setPasswordStrength={setPasswordStrength}
+                setEmail={setEmail}
+                dbInfos={dbInfos}
+                setDBInfos={setDBInfos}
+              />
+            </Box>
+
+            {error && (
+              <Alert severity="error" sx={{ mt: 2 }}>
+                {error}
+              </Alert>
+            )}
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column-reverse", sm: "row" },
+                justifyContent: "space-between",
+                gap: 2,
+                mt: 4,
               }}
             >
-              {activeStep === steps.length - 1 ? "Finish" : "Next"}
-            </Button>
+              <Button
+                variant="outlined"
+                disabled={activeStep === 0 || loading}
+                onClick={() => {
+                  setError("");
+                  setActiveStep((prev) => prev - 1);
+                }}
+                sx={{ minWidth: 100 }}
+              >
+                Back
+              </Button>
+              <Button
+                variant="contained"
+                disabled={loading || (isLastStep && passwordStrength < 3)}
+                onClick={handleClick}
+                sx={{ minWidth: 100 }}
+                startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+              >
+                {isLastStep ? "Finish" : "Next"}
+              </Button>
+            </Box>
           </Box>
-          {error}
-        </>
-      )}
+        )}
+      </Paper>
     </Box>
   );
 }
