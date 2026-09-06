@@ -14,7 +14,7 @@ const AuthContext = createContext<any>(undefined);
 function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [username, setUsername] = useState(localStorage.getItem("username"));
-  const [repositories, setRepositories] = useState<Map<string, string[]>>();
+  
   const navigate = useNavigate();
   const client = useContext(LucleRPC);
 
@@ -44,11 +44,10 @@ function AuthProvider({ children }: { children: ReactNode }) {
             list_repo.set(repo.path, list_platforms);
             list_platforms = [];
           }
-          setUsername(user.username);
           setToken(user.token);
+          setUsername(user.username);
           localStorage.setItem("token", user.token);
           localStorage.setItem("username", user.username);
-          setRepositories(list_repo);
           navigate("/dashboard");
         })
         .catch((err) => {
@@ -57,10 +56,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
     });
 
   const Logout = () => {
-    const emptyMap = new Map();
-    setToken("");
-    setUsername("");
-    setRepositories(emptyMap);
+    setToken(null);
+    setUsername(null);
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     navigate("/login");
