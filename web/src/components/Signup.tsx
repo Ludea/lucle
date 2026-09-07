@@ -1,138 +1,159 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router";
-
 import PasswordStrengthBar from "react-password-strength-bar";
 
-function Signup({
-  successfullSignup,
-  onSignup,
-  error,
-}: {
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+interface SignupProps {
   successfullSignup: boolean;
   onSignup: (username: string, password: string, email: string) => void;
   error: (message: string) => void;
-}) {
-  const [username, setUsername] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+}
+
+export default function Signup({ successfullSignup, onSignup, error }: SignupProps) {
+  const [username, setUsername]               = useState<string>("");
+  const [email, setEmail]                     = useState<string>("");
+  const [password, setPassword]               = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [emptyUsername, setEmptyUsername] = useState<boolean>();
-  const [emptyEmail, setEmptyEmail] = useState<boolean>();
-  const [emptyPassword, setEmptyPassword] = useState<boolean>();
-  const [emptyConfirmPassword, setEmptyConfirmPassword] = useState<boolean>();
-  const [passwordStrengh, setPasswordStrengh] = useState<number>(0);
+  const [passwordStrength, setPasswordStrength] = useState<number>(0);
+  const [touched, setTouched] = useState({
+    username: false,
+    email:    false,
+    password: false,
+    confirm:  false,
+  });
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!successfullSignup) return;
+    const t = setTimeout(() => { void navigate("/"); }, 5000);
+    return () => clearTimeout(t);
+  }, [successfullSignup, navigate]);
+
+  if (successfullSignup) {
+    return (
+      <Box sx={{ textAlign: "center", py: 3 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+          You&apos;re in!
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Account created. Redirecting to sign in…
+        </Typography>
+      </Box>
+    );
+  }
+
+  // Inline field errors (only after blur)
+  const usernameErr = touched.username && !username
+    ? "Username is required"
+    : "";
+  const emailErr = touched.email
+    ? (!email ? "Email is required" : !EMAIL_RE.test(email) ? "Invalid email address" : "")
+    : "";
+  const passwordErr = touched.password && !password
+    ? "Password is required"
+    : "";
+  const confirmErr = touched.confirm && confirmPassword !== password
+    ? "Passwords do not match"
+    : "";
+
+  const handleSubmit = () => {
+    setTouched({ username: true, email: true, password: true, confirm: true });
+    if (!username || !email || !password || !confirmPassword) {
+      error("Please fill all fields");
+      return;
+    }
+    if (!EMAIL_RE.test(email)) {
+      error("Please enter a valid email address");
+      return;
+    }
+    if (password !== confirmPassword) {
+      error("Passwords do not match");
+      return;
+    }
+    onSignup(username, password, email);
+  };
 
   return (
     <Box
-      sx={{
-        marginTop: 8,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
+      sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
+      onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
     >
-      {!successfullSignup ? (
-        <Box sx={{ mt: 1 }}>
-          <TextField
-            error={emptyUsername}
-            autoFocus={emptyUsername}
-            margin="normal"
-            required
-            fullWidth
-            id="user"
-            label="Username"
-            name="username"
-            value={username}
-            onChange={(event) => {
-              setUsername(event.target.value);
-            }}
-          />
-          <TextField
-            error={emptyEmail}
-            autoFocus={emptyEmail}
-            margin="normal"
-            required
-            fullWidth
-            id="user"
-            label="Email"
-            name="email"
-            value={email}
-            onChange={(event) => {
-              setEmail(event.target.value);
-            }}
-          />
-          <TextField
-            error={emptyPassword}
-            autoFocus={emptyPassword}
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            value={password}
-            onChange={(event) => {
-              setPassword(event.target.value);
-            }}
-          />
+      <TextField
+        fullWidth
+        required
+        label="Username"
+        autoComplete="username"
+        value={username}
+        error={!!usernameErr}
+        helperText={usernameErr}
+        onChange={(e) => setUsername(e.target.value)}
+        onBlur={() => setTouched((t) => ({ ...t, username: true }))}
+      />
+
+      <TextField
+        fullWidth
+        required
+        label="Email"
+        type="email"
+        autoComplete="email"
+        value={email}
+        error={!!emailErr}
+        helperText={emailErr}
+        onChange={(e) => setEmail(e.target.value)}
+        onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+      />
+
+      <Box>
+        <TextField
+          fullWidth
+          required
+          label="Password"
+          type="password"
+          autoComplete="new-password"
+          value={password}
+          error={!!passwordErr}
+          helperText={passwordErr}
+          onChange={(e) => setPassword(e.target.value)}
+          onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+        />
+        <Box sx={{ mt: 0.5 }}>
           <PasswordStrengthBar
             password={password}
-            onChangeScore={(score) => {
-              setPasswordStrengh(score);
-            }}
+            onChangeScore={(score) => setPasswordStrength(score)}
           />
-          <TextField
-            error={emptyConfirmPassword}
-            autoFocus={emptyConfirmPassword}
-            margin="normal"
-            required
-            fullWidth
-            name="confirm-password"
-            label="Confirm Password"
-            type="password"
-            id="confirm-password"
-            value={confirmPassword}
-            onChange={(event) => {
-              setConfirmPassword(event.target.value);
-            }}
-          />
-          <Button
-            disabled={passwordStrengh < 3}
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            onClick={() => {
-              setEmptyUsername(username.length === 0);
-              setEmptyPassword(password.length === 0);
-              setEmptyConfirmPassword(confirmPassword.length === 0);
-              setEmptyEmail(email.length === 0);
-              if (!username || !email || !password || !confirmPassword) {
-                error("Please fill all inputs");
-              } else if (!emptyPassword && password === confirmPassword) {
-                onSignup(username, password, email);
-              } else {
-                error("password doesn't match");
-              }
-            }}
-          >
-            Sign up
-          </Button>
         </Box>
-      ) : (
-        <div>
-          {" "}
-          You successfully sign up ! You will be redirected in few seconds.
-          {setTimeout(() => navigate("/"), 10000)}
-        </div>
-      )}
+      </Box>
+
+      <TextField
+        fullWidth
+        required
+        label="Confirm Password"
+        type="password"
+        autoComplete="new-password"
+        value={confirmPassword}
+        error={!!confirmErr}
+        helperText={confirmErr}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+        onBlur={() => setTouched((t) => ({ ...t, confirm: true }))}
+      />
+
+      <Button
+        fullWidth
+        variant="contained"
+        size="large"
+        disabled={passwordStrength < 3}
+        onClick={handleSubmit}
+        title={passwordStrength < 3 ? "Password is too weak" : undefined}
+        sx={{ mt: 0.5 }}
+      >
+        Create account
+      </Button>
     </Box>
   );
 }
-
-export default Signup;
