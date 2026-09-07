@@ -18,7 +18,6 @@ export const init = (client: any, path: string, platforms: any) => {
 
 export const isInit = (client: any, path: string, platforms: any, type: string) => {
   const headers = setHeaders();
-  console.log("12: ", client);
   return Promise.all(
     platforms.map((folder: string) =>
       client.is_init({ path: path.concat("/", type, "/", folder) }, { headers }),

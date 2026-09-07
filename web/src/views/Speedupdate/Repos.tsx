@@ -145,7 +145,7 @@ function DeleteRepoDialog({
           This will permanently delete all data. This action cannot be undone.
         </Alert>
 
-        <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Select what to delete for <strong>{repoName}</strong>:
         </Typography>
 
@@ -288,18 +288,18 @@ function ListRepo() {
 
   useEffect(() => {
     if (!auth?.username) return;
-    setLoading(true);
+
     listRepositories(lucleClient, auth.username)
       .then((res: any) => {
+        console.log("13: ", res)
         const map = new Map<string, string[]>();
-        for (const repo of res.repositories ?? []) {
-          map.set(repo.path, repo.platforms ?? []);
-        }
+        const repos: string[] = res.repositories ?? [];
+        repos.filter(Boolean).forEach((path) => map.set(path, []));
         setListRepo(map);
       })
       .catch((err: unknown) => setError(ConnectError.from(err).message))
       .finally(() => setLoading(false));
-  }, [auth?.username, lucleClient]);
+  }, [auth?.username, auth?.repositories, lucleClient]);
 
   const getSelectedPlatforms = (): Platforms[] =>
     PLATFORMS.filter((p) => checked[p.key]).map((p) => p.enum);
@@ -310,11 +310,18 @@ function ListRepo() {
 
   const navigateToRepo = (repo_name: string, type: "game" | "launcher") => {
     setError(null);
-    const platforms = listRepo.get(repo_name);
-    isInit(speedupdateClient, repo_name, platforms, type)
+    const platformKeys = listRepo.get(repo_name) ?? [];
+    const platformsEnum = platformKeys
+      .map((k) => PLATFORMS.find((p) => p.key === k)?.enum)
+      .filter((p): p is Platforms => p !== undefined);
+
+    isInit(speedupdateClient, repo_name, platformsEnum, type)
       .then(() => {
-        localStorage.setItem("current_repo", JSON.stringify({ repo_name, platforms }));
-        navigate(`${repo_name}/${type}`);
+        localStorage.setItem(
+          "current_repo",
+          JSON.stringify({ repo_name, platforms: platformKeys }),
+        );
+        navigate(`/dashboard/${repo_name}/${type}`, { state: { platformsEnum } });
       })
       .catch((err: unknown) => setError(ConnectError.from(err).message));
   };
@@ -343,9 +350,10 @@ function ListRepo() {
     const doDelete = (binaryType: "game" | "launcher") => repoToDelete(speedupdateClient, repoName);
 
     const tasks: Promise<unknown>[] = [];
-
-    if (target === "game" || target === "both") tasks.push(doDelete("game"));
-    if (target === "launcher" || target === "both") tasks.push(doDelete("launcher"));
+    if (target === "game" || target === "both")
+      tasks.push(repoToDelete(speedupdateClient, repoName));
+    if (target === "launcher" || target === "both")
+      tasks.push(repoToDelete(speedupdateClient, repoName));
 
     Promise.all(tasks)
       .then(() => {
@@ -356,7 +364,7 @@ function ListRepo() {
             setListRepo(updated);
           });
         }
-      })
+  })
       .catch((err: unknown) => setError(ConnectError.from(err).message));
   };
 

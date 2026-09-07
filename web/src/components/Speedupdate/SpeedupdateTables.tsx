@@ -5,13 +5,15 @@ import VersionsTable from "components/Speedupdate/VersionsTable";
 import PackagesTable from "components/Speedupdate/PackagesTable";
 import BinariesTable from "components/Speedupdate/BinariesTable";
 import { useSpeedupdateStatus } from "utils/useSpeedupdateStatus";
+import { Platforms } from "gen/speedupdate_pb";
 
 interface Props {
   binaryType: "game" | "launcher";
-  onError: (err: string | null) => void;
+  platforms:  Platforms[];
+  onError:    (err: string | null) => void;
 }
 
-export default function SpeedupdateTables({ binaryType, onError }: Props) {
+export default function SpeedupdateTables({ binaryType, platforms, onError }: Props) {
   const client = useContext(SpeedupdateRPC);
 
   const {
@@ -25,7 +27,7 @@ export default function SpeedupdateTables({ binaryType, onError }: Props) {
     size,
     error,
     setError,
-  } = useSpeedupdateStatus(binaryType);
+  } = useSpeedupdateStatus(binaryType, platforms);
 
   return (
     <>
