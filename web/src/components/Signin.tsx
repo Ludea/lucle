@@ -24,11 +24,11 @@ interface SigninProps {
 }
 
 export default function Signin({ onSignin, error }: SigninProps) {
-  const [username, setUsername]       = useState<string>(localStorage.getItem("username") ?? "");
-  const [password, setPassword]       = useState<string>("");
-  const [remember, setRemember]       = useState<boolean>(false);
+  const [username, setUsername] = useState<string>(localStorage.getItem("username") ?? "");
+  const [password, setPassword] = useState<string>("");
+  const [remember, setRemember] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [touched, setTouched]         = useState({ username: false, password: false });
+  const [touched, setTouched] = useState({ username: false, password: false });
 
   const usernameErr = touched.username && username.length === 0 ? "Username is required" : "";
   const passwordErr = touched.password && password.length === 0 ? "Password is required" : "";
@@ -45,7 +45,9 @@ export default function Signin({ onSignin, error }: SigninProps) {
   return (
     <Box
       sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
-      onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") handleSubmit();
+      }}
     >
       <TextField
         fullWidth
@@ -81,7 +83,11 @@ export default function Signin({ onSignin, error }: SigninProps) {
                 size="small"
                 sx={{ color: "text.secondary", "&:hover": { color: "text.primary" } }}
               >
-                {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                {showPassword ? (
+                  <VisibilityOff fontSize="small" />
+                ) : (
+                  <Visibility fontSize="small" />
+                )}
               </IconButton>
             </InputAdornment>
           }
@@ -104,13 +110,7 @@ export default function Signin({ onSignin, error }: SigninProps) {
         sx={{ "& .MuiFormControlLabel-label": { fontSize: 14, color: "text.secondary" } }}
       />
 
-      <Button
-        fullWidth
-        variant="contained"
-        size="large"
-        onClick={handleSubmit}
-        sx={{ mt: 0.5 }}
-      >
+      <Button fullWidth variant="contained" size="large" onClick={handleSubmit} sx={{ mt: 0.5 }}>
         Sign In
       </Button>
 

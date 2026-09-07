@@ -52,10 +52,7 @@ export default function CreateDefaultUser({
         }}
       />
 
-      <PasswordStrengthBar
-        password={passwd}
-        onChangeScore={(score) => passwordStrength(score)}
-      />
+      <PasswordStrengthBar password={passwd} onChangeScore={(score) => passwordStrength(score)} />
 
       <TextField
         id="password-confirm"

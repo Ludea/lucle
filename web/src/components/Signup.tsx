@@ -15,23 +15,25 @@ interface SignupProps {
 }
 
 export default function Signup({ successfullSignup, onSignup, error }: SignupProps) {
-  const [username, setUsername]               = useState<string>("");
-  const [email, setEmail]                     = useState<string>("");
-  const [password, setPassword]               = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [passwordStrength, setPasswordStrength] = useState<number>(0);
   const [touched, setTouched] = useState({
     username: false,
-    email:    false,
+    email: false,
     password: false,
-    confirm:  false,
+    confirm: false,
   });
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!successfullSignup) return;
-    const t = setTimeout(() => { void navigate("/"); }, 5000);
+    const t = setTimeout(() => {
+      void navigate("/");
+    }, 5000);
     return () => clearTimeout(t);
   }, [successfullSignup, navigate]);
 
@@ -49,18 +51,17 @@ export default function Signup({ successfullSignup, onSignup, error }: SignupPro
   }
 
   // Inline field errors (only after blur)
-  const usernameErr = touched.username && !username
-    ? "Username is required"
-    : "";
+  const usernameErr = touched.username && !username ? "Username is required" : "";
   const emailErr = touched.email
-    ? (!email ? "Email is required" : !EMAIL_RE.test(email) ? "Invalid email address" : "")
+    ? !email
+      ? "Email is required"
+      : !EMAIL_RE.test(email)
+        ? "Invalid email address"
+        : ""
     : "";
-  const passwordErr = touched.password && !password
-    ? "Password is required"
-    : "";
-  const confirmErr = touched.confirm && confirmPassword !== password
-    ? "Passwords do not match"
-    : "";
+  const passwordErr = touched.password && !password ? "Password is required" : "";
+  const confirmErr =
+    touched.confirm && confirmPassword !== password ? "Passwords do not match" : "";
 
   const handleSubmit = () => {
     setTouched({ username: true, email: true, password: true, confirm: true });
@@ -82,7 +83,9 @@ export default function Signup({ successfullSignup, onSignup, error }: SignupPro
   return (
     <Box
       sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
-      onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") handleSubmit();
+      }}
     >
       <TextField
         fullWidth

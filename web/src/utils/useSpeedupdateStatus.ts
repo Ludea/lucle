@@ -5,17 +5,17 @@ import { status } from "utils/speedupdaterpc";
 import { SpeedupdateRPC } from "context/Speedupdate";
 
 interface SpeedupdateStatus {
-  currentRepo:       Map<string, string[]>;
-  setCurrentRepo:    (repo: Map<string, string[]>) => void;
-  platformsEnum:     Platforms[];
-  setPlatformsEnum:  (platforms: Platforms[]) => void;
-  listVersions:      Versions[];
-  listPackages:      { name: string; published: boolean }[];
+  currentRepo: Map<string, string[]>;
+  setCurrentRepo: (repo: Map<string, string[]>) => void;
+  platformsEnum: Platforms[];
+  setPlatformsEnum: (platforms: Platforms[]) => void;
+  listVersions: Versions[];
+  listPackages: { name: string; published: boolean }[];
   availableBinaries: string[];
-  currentVer:        string;
-  size:              number | undefined;
-  error:             string | null;
-  setError:          (err: string | null) => void;
+  currentVer: string;
+  size: number | undefined;
+  error: string | null;
+  setError: (err: string | null) => void;
 }
 
 export function useSpeedupdateStatus(
@@ -43,9 +43,9 @@ export function useSpeedupdateStatus(
 
   // Refs so the cleanup function can cancel both the gRPC stream and the SSE
   // connection without needing them in the dependency array.
-  const readerRef      = useRef<ReadableStreamDefaultReader | null>(null);
+  const readerRef = useRef<ReadableStreamDefaultReader | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
-  const stoppedRef     = useRef(false);
+  const stoppedRef = useRef(false);
 
   useEffect(() => {
     stoppedRef.current = false;
@@ -101,7 +101,7 @@ export function useSpeedupdateStatus(
       eventSourceRef.current?.close();
       eventSourceRef.current = null;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentRepo]);
 
   return {

@@ -9,8 +9,8 @@ import { Platforms } from "gen/speedupdate_pb";
 
 interface Props {
   binaryType: "game" | "launcher";
-  platforms:  Platforms[];
-  onError:    (err: string | null) => void;
+  platforms: Platforms[];
+  onError: (err: string | null) => void;
 }
 
 export default function SpeedupdateTables({ binaryType, platforms, onError }: Props) {

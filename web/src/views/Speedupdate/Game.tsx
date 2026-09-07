@@ -14,7 +14,7 @@ import { Platforms } from "gen/speedupdate_pb";
 import SpeedupdateTables from "components/Speedupdate/SpeedupdateTables";
 
 function Game() {
-  const location  = useLocation();
+  const location = useLocation();
   const platforms = (location.state as { platformsEnum?: Platforms[] })?.platformsEnum ?? [];
   const [key, setKey] = useState(0);
   const [uploadProgression, setUploadProgression] = useState<number | null>(null);
@@ -74,7 +74,6 @@ function Game() {
   return (
     <Box sx={{ width: "100%" }}>
       <SpeedupdateTables binaryType="game" platforms={platforms} onError={() => {}} />
-
       Upload Binaries
       <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
         <InputLabel id="hosts">Hosts</InputLabel>
@@ -90,9 +89,7 @@ function Game() {
           <MenuItem value={3}>Linux</MenuItem>
         </Select>
       </FormControl>
-
       <DropzoneArea key={key} onChange={(newFiles) => setFiles(newFiles)} />
-
       <Grid container sx={{ alignItems: "center" }}>
         <Grid size={9}>
           {uploadProgression !== null && (
@@ -101,7 +98,9 @@ function Game() {
         </Grid>
         <Grid size={1}>
           {uploadProgression === null && (
-            <Button color="primary" onClick={uploadFile}>Submit</Button>
+            <Button color="primary" onClick={uploadFile}>
+              Submit
+            </Button>
           )}
         </Grid>
       </Grid>

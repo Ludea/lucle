@@ -69,10 +69,7 @@ export default function CreateDB({
           onChange={(e) => setDBInfos({ ...dbInfos, dbName: e.target.value })}
         />
       ) : (
-        <DatabaseInfo
-          setDBInfos={setDBInfos}
-          dbInfos={dbInfos}
-        />
+        <DatabaseInfo setDBInfos={setDBInfos} dbInfos={dbInfos} />
       )}
     </Box>
   );

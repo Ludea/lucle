@@ -145,7 +145,7 @@ export function status(client: any, path: string, platforms: any, type: string, 
           },
           { headers },
         );
-        
+
         const iterator = call[Symbol.asyncIterator]();
 
         const readNext = (): Promise<void> =>

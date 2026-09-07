@@ -291,7 +291,7 @@ function ListRepo() {
 
     listRepositories(lucleClient, auth.username)
       .then((res: any) => {
-        console.log("13: ", res)
+        console.log("13: ", res);
         const map = new Map<string, string[]>();
         const repos: string[] = res.repositories ?? [];
         repos.filter(Boolean).forEach((path) => map.set(path, []));
@@ -364,7 +364,7 @@ function ListRepo() {
             setListRepo(updated);
           });
         }
-  })
+      })
       .catch((err: unknown) => setError(ConnectError.from(err).message));
   };
 

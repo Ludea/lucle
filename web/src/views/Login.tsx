@@ -18,23 +18,23 @@ import { useAuth } from "context/Auth";
 
 // ─── Design tokens ────────────────────────────────────────────────
 const ACCENT = "#6C63FF";
-const BG     = "#0d1117";
+const BG = "#0d1117";
 
 const theme = createTheme({
   palette: {
     mode: "dark",
-    primary:    { main: ACCENT },
+    primary: { main: ACCENT },
     background: { default: BG, paper: "rgba(255,255,255,0.045)" },
-    error:      { main: "#ff6b6b" },
+    error: { main: "#ff6b6b" },
     text: {
-      primary:   "#e6edf3",
+      primary: "#e6edf3",
       secondary: "rgba(230,237,243,0.5)",
     },
   },
   shape: { borderRadius: 12 },
   typography: {
     fontFamily: '"Inter", system-ui, -apple-system, sans-serif',
-    button:     { textTransform: "none", fontWeight: 600 },
+    button: { textTransform: "none", fontWeight: 600 },
   },
   components: {
     MuiCssBaseline: {
@@ -73,7 +73,7 @@ const theme = createTheme({
         root: {
           color: "rgba(230,237,243,0.5)",
           "&.Mui-focused": { color: ACCENT },
-          "&.Mui-error":   { color: "#ff6b6b" },
+          "&.Mui-error": { color: "#ff6b6b" },
         },
       },
     },
@@ -130,22 +130,24 @@ const BlobSx = {
   },
   "@keyframes floatBlob": {
     from: { transform: "translate(0,0) scale(1)" },
-    to:   { transform: "translate(30px,20px) scale(1.06)" },
+    to: { transform: "translate(30px,20px) scale(1.06)" },
   },
 };
 
 // ─── Component ───────────────────────────────────────────────────
 export default function Login() {
-  const [tab, setTab]                       = useState("1");
-  const [error, setError]                   = useState<string>("");
+  const [tab, setTab] = useState("1");
+  const [error, setError] = useState<string>("");
   const [successfullSignup, setSuccessfullSignup] = useState<boolean>(false);
-  const auth   = useAuth();
+  const auth = useAuth();
   const client = useContext(LucleRPC);
 
   const handleSignup = (username: string, password: string, email: string) => {
     setError("");
     createUser(client, username, password, email, "user")
-      .then(() => { setSuccessfullSignup(true); })
+      .then(() => {
+        setSuccessfullSignup(true);
+      })
       .catch((err: unknown) => {
         setError((err as { rawMessage: string }).rawMessage);
       });
@@ -169,7 +171,8 @@ export default function Login() {
 
       {/* Animated background */}
       <Box sx={BlobSx} aria-hidden="true">
-        <span /><span />
+        <span />
+        <span />
       </Box>
 
       {/* Centered card */}
@@ -224,7 +227,10 @@ export default function Login() {
           {/* Tabs */}
           <TabContext value={tab}>
             <TabList
-              onChange={(_, v: string) => { setTab(v); setError(""); }}
+              onChange={(_, v: string) => {
+                setTab(v);
+                setError("");
+              }}
               aria-label="Sign in or sign up"
               sx={{
                 minHeight: 40,
@@ -289,8 +295,8 @@ export default function Login() {
                 "& .MuiAlert-icon": { color: "#ff6b6b" },
                 "@keyframes shake": {
                   "0%,100%": { transform: "translateX(0)" },
-                  "25%":     { transform: "translateX(-4px)" },
-                  "75%":     { transform: "translateX(4px)" },
+                  "25%": { transform: "translateX(-4px)" },
+                  "75%": { transform: "translateX(4px)" },
                 },
                 animation: "shake 0.3s ease",
               }}

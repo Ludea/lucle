@@ -88,11 +88,7 @@ function validateStep0(selectedDB: number, dbInfos: DBInfos | undefined): string
   return "";
 }
 
-function validateStep1(
-  username: string,
-  password: string,
-  confirmPassword: string,
-): string {
+function validateStep1(username: string, password: string, confirmPassword: string): string {
   if (!username.trim()) return "Username is required";
   if (!password) return "Password is required";
   if (password !== confirmPassword) return "Passwords do not match";
@@ -203,9 +199,7 @@ export default function Install() {
         <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
           {steps.map((label, index) => (
             <Step key={label}>
-              <StepLabel error={index === activeStep && Boolean(error)}>
-                {label}
-              </StepLabel>
+              <StepLabel error={index === activeStep && Boolean(error)}>{label}</StepLabel>
             </Step>
           ))}
         </Stepper>

@@ -14,7 +14,7 @@ const AuthContext = createContext<any>(undefined);
 function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [username, setUsername] = useState(localStorage.getItem("username"));
-  
+
   const navigate = useNavigate();
   const client = useContext(LucleRPC);
 
