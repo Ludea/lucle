@@ -79,17 +79,24 @@ const theme = createTheme({
     },
     MuiButton: {
       styleOverrides: {
-        containedPrimary: {
+        root: {
           borderRadius: 10,
-          boxShadow: `0 4px 20px ${alpha(ACCENT, 0.35)}`,
-          "&:hover": {
-            background: "#8b84ff",
-            boxShadow: `0 6px 28px ${alpha(ACCENT, 0.45)}`,
-          },
           "&:active": { transform: "scale(0.98)" },
           "&.Mui-disabled": { opacity: 0.38 },
         },
       },
+      variants: [
+        {
+          props: { variant: "contained", color: "primary" },
+          style: {
+            boxShadow: `0 4px 20px ${alpha(ACCENT, 0.35)}`,
+            "&:hover": {
+              background: "#8b84ff",
+              boxShadow: `0 6px 28px ${alpha(ACCENT, 0.45)}`,
+            },
+          },
+        },
+      ],
     },
     MuiFormHelperText: {
       styleOverrides: {

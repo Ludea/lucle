@@ -59,7 +59,7 @@ export default function Signin({ onSignin, error }: SigninProps) {
         helperText={usernameErr}
         onChange={(e) => setUsername(e.target.value)}
         onBlur={() => setTouched((t) => ({ ...t, username: true }))}
-        inputProps={{ "aria-label": "Username or Email" }}
+        slotProps={{ htmlInput: { "aria-label": "Username or Email" } }}
       />
 
       <FormControl fullWidth required variant="outlined" error={!!passwordErr}>

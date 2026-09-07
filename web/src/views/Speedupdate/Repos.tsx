@@ -299,7 +299,7 @@ function ListRepo() {
       })
       .catch((err: unknown) => setError(ConnectError.from(err).message))
       .finally(() => setLoading(false));
-  }, [auth?.username, auth?.repositories, lucleClient]);
+  }, [auth?.username, lucleClient]);
 
   const getSelectedPlatforms = (): Platforms[] =>
     PLATFORMS.filter((p) => checked[p.key]).map((p) => p.enum);
