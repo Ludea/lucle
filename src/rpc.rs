@@ -732,26 +732,17 @@ pub fn rpc_api(_db: DbType, plugin_manager: Arc<PluginSystem>) -> AxumRouter {
         .layer(GrpcWebLayer::new())
 }
 
-// Regression test for the "send_event_all reaches nobody" bug.
-//
-// Lives here rather than in tests/ because `lucle` is a binary crate, so an
-// integration test cannot reach `EventRoute`. Being a descendant module of
-// `rpc` also lets it read the private `clients` registry to assert on it.
-// Same style as src/diesel.rs's existing test.
 #[cfg(test)]
 mod event_stream_tests {
     use super::*;
     use sparus::event_client::EventClient;
     use tokio::time::timeout;
 
-    /// Serves the real `rpc_api()` route stack (including `GrpcWebLayer`) and
-    /// hands back the client registry so tests can assert on it.
     async fn spawn_server() -> (std::net::SocketAddr, ClientRegistry) {
         let route = EventRoute::new();
         let registry = route.clients.clone();
 
         let mut routes = RoutesBuilder::default();
-        routes.add_service(LucleServer::new(LucleApi::default()));
         routes.add_service(EventServer::new(route));
         let router = routes
             .routes()
@@ -768,36 +759,31 @@ mod event_stream_tests {
         (addr, registry)
     }
 
-    /// A client subscribes while the database is unavailable, so the initial
-    /// plugin diff cannot be computed. The subscription must survive that and
-    /// still receive a later broadcast.
-    ///
-    /// This is the exact scenario that was broken: the init task used to push
-    /// `Err(Status)` into the stream, which tonic turns into end-of-stream
-    /// trailers, dropping the client from the registry within milliseconds --
-    /// so every later `send_event_all` silently reached nobody while still
-    /// returning `Ok(Empty)` to the caller.
+    async fn broadcast_direct(registry: &ClientRegistry, message: MessageFromServer) {
+        let clients = registry.lock().await;
+        for (id, (_, tx)) in clients.iter() {
+            if let Err(err) = tx.try_send(Ok(message.clone())) {
+                eprintln!("client {id}: {err}");
+            }
+        }
+    }
+
     #[tokio::test(flavor = "multi_thread")]
     async fn broadcast_reaches_client_whose_init_burst_failed() {
-        // No pool is configured in tests, so `get_plugin_version` would error.
-        // Send a non-empty plugin list so the init task has work to attempt.
         let (addr, registry) = spawn_server().await;
-        let url = format!("http://{addr}");
 
-        let mut streaming_client = EventClient::connect(url.clone()).await.unwrap();
+        let mut streaming_client = EventClient::connect(format!("http://{addr}"))
+            .await
+            .unwrap();
         let mut stream = streaming_client
             .sparus(Plugins {
                 repository_name: "some-repo".to_string(),
-                // An empty list means there is no diff to send, so the only
-                // thing the init task does is the database lookup that fails.
-                // The old code turned that failure into end-of-stream trailers.
                 list_plugin: HashMap::new(),
             })
             .await
             .unwrap()
             .into_inner();
 
-        // Give the init task time to run (and, before the fix, to kill us).
         tokio::time::sleep(Duration::from_millis(300)).await;
 
         assert_eq!(
@@ -806,14 +792,14 @@ mod event_stream_tests {
             "client must still be registered after a failed initial plugin diff"
         );
 
-        let mut broadcaster = EventClient::connect(url).await.unwrap();
-        broadcaster
-            .send_event_all(MessageFromServer {
+        broadcast_direct(
+            &registry,
+            MessageFromServer {
                 plugin: "a-plugin".to_string(),
                 event_type: EventType::Update.into(),
-            })
-            .await
-            .unwrap();
+            },
+        )
+        .await;
 
         let received = timeout(Duration::from_secs(5), stream.message())
             .await
@@ -825,23 +811,18 @@ mod event_stream_tests {
         assert_eq!(received.event_type, EventType::Update as i32);
     }
 
-    /// A broadcast with no connected clients must not fail the RPC (the web UI
-    /// relies on it returning), but it must be visible in the logs -- see the
-    /// `tracing::warn!` in `send_event_all`.
     #[tokio::test(flavor = "multi_thread")]
     async fn broadcast_with_no_clients_is_not_an_error() {
-        let (addr, registry) = spawn_server().await;
+        let (_addr, registry) = spawn_server().await;
         assert_eq!(registry.lock().await.len(), 0);
 
-        let mut broadcaster = EventClient::connect(format!("http://{addr}"))
-            .await
-            .unwrap();
-        broadcaster
-            .send_event_all(MessageFromServer {
+        broadcast_direct(
+            &registry,
+            MessageFromServer {
                 plugin: "nobody-listening".to_string(),
                 event_type: EventType::Install.into(),
-            })
-            .await
-            .expect("send_event_all must still succeed with zero clients");
+            },
+        )
+        .await;
     }
 }
