@@ -26,6 +26,8 @@ pub enum Error {
     #[error("Failed to encode private key: {0}")]
     Jwt(#[from] jsonwebtoken::errors::Error),
     #[error("Failed to hash password: {0}")]
+    Argon2Phc(#[from] argon2::password_hash::phc::Error),
+    #[error("Failed to hash password: {0}")]
     Argon2(#[from] argon2::password_hash::Error),
     #[error("Failed to create database connection")]
     Deadpool(#[from] diesel_async::pooled_connection::deadpool::PoolError),

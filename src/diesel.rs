@@ -9,7 +9,7 @@ use crate::schema::{repositories, users, users_repositories};
 use crate::utils;
 use argon2::{
     self,
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
+    password_hash::{phc::PasswordHash, PasswordHasher, PasswordVerifier},
     Argon2,
 };
 use chrono::NaiveDateTime;
@@ -151,7 +151,7 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
                         .await
                         .map_err(|error| crate::errors::Error::Connection {
                             error,
-                            url: postgres_url,
+                            url: postgres_url.to_string(),
                         })?;
                 query_helper::create_database(&database)
                     .execute(&mut conn)
@@ -286,11 +286,8 @@ fn path_from_sqlite_url(database_url: &str) -> Result<std::path::PathBuf, crate:
 }
 
 pub async fn create_user(username: String, password: String, email: String) -> Result<(), Error> {
-    let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
-    let password_hash = argon2
-        .hash_password(password.as_bytes(), &salt)?
-        .to_string();
+    let password_hash = argon2.hash_password(password.as_bytes())?.to_string();
     if let Some(pool) = get_pool() {
         with_conn!(pool, |conn| {
             let now = select(diesel::dsl::now)
