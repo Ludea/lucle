@@ -292,18 +292,18 @@ function ListRepo() {
     if (!auth?.username) return;
 
     listRepositories(lucleClient, auth.username)
-  .then((res: ListUpdateServer) => {
-    const map = new Map<string, string[]>();
-    res.repositories.forEach((repo) => {
-      const platformKeys = repo.platforms.map((p) => {
-        return PLATFORMS.find((pl) => pl.enum === p)?.key ?? "win64";
-      });
-      map.set(repo.path, platformKeys);
-    });
-    setListRepo(map);
-  })
-  .catch((err: unknown) => setError(ConnectError.from(err).message))
-  .finally(() => setLoading(false));
+      .then((res: ListUpdateServer) => {
+        const map = new Map<string, string[]>();
+        res.repositories.forEach((repo) => {
+          const platformKeys = repo.platforms.map((p) => {
+            return PLATFORMS.find((pl) => pl.enum === p)?.key ?? "win64";
+          });
+          map.set(repo.path, platformKeys);
+        });
+        setListRepo(map);
+      })
+      .catch((err: unknown) => setError(ConnectError.from(err).message))
+      .finally(() => setLoading(false));
   }, [auth?.username, lucleClient]);
 
   const getSelectedPlatforms = (): Platforms[] =>
