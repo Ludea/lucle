@@ -1,5 +1,5 @@
 import type { InstalledPlugin, InstallPluginRequest } from "gen/lucle_pb";
-import type { WasmPluginRequest, WasmPluginReply } from "gen/lucle_pb";
+import type { WasmPluginRequest, WasmPluginReply, ListUpdateServer } from "gen/lucle_pb";
 
 export const checkIfInstalled = async (client: any) => client.is_database_created();
 
@@ -51,10 +51,8 @@ export const registerUpdateServer = async (
     platforms,
   });
 
-export const listRepositories = async (client: any, username: string) =>
-  client.list_update_server_by_user({
-    username,
-  });
+export const listRepositories = async (client: any, username: string): Promise<ListUpdateServer> =>
+  client.list_update_server_by_user({ username });
 
 export const deleteRepo = async (client: any, path: string) =>
   client.delete_repo({

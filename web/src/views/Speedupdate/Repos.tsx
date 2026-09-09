@@ -37,6 +37,8 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { useNavigate } from "react-router";
 import { ConnectError } from "@connectrpc/connect";
 import { Platforms } from "gen/speedupdate_pb";
+import type { ListUpdateServer } from "gen/lucle_pb";
+import { Platforms } from "gen/lucle_pb";
 
 import { useAuth } from "context/Auth";
 import { LucleRPC } from "context/Luclerpc";
@@ -290,14 +292,18 @@ function ListRepo() {
     if (!auth?.username) return;
 
     listRepositories(lucleClient, auth.username)
-      .then((res: any) => {
-        const map = new Map<string, string[]>();
-        const repos: string[] = res.repositories ?? [];
-        repos.filter(Boolean).forEach((path) => map.set(path, []));
-        setListRepo(map);
-      })
-      .catch((err: unknown) => setError(ConnectError.from(err).message))
-      .finally(() => setLoading(false));
+  .then((res: ListUpdateServer) => {
+    const map = new Map<string, string[]>();
+    res.repositories.forEach((repo) => {
+      const platformKeys = repo.platforms.map((p) => {
+        return PLATFORMS.find((pl) => pl.enum === p)?.key ?? "win64";
+      });
+      map.set(repo.path, platformKeys);
+    });
+    setListRepo(map);
+  })
+  .catch((err: unknown) => setError(ConnectError.from(err).message))
+  .finally(() => setLoading(false));
   }, [auth?.username, lucleClient]);
 
   const getSelectedPlatforms = (): Platforms[] =>
