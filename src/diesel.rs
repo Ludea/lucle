@@ -965,8 +965,10 @@ mod temp_sqlite_verification {
         let repos = list_update_server_by_user("alice".into())
             .await
             .expect("list_update_server_by_user");
-        assert_eq!(repos, vec!["myrepo".to_string()]);
-
+        assert_eq!(
+            repos.iter().map(|r| r.path.as_str()).collect::<Vec<_>>(),
+            vec!["myrepo"]
+        );
         is_table_created().await.expect("is_table_created");
 
         let plugins = get_plugin_version(vec!["nonexistent".into()])
