@@ -20,10 +20,10 @@ function ButtonField(props: ButtonFieldProps) {
       ? parsedFormat
       : pickerContext.value.format(pickerContext.fieldFormat);
 
-  const { slotProps, inputRef, ...buttonProps } = forwardedProps as typeof forwardedProps & {
-    slotProps?: unknown;
-    inputRef?: unknown;
-  };
+  const { ...buttonProps } = forwardedProps as Omit<
+  typeof forwardedProps,
+  "slotProps" | "inputRef"
+>;
 
   return (
     <Button
