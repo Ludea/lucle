@@ -763,7 +763,7 @@ mod event_stream_tests {
         let clients = registry.lock().await;
         for (id, (_, tx)) in clients.iter() {
             if let Err(err) = tx.try_send(Ok(message.clone())) {
-               tracing::error!("client {id}: {err}");
+                tracing::error!("client {id}: {err}");
             }
         }
     }
