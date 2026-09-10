@@ -38,7 +38,6 @@ import { useNavigate } from "react-router";
 import { ConnectError } from "@connectrpc/connect";
 import { Platforms } from "gen/speedupdate_pb";
 import type { ListUpdateServer } from "gen/lucle_pb";
-import { Platforms } from "gen/lucle_pb";
 
 import { useAuth } from "context/Auth";
 import { LucleRPC } from "context/Luclerpc";
