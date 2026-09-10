@@ -405,7 +405,6 @@ pub async fn list_update_server_by_user(username: String) -> Result<Vec<UpdateSe
                                     .optional()
                                 {
                                     Ok(Some(repo)) => {
-                                        println!("12 : {:?}", repo);
                                         for r in &repo {
                                             let parsed_platforms: Value =
                                                 serde_json::from_str(&r.platforms)?;
