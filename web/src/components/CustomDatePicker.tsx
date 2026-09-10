@@ -21,9 +21,9 @@ function ButtonField(props: ButtonFieldProps) {
       : pickerContext.value.format(pickerContext.fieldFormat);
 
   const { ...buttonProps } = forwardedProps as Omit<
-  typeof forwardedProps,
-  "slotProps" | "inputRef"
->;
+    typeof forwardedProps,
+    "slotProps" | "inputRef"
+  >;
 
   return (
     <Button
