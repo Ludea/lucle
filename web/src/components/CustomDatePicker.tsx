@@ -20,7 +20,6 @@ function ButtonField(props: ButtonFieldProps) {
       ? parsedFormat
       : pickerContext.value.format(pickerContext.fieldFormat);
 
-  // Exclure les props non-DOM avant de les passer à <Button>
   const { slotProps, inputRef, ...buttonProps } = forwardedProps as typeof forwardedProps & {
     slotProps?: unknown;
     inputRef?: unknown;
