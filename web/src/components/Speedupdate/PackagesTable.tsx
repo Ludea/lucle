@@ -23,7 +23,9 @@ import PublishIcon from "@mui/icons-material/Publish";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import InboxIcon from "@mui/icons-material/Inbox";
 import { ConnectError } from "@connectrpc/connect";
+import { Platforms } from "gen/speedupdate_pb";
 import { registerPackage, unregisterPackage, fileToDelete } from "utils/speedupdaterpc";
+import { PLATFORMS, type PlatformKey, type RepoType } from "utils/platforms";
 
 type PackageEntry = { name: string; published: boolean };
 
@@ -39,7 +41,6 @@ function PublishedChip({ published }: { published: boolean }) {
   );
 }
 
-// Mobile card for a single package
 function PackageCard({
   pack,
   selected,
@@ -88,11 +89,13 @@ function PackagesTable({
   client,
   currentRepo,
   listPackages,
+  type,
   onError,
 }: {
   client: unknown;
-  currentRepo: Map<string, string[]>;
+  currentRepo: Map<string, PlatformKey[]>;
   listPackages: PackageEntry[];
+  type: RepoType;
   onError: (error: string | null) => void;
 }) {
   const theme = useTheme();
@@ -114,8 +117,15 @@ function PackagesTable({
   const allPublished = selectedEntries.length > 0 && selectedEntries.every((p) => p.published);
   const allUnpublished = selectedEntries.length > 0 && selectedEntries.every((p) => !p.published);
 
-  const repoName = () => currentRepo.keys().next().value as string;
-  const platforms = () => currentRepo.get(repoName());
+  const repoName = (): string => currentRepo.keys().next().value as string;
+
+  const platforms = (): Platforms[] => {
+    const keys = currentRepo.get(repoName()) ?? [];
+    return keys
+      .map((k) => PLATFORMS.find((p) => p.key === k)?.enum)
+      .filter((p): p is Platforms => p !== undefined);
+  };
+
   const clearSelection = () => setSelected(new Set());
 
   const toggle = (name: string) =>
@@ -129,7 +139,7 @@ function PackagesTable({
   const registerPackages = () => {
     onError(null);
     selected.forEach((pack) =>
-      registerPackage(client, repoName(), pack, platforms(), "game").catch((err: unknown) =>
+      registerPackage(client, repoName(), pack, platforms(), type).catch((err: unknown) =>
         onError(ConnectError.from(err).message),
       ),
     );
@@ -139,7 +149,7 @@ function PackagesTable({
   const unregisterPackages = () => {
     onError(null);
     selected.forEach((pack) =>
-      unregisterPackage(client, repoName(), pack, platforms(), "game").catch((err: unknown) =>
+      unregisterPackage(client, repoName(), pack, platforms(), type).catch((err: unknown) =>
         onError(ConnectError.from(err).message),
       ),
     );
@@ -150,11 +160,11 @@ function PackagesTable({
     onError(null);
     selectedEntries.forEach((pack) => {
       if (pack.published) {
-        unregisterPackage(client, repoName(), pack.name, platforms(), "game").catch(
+        unregisterPackage(client, repoName(), pack.name, platforms(), type).catch(
           (err: unknown) => onError(ConnectError.from(err).message),
         );
       }
-      fileToDelete(client, pack.name, platforms(), "game").catch((err: unknown) =>
+      fileToDelete(client, pack.name, platforms(), type).catch((err: unknown) =>
         onError(ConnectError.from(err).message),
       );
     });
@@ -165,7 +175,6 @@ function PackagesTable({
 
   return (
     <SectionCard>
-      {/* Header */}
       <Stack
         direction="row"
         sx={(theme) => ({

@@ -1,5 +1,6 @@
 import type { InstalledPlugin, InstallPluginRequest } from "gen/lucle_pb";
 import type { WasmPluginRequest, WasmPluginReply, ListUpdateServer } from "gen/lucle_pb";
+import { Platforms } from "gen/speedupdate_pb";
 
 export const checkIfInstalled = async (client: any) => client.is_database_created();
 
@@ -43,7 +44,7 @@ export const registerUpdateServer = async (
   client: any,
   username: string,
   repo: string,
-  platforms: any,
+  platforms: Platforms[],
 ) =>
   client.register_update_server({
     path: repo,
@@ -60,8 +61,7 @@ export const deleteRepo = async (client: any, path: string) =>
   });
 
 export async function listPlugins(client: any): Promise<InstalledPlugin[]> {
-  let res = client.listPlugins({});
-  return res;
+  return client.listPlugins({});
 }
 
 export async function installPlugin(

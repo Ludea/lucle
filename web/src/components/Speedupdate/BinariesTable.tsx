@@ -21,9 +21,10 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import FolderIcon from "@mui/icons-material/Folder";
 import InboxIcon from "@mui/icons-material/Inbox";
 import { ConnectError } from "@connectrpc/connect";
+import { Platforms } from "gen/speedupdate_pb";
 import { fileToDelete } from "utils/speedupdaterpc";
+import { PLATFORMS, type PlatformKey, type RepoType } from "utils/platforms";
 
-// Mobile card for a single binary
 function BinaryCard({
   binary,
   selected,
@@ -70,11 +71,13 @@ function BinariesTable({
   client,
   currentRepo,
   availableBinaries,
+  type,
   onError,
 }: {
   client: unknown;
-  currentRepo: Map<string, string[]>;
+  currentRepo: Map<string, PlatformKey[]>;
   availableBinaries: string[];
+  type: RepoType;
   onError: (error: string | null) => void;
 }) {
   const theme = useTheme();
@@ -99,9 +102,13 @@ function BinariesTable({
   const deleteSelected = () => {
     onError(null);
     const repo_name = currentRepo.keys().next().value as string;
-    const platforms = currentRepo.get(repo_name);
+    const keys = currentRepo.get(repo_name) ?? [];
+    const platforms = keys
+      .map((k) => PLATFORMS.find((p) => p.key === k)?.enum)
+      .filter((p): p is Platforms => p !== undefined);
+
     selected.forEach((bin) =>
-      fileToDelete(client, bin, platforms, "game").catch((err: unknown) =>
+      fileToDelete(client, bin, platforms, type).catch((err: unknown) =>
         onError(ConnectError.from(err).message),
       ),
     );
@@ -112,7 +119,6 @@ function BinariesTable({
 
   return (
     <SectionCard>
-      {/* Header */}
       <Stack
         direction="row"
         sx={(theme) => ({

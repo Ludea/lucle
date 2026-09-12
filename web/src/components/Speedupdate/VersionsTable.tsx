@@ -25,8 +25,9 @@ import HistoryIcon from "@mui/icons-material/History";
 import InboxIcon from "@mui/icons-material/Inbox";
 import TagIcon from "@mui/icons-material/Tag";
 import { ConnectError } from "@connectrpc/connect";
+import { Platforms, Versions } from "gen/speedupdate_pb";
 import { setCurrentVersion, registerVersion, unregisterVersion } from "utils/speedupdaterpc";
-import { Versions } from "gen/speedupdate_pb";
+import { PLATFORMS, type PlatformKey, type RepoType } from "utils/platforms";
 
 // Mobile card for a single version
 function VersionCard({
@@ -78,11 +79,13 @@ function VersionsTable({
   client,
   currentRepo,
   listVersions,
+  type,
   onError,
 }: {
   client: unknown;
-  currentRepo: Map<string, string[]>;
+  currentRepo: Map<string, PlatformKey[]>;
   listVersions: Versions[];
+  type: RepoType;
   onError: (message: string | null) => void;
 }) {
   const theme = useTheme();
@@ -98,8 +101,15 @@ function VersionsTable({
     [listVersions, page, perPage],
   );
 
-  const repoName = () => currentRepo.keys().next().value as string;
-  const platforms = () => currentRepo.get(repoName());
+  const repoName = (): string => currentRepo.keys().next().value as string;
+
+  const platforms = (): Platforms[] => {
+    const keys = currentRepo.get(repoName()) ?? [];
+    return keys
+      .map((k) => PLATFORMS.find((p) => p.key === k)?.enum)
+      .filter((p): p is Platforms => p !== undefined);
+  };
+
   const clearSelection = () => setSelected(new Set());
   const numSelected = selected.size;
 
@@ -114,7 +124,7 @@ function VersionsTable({
   const handleSetCurrent = () => {
     const [revision] = selected;
     onError(null);
-    setCurrentVersion(client, repoName(), revision, platforms(), "game")
+    setCurrentVersion(client, repoName(), revision, platforms(), type)
       .then(() => clearSelection())
       .catch((err: unknown) => onError(ConnectError.from(err).message));
   };
@@ -122,7 +132,7 @@ function VersionsTable({
   const handleDelete = () => {
     onError(null);
     selected.forEach((revision) =>
-      unregisterVersion(client, repoName(), revision, platforms(), "game")
+      unregisterVersion(client, repoName(), revision, platforms(), type)
         .then(() => clearSelection())
         .catch((err: unknown) => onError(ConnectError.from(err).message)),
     );
@@ -138,7 +148,7 @@ function VersionsTable({
       newVersion.trim(),
       newDescription.trim(),
       platforms(),
-      "game",
+      type,
     ).catch((err: unknown) => onError(ConnectError.from(err).message));
     setNewVersion("");
     setNewDescription("");

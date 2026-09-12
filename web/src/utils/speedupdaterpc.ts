@@ -1,3 +1,6 @@
+import { Platforms } from "gen/speedupdate_pb";
+import { enumToKey, checkedToKeys, type PlatformKey, type RepoType } from "utils/platforms";
+
 const setHeaders = (): Headers => {
   const token = localStorage.getItem("token");
   const headers = new Headers();
@@ -5,22 +8,31 @@ const setHeaders = (): Headers => {
   return headers;
 };
 
-export const init = (client: any, path: string, platforms: any) => {
+export const init = (
+  client: any,
+  path: string,
+  checked: Record<PlatformKey, boolean>,
+) => {
   const headers = setHeaders();
-  const subPath = Object.keys(platforms).filter((key) => platforms[key] === true);
+  const keys = checkedToKeys(checked);
   return Promise.all(
-    subPath.flatMap((folder) => [
-      client.init({ path: path.concat("/game/", folder) }, { headers }),
-      client.init({ path: path.concat("/launcher/", folder) }, { headers }),
+    keys.flatMap((key) => [
+      client.init({ path: path.concat("/game/", key) }, { headers }),
+      client.init({ path: path.concat("/launcher/", key) }, { headers }),
     ]),
   );
 };
 
-export const isInit = (client: any, path: string, platforms: any, type: string) => {
+export const isInit = (
+  client: any,
+  path: string,
+  platforms: Platforms[],
+  type: RepoType,
+) => {
   const headers = setHeaders();
   return Promise.all(
-    platforms.map((folder: string) =>
-      client.is_init({ path: path.concat("/", type, "/", folder) }, { headers }),
+    platforms.map((platform) =>
+      client.is_init({ path: path.concat("/", type, "/", enumToKey(platform)) }, { headers }),
     ),
   );
 };
@@ -29,14 +41,14 @@ export const setCurrentVersion = (
   client: any,
   path: string,
   version: string,
-  platforms: any,
-  type: string,
+  platforms: Platforms[],
+  type: RepoType,
 ) => {
   const headers = setHeaders();
   return Promise.all(
-    platforms.map((folder: string) =>
+    platforms.map((platform) =>
       client.set_current_version(
-        { path: path.concat("/", type, "/", folder), version },
+        { path: path.concat("/", type, "/", enumToKey(platform)), version },
         { headers },
       ),
     ),
@@ -48,14 +60,14 @@ export const registerVersion = (
   path: string,
   version: string,
   description: string,
-  platforms: any,
-  type: string,
+  platforms: Platforms[],
+  type: RepoType,
 ) => {
   const headers = setHeaders();
   return Promise.all(
-    platforms.map((folder: string) =>
+    platforms.map((platform) =>
       client.register_version(
-        { path: path.concat("/", type, "/", folder), version, description },
+        { path: path.concat("/", type, "/", enumToKey(platform)), version, description },
         { headers },
       ),
     ),
@@ -66,14 +78,14 @@ export const unregisterVersion = (
   client: any,
   path: string,
   version: string,
-  platforms: any,
-  type: string,
+  platforms: Platforms[],
+  type: RepoType,
 ) => {
   const headers = setHeaders();
   return Promise.all(
-    platforms.map((folder: string) =>
+    platforms.map((platform) =>
       client.unregister_version(
-        { path: path.concat("/", type, "/", folder), version },
+        { path: path.concat("/", type, "/", enumToKey(platform)), version },
         { headers },
       ),
     ),
@@ -84,13 +96,16 @@ export const registerPackage = (
   client: any,
   path: string,
   name: string,
-  platforms: any,
-  type: string,
+  platforms: Platforms[],
+  type: RepoType,
 ) => {
   const headers = setHeaders();
   return Promise.all(
-    platforms.map((folder: string) =>
-      client.register_package({ path: path.concat("/", type, "/", folder), name }, { headers }),
+    platforms.map((platform) =>
+      client.register_package(
+        { path: path.concat("/", type, "/", enumToKey(platform)), name },
+        { headers },
+      ),
     ),
   );
 };
@@ -99,13 +114,16 @@ export const unregisterPackage = (
   client: any,
   path: string,
   name: string,
-  platforms: any,
-  type: string,
+  platforms: Platforms[],
+  type: RepoType,
 ) => {
   const headers = setHeaders();
   return Promise.all(
-    platforms.map((folder: string) =>
-      client.unregister_package({ path: path.concat("/", type, "/", folder), name }, { headers }),
+    platforms.map((platform) =>
+      client.unregister_package(
+        { path: path.concat("/", type, "/", enumToKey(platform)), name },
+        { headers },
+      ),
     ),
   );
 };
@@ -115,11 +133,19 @@ export const repoToDelete = (client: any, path: string) => {
   return client.delete_repo({ path }, { headers });
 };
 
-export const fileToDelete = (client: any, file: string, platforms: any, type: string) => {
+export const fileToDelete = (
+  client: any,
+  file: string,
+  platforms: Platforms[],
+  type: RepoType,
+) => {
   const headers = setHeaders();
   return Promise.all(
-    platforms.map((folder: string) =>
-      client.delete_file({ file: folder.concat("/", type, "/", file) }, { headers }),
+    platforms.map((platform) =>
+      client.delete_file(
+        { file: enumToKey(platform).concat("/", type, "/", file) },
+        { headers },
+      ),
     ),
   );
 };
@@ -132,7 +158,13 @@ export const compareStatus = (oldStatus: any, newStatus: any) => {
   return true;
 };
 
-export function status(client: any, path: string, platforms: any, type: string, opt: any) {
+export function status(
+  client: any,
+  path: string,
+  platforms: Platforms[],
+  type: RepoType,
+  opt: any,
+) {
   return Promise.resolve(
     new ReadableStream({
       start(controller) {

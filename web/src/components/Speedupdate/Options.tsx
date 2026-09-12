@@ -12,6 +12,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import StorageIcon from "@mui/icons-material/Storage";
 import TagIcon from "@mui/icons-material/Tag";
 import { Platforms } from "gen/speedupdate_pb";
+import { type PlatformKey, type RepoType } from "utils/platforms";
 
 function formatSize(total: number): string {
   if (total < 1024) return `${total} B`;
@@ -48,9 +49,9 @@ const StatRow = styled(Stack)(({ theme }) => ({
 }));
 
 interface SpeedupdateOptionsProps {
-  binaryType: "game" | "launcher";
-  currentRepo: Map<string, string[]>;
-  setCurrentRepo: (repo: Map<string, string[]>) => void;
+  binaryType: RepoType;
+  currentRepo: Map<string, PlatformKey[]>;
+  setCurrentRepo: (repo: Map<string, PlatformKey[]>) => void;
   setPlatformsEnum: (platforms: Platforms[]) => void;
   currentVer: string;
   size: number | undefined;

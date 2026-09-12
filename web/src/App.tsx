@@ -1,41 +1,43 @@
 import { useState, useEffect, useContext } from "react";
-
 import { useLocation, useRoutes } from "react-router";
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
 
-// RPC Components
 import { checkIfInstalled } from "utils/rpc";
-
 import routes from "routes";
-
-// Context
 import AuthProvider from "context/Auth";
 import { LucleRPC } from "context/Luclerpc";
 
 export default function App() {
-  const [isInstalled, setIsInstalled] = useState<boolean>();
-  const client = useContext(LucleRPC);
-  const location = useLocation();
+  const [isInstalled, setIsInstalled] = useState<boolean | null>(null);
+  const client    = useContext(LucleRPC);
+  const location  = useLocation();
   const isLanding = location.pathname === "/";
 
   useEffect(() => {
-    if (isLanding) {
-      return;
-    }
-
     checkIfInstalled(client)
-      .then(() => {
-        setIsInstalled(true);
-      })
-      .catch(() => {
-        setIsInstalled(false);
-      });
-  }, [client, isLanding]);
-
-  const resolvedIsInstalled = isLanding ? false : isInstalled;
+      .then(() => { setIsInstalled(true); })
+      .catch(() => { setIsInstalled(false); });
+  }, [client]);
 
   return (
     <AuthProvider>
-      {resolvedIsInstalled !== undefined ? <LucleRoutes isInstalled={resolvedIsInstalled} /> : null}
+     {isLanding ? (
+        <LucleRoutes isInstalled={isInstalled ?? false} />
+      ) : isInstalled === null ? (
+        <Box
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      ) : (
+        <LucleRoutes isInstalled={isInstalled} />
+      )}
     </AuthProvider>
   );
 }

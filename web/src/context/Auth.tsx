@@ -1,53 +1,43 @@
 import { useContext, createContext, useState, ReactNode } from "react";
 import { useNavigate } from "react-router";
 
-// Context
 import { LucleRPC } from "context/Luclerpc";
-
-// RPC
 import { connection } from "utils/rpc";
-
 import { Platforms } from "gen/speedupdate_pb";
 
 const AuthContext = createContext<any>(undefined);
 
 function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [token, setToken]       = useState(localStorage.getItem("token"));
   const [username, setUsername] = useState(localStorage.getItem("username"));
 
   const navigate = useNavigate();
-  const client = useContext(LucleRPC);
+  const client   = useContext(LucleRPC);
 
   const Login = async (credentials: { username: string; password: string }) =>
     new Promise((resolve, reject) => {
       connection(client, credentials.username, credentials.password)
         .then((user) => {
-          let list_repo = new Map<string, string[]>();
-          let list_platforms: string[] = [];
-          for (const repo of user.repositories) {
-            for (const host of repo.platforms) {
+          const list_repo = new Map<string, string[]>();
+
+          for (const repo of user.repositories ?? []) {
+            const list_platforms: string[] = [];
+            for (const host of repo.platforms ?? []) {
               switch (host) {
-                case Platforms.WIN64:
-                  list_platforms.push("win64");
-                  break;
-                case Platforms.MACOS_X86_64:
-                  list_platforms.push("macos_x86_64");
-                  break;
-                case Platforms.MACOS_ARM64:
-                  list_platforms.push("macos_arm64");
-                  break;
-                case Platforms.LINUX:
-                  list_platforms.push("linux");
-                  break;
+                case Platforms.WIN64:          list_platforms.push("win64");         break;
+                case Platforms.MACOS_X86_64:   list_platforms.push("macos_x86_64");  break;
+                case Platforms.MACOS_ARM64:    list_platforms.push("macos_arm64");   break;
+                case Platforms.LINUX:          list_platforms.push("linux");          break;
               }
             }
             list_repo.set(repo.path, list_platforms);
-            list_platforms = [];
           }
+
           setToken(user.token);
           setUsername(user.username);
           localStorage.setItem("token", user.token);
           localStorage.setItem("username", user.username);
+          resolve(user);
           navigate("/dashboard");
         })
         .catch((err) => {
@@ -71,5 +61,4 @@ function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export default AuthProvider;
-
 export const useAuth = () => useContext(AuthContext);
