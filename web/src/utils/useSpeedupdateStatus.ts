@@ -19,6 +19,8 @@ interface SpeedupdateStatus {
   setError: (err: string | null) => void;
 }
 
+const SSE_MAX_RETRIES = 3;
+
 export function useSpeedupdateStatus(
   binaryType: RepoType,
   initialPlatforms: Platforms[] = [],
@@ -45,6 +47,7 @@ export function useSpeedupdateStatus(
   const readerRef = useRef<ReadableStreamDefaultReader | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
   const stoppedRef = useRef(false);
+  const sseRetriesRef = useRef(0);
 
   useEffect(() => {
     stoppedRef.current = false;
@@ -66,6 +69,7 @@ export function useSpeedupdateStatus(
       async function readStream() {
         let result;
         while (!(result = await reader.read()).done) {
+          console.log("12 : ", result);
           setListVersions(result.value.versions);
           setListPackages(result.value.packages);
           setAvailableBinaries(result.value.binaries);
@@ -79,17 +83,34 @@ export function useSpeedupdateStatus(
       });
     });
 
-    const eventSource = new EventSource(
-      `https://repo.marlin-atlas.ts.net/${current}/${binaryType}/progression`,
-    );
-    eventSourceRef.current = eventSource;
-    eventSource.onmessage = (event) => {
-      if (event.data === "100") eventSource.close();
-    };
-    eventSource.onerror = () => {
-      setError("Lost connection to the update server");
-      eventSource.close();
-    };
+    function openSSE(repoName: string) {
+      if (stoppedRef.current) return;
+
+      const es = new EventSource(
+        `https://repo.marlin-atlas.ts.net/${repoName}/${binaryType}/progression`,
+      );
+      eventSourceRef.current = es;
+
+      es.onmessage = (event) => {
+        sseRetriesRef.current = 0;
+        if (event.data === "100") es.close();
+      };
+
+      es.onerror = () => {
+        es.close();
+        eventSourceRef.current = null;
+        if (stoppedRef.current) return;
+        if (sseRetriesRef.current < SSE_MAX_RETRIES) {
+          sseRetriesRef.current += 1;
+          const delay = 2000 * sseRetriesRef.current;
+          setTimeout(() => openSSE(repoName), delay);
+        }
+        // silently give up after max retries — progression is non-critical
+      };
+    }
+
+    sseRetriesRef.current = 0;
+    openSSE(current);
 
     return () => {
       stoppedRef.current = true;
