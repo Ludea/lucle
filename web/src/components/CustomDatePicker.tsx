@@ -8,6 +8,12 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker, DatePickerFieldProps } from "@mui/x-date-pickers/DatePicker";
 import { useParsedFormat, usePickerContext, useSplitFieldProps } from "@mui/x-date-pickers";
 
+function omitProps<T extends object, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
+  const result = { ...obj };
+  keys.forEach((k) => delete result[k]);
+  return result;
+}
+
 interface ButtonFieldProps extends DatePickerFieldProps {}
 
 function ButtonField(props: ButtonFieldProps) {
@@ -20,10 +26,10 @@ function ButtonField(props: ButtonFieldProps) {
       ? parsedFormat
       : pickerContext.value.format(pickerContext.fieldFormat);
 
-  const { ...buttonProps } = forwardedProps as Omit<
-    typeof forwardedProps,
-    "slotProps" | "inputRef"
-  >;
+  const buttonProps = omitProps(
+    forwardedProps as typeof forwardedProps & { slotProps?: unknown; inputRef?: unknown },
+    ["slotProps", "inputRef"]
+  );
 
   return (
     <Button
