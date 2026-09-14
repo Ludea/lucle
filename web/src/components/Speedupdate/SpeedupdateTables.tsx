@@ -26,6 +26,10 @@ export default function SpeedupdateTables({ binaryType, platforms, onError }: Pr
     availableBinaries,
     currentVer,
     size,
+    buildPath,
+    setBuildPath,
+    uploadPath,
+    setUploadPath,
     error,
     setError,
   } = useSpeedupdateStatus(binaryType, platforms);
@@ -39,6 +43,10 @@ export default function SpeedupdateTables({ binaryType, platforms, onError }: Pr
         setPlatformsEnum={setPlatformsEnum}
         currentVer={currentVer}
         size={size}
+        buildPath={buildPath}
+        setBuildPath={setBuildPath}
+        uploadPath={uploadPath}
+        setUploadPath={setUploadPath}
         error={error}
         setError={setError}
       />

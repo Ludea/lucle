@@ -150,11 +150,34 @@ export const fileToDelete = (
   );
 };
 
+export interface BuildOutputChunk {
+  downloadedBytesStart: bigint;
+  downloadedBytesEnd: bigint;
+}
+
+export const build = (
+  client: any,
+  path: string,
+  version: string,
+  sourceDirectory: string,
+  destinationDirectory: string,
+): AsyncIterable<BuildOutputChunk> => {
+  const headers = setHeaders();
+  return client.build(
+    {
+      path,
+      version,
+      source_directory: sourceDirectory,
+      destination_directory: destinationDirectory,
+    },
+    { headers },
+  ) as AsyncIterable<BuildOutputChunk>;
+};
+
 export const compareStatus = (oldStatus: any, newStatus: any) => {
   if (oldStatus.currentVersion !== newStatus.currentVersion) return false;
   if (oldStatus.packages.length !== newStatus.packages.length) return false;
   if (oldStatus.availablePackages.length !== newStatus.availablePackages.length) return false;
-  if (oldStatus.availableBinaries.length !== newStatus.availableBinaries.length) return false;
   return true;
 };
 

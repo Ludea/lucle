@@ -1,4 +1,13 @@
 import { useState, useEffect, useRef, useContext } from "react";
+
+function useDebounce<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(id);
+  }, [value, delay]);
+  return debounced;
+}
 import { Platforms, OptionsSchema, Versions } from "gen/speedupdate_pb";
 import { create } from "@bufbuild/protobuf";
 import { status } from "utils/speedupdaterpc";
@@ -15,6 +24,10 @@ interface SpeedupdateStatus {
   availableBinaries: string[];
   currentVer: string;
   size: number | undefined;
+  buildPath: string;
+  setBuildPath: (path: string) => void;
+  uploadPath: string;
+  setUploadPath: (path: string) => void;
   error: string | null;
   setError: (err: string | null) => void;
 }
@@ -41,6 +54,10 @@ export function useSpeedupdateStatus(
   const [availableBinaries, setAvailableBinaries] = useState<string[]>([]);
   const [currentVer, setCurrentVer] = useState<string>("");
   const [size, setSize] = useState<number | undefined>(undefined);
+  const [buildPath, setBuildPath] = useState<string>("");
+  const [uploadPath, setUploadPath] = useState<string>("");
+  const debouncedBuildPath = useDebounce(buildPath, 500);
+  const debouncedUploadPath = useDebounce(uploadPath, 500);
   const [statusAlreadyStarted, setStatusAlreadyStarted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,7 +73,11 @@ export function useSpeedupdateStatus(
 
     const current = currentRepo.keys().next().value as string;
 
-    const opt = create(OptionsSchema, { buildPath: ".", uploadPath: "." });
+    const opt = create(OptionsSchema, {
+  buildPath: debouncedBuildPath || ".build",
+  uploadPath: debouncedUploadPath || "binaries",
+});
+    
     status(speedupdateClient, current, platformsEnum, binaryType, opt).then((value) => {
       if (stoppedRef.current) {
         value.cancel();
@@ -69,7 +90,6 @@ export function useSpeedupdateStatus(
       async function readStream() {
         let result;
         while (!(result = await reader.read()).done) {
-          console.log("12 : ", result);
           setListVersions(result.value.versions);
           setListPackages(result.value.packages);
           setAvailableBinaries(result.value.binaries);
@@ -120,8 +140,7 @@ export function useSpeedupdateStatus(
       eventSourceRef.current?.close();
       eventSourceRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentRepo]);
+  }, [currentRepo, debouncedBuildPath, debouncedUploadPath]);
 
   return {
     currentRepo,
@@ -133,6 +152,10 @@ export function useSpeedupdateStatus(
     availableBinaries,
     currentVer,
     size,
+    buildPath,
+    setBuildPath,
+    uploadPath,
+    setUploadPath,
     error,
     setError,
   };

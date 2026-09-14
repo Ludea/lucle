@@ -55,6 +55,10 @@ interface SpeedupdateOptionsProps {
   setPlatformsEnum: (platforms: Platforms[]) => void;
   currentVer: string;
   size: number | undefined;
+  buildPath: string;
+  setBuildPath: (path: string) => void;
+  uploadPath: string;
+  setUploadPath: (path: string) => void;
   error: string | null;
   setError: (err: string | null) => void;
 }
@@ -63,6 +67,10 @@ function SpeedupdateOptions({
   binaryType,
   currentVer,
   size,
+  buildPath,
+  setBuildPath,
+  uploadPath,
+  setUploadPath,
   error,
   setError,
 }: SpeedupdateOptionsProps) {
@@ -121,6 +129,8 @@ function SpeedupdateOptions({
             label="Build path"
             size="small"
             fullWidth
+            value={buildPath}
+            onChange={(e) => setBuildPath(e.target.value)}
             slotProps={{
               input: {
                 startAdornment: (
@@ -137,6 +147,8 @@ function SpeedupdateOptions({
             label="Upload path"
             size="small"
             fullWidth
+            value={uploadPath}
+            onChange={(e) => setUploadPath(e.target.value)}
             slotProps={{
               input: {
                 startAdornment: (
