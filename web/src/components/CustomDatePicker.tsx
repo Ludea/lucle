@@ -28,7 +28,7 @@ function ButtonField(props: ButtonFieldProps) {
 
   const buttonProps = omitProps(
     forwardedProps as typeof forwardedProps & { slotProps?: unknown; inputRef?: unknown },
-    ["slotProps", "inputRef"]
+    ["slotProps", "inputRef"],
   );
 
   return (

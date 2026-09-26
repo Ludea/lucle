@@ -19,9 +19,9 @@ import { LucleRPC } from "context/Luclerpc";
 import { useAuth } from "context/Auth";
 
 // ─── Design tokens ────────────────────────────────────────────────
-const ACCENT      = "#6C63FF";
-const BG_DARK     = "#0d1117";
-const BG_LIGHT    = "#f0f2f8";
+const ACCENT = "#6C63FF";
+const BG_DARK = "#0d1117";
+const BG_LIGHT = "#f0f2f8";
 
 type Mode = "light" | "dark";
 
@@ -33,11 +33,11 @@ function buildTheme(mode: Mode) {
       primary: { main: ACCENT },
       background: {
         default: dark ? BG_DARK : BG_LIGHT,
-        paper:   dark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.7)",
+        paper: dark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.7)",
       },
       error: { main: "#ff6b6b" },
       text: {
-        primary:   dark ? "#e6edf3"              : "#111318",
+        primary: dark ? "#e6edf3" : "#111318",
         secondary: dark ? "rgba(230,237,243,0.5)" : "rgba(17,19,24,0.5)",
       },
     },
@@ -83,7 +83,7 @@ function buildTheme(mode: Mode) {
           root: {
             color: dark ? "rgba(230,237,243,0.5)" : "rgba(17,19,24,0.5)",
             "&.Mui-focused": { color: ACCENT },
-            "&.Mui-error":   { color: "#ff6b6b" },
+            "&.Mui-error": { color: "#ff6b6b" },
           },
         },
       },
@@ -91,7 +91,7 @@ function buildTheme(mode: Mode) {
         styleOverrides: {
           root: {
             borderRadius: 10,
-            "&:active":      { transform: "scale(0.98)" },
+            "&:active": { transform: "scale(0.98)" },
             "&.Mui-disabled": { opacity: 0.38 },
           },
         },
@@ -148,7 +148,7 @@ function blobSx(mode: Mode) {
     },
     "@keyframes floatBlob": {
       from: { transform: "translate(0,0) scale(1)" },
-      to:   { transform: "translate(30px,20px) scale(1.06)" },
+      to: { transform: "translate(30px,20px) scale(1.06)" },
     },
   };
 }
@@ -172,18 +172,18 @@ function TabPanel({
 
 // ─── Component ───────────────────────────────────────────────────
 export default function Login() {
-  const [tab, setTab]       = useState("1");
-  const [error, setError]   = useState<string>("");
+  const [tab, setTab] = useState("1");
+  const [error, setError] = useState<string>("");
   const [successfullSignup, setSuccessfullSignup] = useState<boolean>(false);
-  const [mode, setMode]     = useState<Mode>(() => {
+  const [mode, setMode] = useState<Mode>(() => {
     const saved = localStorage.getItem("colorMode");
     if (saved === "light" || saved === "dark") return saved;
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   });
 
-  const auth   = useAuth();
+  const auth = useAuth();
   const client = useContext(LucleRPC);
-  const theme  = useMemo(() => buildTheme(mode), [mode]);
+  const theme = useMemo(() => buildTheme(mode), [mode]);
 
   const toggleMode = useCallback(() => {
     setMode((m) => {
@@ -196,7 +196,9 @@ export default function Login() {
   const handleSignup = (username: string, password: string, email: string) => {
     setError("");
     createUser(client, username, password, email, "user")
-      .then(() => { setSuccessfullSignup(true); })
+      .then(() => {
+        setSuccessfullSignup(true);
+      })
       .catch((err: unknown) => {
         setError((err as { rawMessage: string }).rawMessage);
       });
@@ -222,7 +224,8 @@ export default function Login() {
 
       {/* Animated background */}
       <Box sx={blobSx(mode)} aria-hidden="true">
-        <span /><span />
+        <span />
+        <span />
       </Box>
 
       {/* Centered card */}
@@ -245,9 +248,7 @@ export default function Login() {
             p: { xs: 3, sm: 4.5 },
             borderRadius: 3,
             background: dark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.72)",
-            border: dark
-              ? "1px solid rgba(255,255,255,0.09)"
-              : "1px solid rgba(0,0,0,0.08)",
+            border: dark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(0,0,0,0.08)",
             backdropFilter: "blur(24px)",
             WebkitBackdropFilter: "blur(24px)",
             boxShadow: dark
@@ -268,7 +269,8 @@ export default function Login() {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
               <Box
                 sx={{
-                  width: 9, height: 9,
+                  width: 9,
+                  height: 9,
                   borderRadius: "50%",
                   bgcolor: ACCENT,
                   boxShadow: `0 0 10px ${ACCENT}`,
@@ -299,7 +301,10 @@ export default function Login() {
           {/* Tabs */}
           <Tabs
             value={tab}
-            onChange={(_, v: string) => { setTab(v); setError(""); }}
+            onChange={(_, v: string) => {
+              setTab(v);
+              setError("");
+            }}
             aria-label="Sign in or sign up"
             sx={{
               minHeight: 40,
@@ -364,8 +369,8 @@ export default function Login() {
                 "& .MuiAlert-icon": { color: "#ff6b6b" },
                 "@keyframes shake": {
                   "0%,100%": { transform: "translateX(0)" },
-                  "25%":     { transform: "translateX(-4px)" },
-                  "75%":     { transform: "translateX(4px)" },
+                  "25%": { transform: "translateX(-4px)" },
+                  "75%": { transform: "translateX(4px)" },
                 },
                 animation: "shake 0.3s ease",
               }}

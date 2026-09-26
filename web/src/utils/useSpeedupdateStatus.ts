@@ -74,10 +74,10 @@ export function useSpeedupdateStatus(
     const current = currentRepo.keys().next().value as string;
 
     const opt = create(OptionsSchema, {
-  buildPath: debouncedBuildPath || ".build",
-  uploadPath: debouncedUploadPath || "binaries",
-});
-    
+      buildPath: debouncedBuildPath || ".build",
+      uploadPath: debouncedUploadPath || "binaries",
+    });
+
     status(speedupdateClient, current, platformsEnum, binaryType, opt).then((value) => {
       if (stoppedRef.current) {
         value.cancel();

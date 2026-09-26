@@ -8,23 +8,23 @@ import { useNavigate } from "react-router";
 import { alpha } from "@mui/material/styles";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const ACCENT   = "#6C63FF";
+const ACCENT = "#6C63FF";
 
 // ─── Password strength ────────────────────────────────────────────
 function getStrength(pw: string): { score: number; label: string; color: string } {
   if (pw.length === 0) return { score: 0, label: "", color: "transparent" };
   let score = 0;
-  if (pw.length >= 8)                    score++;
-  if (pw.length >= 12)                   score++;
-  if (/[A-Z]/.test(pw))                  score++;
-  if (/[0-9]/.test(pw))                  score++;
-  if (/[^A-Za-z0-9]/.test(pw))          score++;
+  if (pw.length >= 8) score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
 
-  if (score <= 1) return { score, label: "Too weak",  color: "#ff6b6b" };
-  if (score === 2) return { score, label: "Weak",     color: "#ffa94d" };
-  if (score === 3) return { score, label: "Fair",     color: "#ffd43b" };
-  if (score === 4) return { score, label: "Strong",   color: "#69db7c" };
-  return              { score, label: "Very strong", color: "#40c057" };
+  if (score <= 1) return { score, label: "Too weak", color: "#ff6b6b" };
+  if (score === 2) return { score, label: "Weak", color: "#ffa94d" };
+  if (score === 3) return { score, label: "Fair", color: "#ffd43b" };
+  if (score === 4) return { score, label: "Strong", color: "#69db7c" };
+  return { score, label: "Very strong", color: "#40c057" };
 }
 
 function PasswordStrength({ password }: { password: string }) {
@@ -46,10 +46,7 @@ function PasswordStrength({ password }: { password: string }) {
           },
         }}
       />
-      <Typography
-        variant="caption"
-        sx={{ color, mt: 0.5, display: "block", fontWeight: 500 }}
-      >
+      <Typography variant="caption" sx={{ color, mt: 0.5, display: "block", fontWeight: 500 }}>
         {label}
       </Typography>
     </Box>
@@ -65,15 +62,15 @@ interface SignupProps {
 
 // ─── Component ───────────────────────────────────────────────────
 export default function Signup({ successfullSignup, onSignup, error }: SignupProps) {
-  const [username, setUsername]             = useState<string>("");
-  const [email, setEmail]                   = useState<string>("");
-  const [password, setPassword]             = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [touched, setTouched] = useState({
     username: false,
-    email:    false,
+    email: false,
     password: false,
-    confirm:  false,
+    confirm: false,
   });
 
   const navigate = useNavigate();
@@ -81,7 +78,9 @@ export default function Signup({ successfullSignup, onSignup, error }: SignupPro
 
   useEffect(() => {
     if (!successfullSignup) return;
-    const t = setTimeout(() => { void navigate("/"); }, 5000);
+    const t = setTimeout(() => {
+      void navigate("/");
+    }, 5000);
     return () => clearTimeout(t);
   }, [successfullSignup, navigate]);
 
@@ -99,13 +98,16 @@ export default function Signup({ successfullSignup, onSignup, error }: SignupPro
   }
 
   const usernameErr = touched.username && !username ? "Username is required" : "";
-  const emailErr    = touched.email
-    ? (!email ? "Email is required" : !EMAIL_RE.test(email) ? "Invalid email address" : "")
+  const emailErr = touched.email
+    ? !email
+      ? "Email is required"
+      : !EMAIL_RE.test(email)
+        ? "Invalid email address"
+        : ""
     : "";
   const passwordErr = touched.password && !password ? "Password is required" : "";
-  const confirmErr  = touched.confirm && confirmPassword !== password
-    ? "Passwords do not match"
-    : "";
+  const confirmErr =
+    touched.confirm && confirmPassword !== password ? "Passwords do not match" : "";
 
   const handleSubmit = () => {
     setTouched({ username: true, email: true, password: true, confirm: true });
@@ -127,7 +129,9 @@ export default function Signup({ successfullSignup, onSignup, error }: SignupPro
   return (
     <Box
       sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
-      onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") handleSubmit();
+      }}
     >
       <TextField
         fullWidth

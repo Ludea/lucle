@@ -160,8 +160,8 @@ function PackagesTable({
     onError(null);
     selectedEntries.forEach((pack) => {
       if (pack.published) {
-        unregisterPackage(client, repoName(), pack.name, platforms(), type).catch(
-          (err: unknown) => onError(ConnectError.from(err).message),
+        unregisterPackage(client, repoName(), pack.name, platforms(), type).catch((err: unknown) =>
+          onError(ConnectError.from(err).message),
         );
       }
       fileToDelete(client, pack.name, platforms(), type).catch((err: unknown) =>

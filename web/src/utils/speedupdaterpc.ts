@@ -8,11 +8,7 @@ const setHeaders = (): Headers => {
   return headers;
 };
 
-export const init = (
-  client: any,
-  path: string,
-  checked: Record<PlatformKey, boolean>,
-) => {
+export const init = (client: any, path: string, checked: Record<PlatformKey, boolean>) => {
   const headers = setHeaders();
   const keys = checkedToKeys(checked);
   return Promise.all(
@@ -23,12 +19,7 @@ export const init = (
   );
 };
 
-export const isInit = (
-  client: any,
-  path: string,
-  platforms: Platforms[],
-  type: RepoType,
-) => {
+export const isInit = (client: any, path: string, platforms: Platforms[], type: RepoType) => {
   const headers = setHeaders();
   return Promise.all(
     platforms.map((platform) =>
@@ -133,19 +124,11 @@ export const repoToDelete = (client: any, path: string) => {
   return client.delete_repo({ path }, { headers });
 };
 
-export const fileToDelete = (
-  client: any,
-  file: string,
-  platforms: Platforms[],
-  type: RepoType,
-) => {
+export const fileToDelete = (client: any, file: string, platforms: Platforms[], type: RepoType) => {
   const headers = setHeaders();
   return Promise.all(
     platforms.map((platform) =>
-      client.delete_file(
-        { file: enumToKey(platform).concat("/", type, "/", file) },
-        { headers },
-      ),
+      client.delete_file({ file: enumToKey(platform).concat("/", type, "/", file) }, { headers }),
     ),
   );
 };

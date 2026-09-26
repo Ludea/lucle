@@ -8,11 +8,11 @@ import { Platforms } from "gen/speedupdate_pb";
 const AuthContext = createContext<any>(undefined);
 
 function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken]       = useState(localStorage.getItem("token"));
+  const [token, setToken] = useState(localStorage.getItem("token"));
   const [username, setUsername] = useState(localStorage.getItem("username"));
 
   const navigate = useNavigate();
-  const client   = useContext(LucleRPC);
+  const client = useContext(LucleRPC);
 
   const Login = async (credentials: { username: string; password: string }) =>
     new Promise((resolve, reject) => {
@@ -24,10 +24,18 @@ function AuthProvider({ children }: { children: ReactNode }) {
             const list_platforms: string[] = [];
             for (const host of repo.platforms ?? []) {
               switch (host) {
-                case Platforms.WIN64:          list_platforms.push("win64");         break;
-                case Platforms.MACOS_X86_64:   list_platforms.push("macos_x86_64");  break;
-                case Platforms.MACOS_ARM64:    list_platforms.push("macos_arm64");   break;
-                case Platforms.LINUX:          list_platforms.push("linux");          break;
+                case Platforms.WIN64:
+                  list_platforms.push("win64");
+                  break;
+                case Platforms.MACOS_X86_64:
+                  list_platforms.push("macos_x86_64");
+                  break;
+                case Platforms.MACOS_ARM64:
+                  list_platforms.push("macos_arm64");
+                  break;
+                case Platforms.LINUX:
+                  list_platforms.push("linux");
+                  break;
               }
             }
             list_repo.set(repo.path, list_platforms);
