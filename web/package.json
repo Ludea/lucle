@@ -23,7 +23,7 @@
     "@mui/x-data-grid": "^9.14.0",
     "@mui/x-date-pickers": "^9.14.0",
     "@octokit/rest": "^22.0.1",
-    "@stripe/react-stripe-js": "^6.10.0",
+    "@stripe/react-stripe-js": "^7.0.0",
     "@stripe/stripe-js": "^9.16.0",
     "dayjs": "^1.11.23",
     "minio": "^8.0.7",
