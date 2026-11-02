@@ -4,11 +4,25 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    groups:
+      rust-deps:
+        patterns:
+          - "*"
+      
   - package-ecosystem: "npm"
     directory: "/web"
     schedule:
       interval: "daily"
+    groups:
+      js-deps:
+        patterns:
+          - "*"
+          
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
+    groups:
+      actions-deps:
+        patterns:
+          - "*"
