@@ -1,6 +1,7 @@
 use diesel::backend::Backend;
 use diesel::query_builder::*;
 use diesel::result::QueryResult;
+use diesel_async::RunQueryDsl;
 
 #[derive(Debug, Clone)]
 pub struct CreateDatabaseStatement {
@@ -22,6 +23,8 @@ impl<DB: Backend> QueryFragment<DB> for CreateDatabaseStatement {
         Ok(())
     }
 }
+
+impl<Conn> RunQueryDsl<Conn> for CreateDatabaseStatement {}
 
 impl QueryId for CreateDatabaseStatement {
     type QueryId = ();
