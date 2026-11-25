@@ -1,4 +1,11 @@
 import { Platforms } from "gen/speedupdate_pb";
+import { create } from "@bufbuild/protobuf";
+import { BuildInputSchema } from "gen/speedupdate_pb";
+
+export interface BuildOutputChunk {
+  downloadedBytesStart: bigint;
+  downloadedBytesEnd: bigint;
+}
 import { enumToKey, checkedToKeys, type PlatformKey, type RepoType } from "utils/platforms";
 
 const setHeaders = (): Headers => {
@@ -133,28 +140,22 @@ export const fileToDelete = (client: any, file: string, platforms: Platforms[], 
   );
 };
 
-export interface BuildOutputChunk {
-  downloadedBytesStart: bigint;
-  downloadedBytesEnd: bigint;
-}
-
 export const build = (
   client: any,
   path: string,
   version: string,
   sourceDirectory: string,
-  destinationDirectory: string,
+  buildDirectory: string,
 ): AsyncIterable<BuildOutputChunk> => {
   const headers = setHeaders();
-  return client.build(
-    {
-      path,
-      version,
-      source_directory: sourceDirectory,
-      destination_directory: destinationDirectory,
-    },
-    { headers },
-  ) as AsyncIterable<BuildOutputChunk>;
+  console.log("build input:", { path, version, sourceDirectory, buildDirectory });
+  const input = create(BuildInputSchema, {
+    path,
+    version,
+    sourceDirectory,
+    buildDirectory,
+  });
+  return client.build(input, { headers }) as AsyncIterable<BuildOutputChunk>;
 };
 
 export const compareStatus = (oldStatus: any, newStatus: any) => {
@@ -210,10 +211,12 @@ export function status(
                     })),
                   ];
 
+                  const allBinaries = statuses.flatMap((state: any) => state.availableBinaries);
+
                   controller.enqueue({
                     versions: firstRepo.versions,
                     packages: fullListPackages,
-                    binaries: firstRepo.availableBinaries,
+                    binaries: allBinaries,
                     size: firstRepo.size,
                     currentVersion: firstRepo.currentVersion,
                   });

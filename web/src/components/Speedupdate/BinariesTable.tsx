@@ -84,23 +84,27 @@ function BuildDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onBuild: (version: string, sourceDir: string, destDir: string) => void;
+  onBuild: (version: string, sourceDir: string) => void;
 }) {
   const [version, setVersion] = useState("");
   const [sourceDir, setSourceDir] = useState("");
-  const [destDir, setDestDir] = useState("");
 
   const versionError = version.length > 0 && !SEMVER_RE.test(version);
+  const canSubmit = SEMVER_RE.test(version) && sourceDir.trim() !== "";
 
-  const canSubmit = SEMVER_RE.test(version) && sourceDir.trim() !== "" && destDir.trim() !== "";
-
-  const handleBuild = () => {
+  const handleSubmit = () => {
     if (!canSubmit) return;
-    onBuild(version, sourceDir.trim(), destDir.trim());
+    onBuild(version, sourceDir.trim());
+  };
+
+  const handleClose = () => {
+    setVersion("");
+    setSourceDir("");
+    onClose();
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>Build</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
@@ -121,18 +125,11 @@ function BuildDialog({
             size="small"
             fullWidth
           />
-          <TextField
-            label="Destination directory"
-            value={destDir}
-            onChange={(e) => setDestDir(e.target.value)}
-            size="small"
-            fullWidth
-          />
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" disabled={!canSubmit} onClick={handleBuild}>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button variant="contained" disabled={!canSubmit} onClick={handleSubmit}>
           Build
         </Button>
       </DialogActions>
@@ -159,7 +156,7 @@ function BuildProgressDialog({
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           {error ? (
-            <Typography color="error" variant="body2">
+            <Typography color="error" variant="body2" sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" }}>
               {error}
             </Typography>
           ) : done ? (
@@ -194,12 +191,14 @@ function BinariesTable({
   client,
   currentRepo,
   availableBinaries,
+  buildPath,
   type,
   onError,
 }: {
   client: any;
   currentRepo: Map<string, PlatformKey[]>;
   availableBinaries: string[];
+  buildPath: string;
   type: RepoType;
   onError: (error: string | null) => void;
 }) {
@@ -244,8 +243,8 @@ function BinariesTable({
     setSelected(new Set());
   };
 
-  const handleBuildStart = (version: string, sourceDir: string, destDir: string) => {
-    setBuildDialogOpen(false);
+  const handleBuildStart = (version: string, sourceDir: string) => {
+        setBuildDialogOpen(false);
     setBuildProgressOpen(true);
     setBuildProgress(null);
     setBuildError(null);
@@ -255,8 +254,10 @@ function BinariesTable({
     const keys = currentRepo.get(repo_name) ?? [];
     const platformKey: string = keys[0] ?? "";
     const path = `${repo_name}/${type}/${platformKey}`;
+    const effectiveBuildPath = buildPath.trim() || ".build";
+console.log("handleBuildStart:", { version, sourceDir, buildPath, path: `${repo_name}/${type}/${platformKey}` });
 
-    const iterator = build(client, path, version, sourceDir, destDir)[Symbol.asyncIterator]();
+    const iterator = build(client, path, version, sourceDir, effectiveBuildPath)[Symbol.asyncIterator]();
 
     const readNext = (): Promise<void> =>
       iterator
@@ -275,6 +276,7 @@ function BinariesTable({
           return readNext();
         })
         .catch((err: unknown) => {
+          console.error("build error:", err);
           setBuildError(ConnectError.from(err).message);
         });
 
@@ -403,6 +405,7 @@ function BinariesTable({
         onClose={() => setBuildDialogOpen(false)}
         onBuild={handleBuildStart}
       />
+
 
       <BuildProgressDialog
         open={buildProgressOpen}

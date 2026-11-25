@@ -10,6 +10,7 @@ const LucleRPC = createContext<any>(undefined);
 function LucleRPCProvider({ children }: { children: ReactNode }) {
   const transport = createGrpcWebTransport({
     baseUrl: `https://web.marlin-atlas.ts.net`,
+ //   baseUrl: `http://127.0.0.1`,
   });
   const client = createClient(Lucle, transport);
   return <LucleRPC.Provider value={client}>{children}</LucleRPC.Provider>;

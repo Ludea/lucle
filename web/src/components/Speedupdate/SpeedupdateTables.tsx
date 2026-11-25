@@ -68,6 +68,7 @@ export default function SpeedupdateTables({ binaryType, platforms, onError }: Pr
         client={client}
         currentRepo={currentRepo}
         availableBinaries={availableBinaries}
+        buildPath={buildPath}
         type={binaryType}
         onError={onError}
       />

@@ -9,7 +9,8 @@ const SparusRPC = createContext<any>(undefined);
 
 function SparusRPCProvider({ children }: { children: ReactNode }) {
   const transport = createGrpcWebTransport({
-    baseUrl: `https://web.marlin-atlas.ts.net`,
+//    baseUrl: `https://web.marlin-atlas.ts.net`,
+    baseUrl: `http://127.0.0.1:8112`
   });
   const client = createClient(event, transport);
   return <SparusRPC.Provider value={client}>{children}</SparusRPC.Provider>;

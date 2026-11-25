@@ -36,6 +36,8 @@ pub enum Error {
     #[error("Failed to parse json data")]
     Json(#[from] serde_json::Error),
     #[error("{0}")]
+    Http(#[from] axum::Error),
+    #[error("{0}")]
     PluginInternal(String),
     #[error(transparent)]
     Wasmtime(#[from] wasmtime::Error),
