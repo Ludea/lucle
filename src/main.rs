@@ -58,11 +58,26 @@ async fn main() {
     if let Some(db) = utils::get_config_key("database", "type") {
         database = match db.as_str() {
             "mysql" => {
-                let url = utils::get_config_key("database", "url").unwrap();
-                let port = utils::get_config_key("database", "port").unwrap();
-                let name = utils::get_config_key("database", "name").unwrap();
-                let user = utils::get_config_key("database", "user").unwrap();
-                let password = utils::get_config_key("database", "password").unwrap();
+                let url = utils::get_config_key("database", "url").unwrap_or_else(|| {
+                    tracing::error!("You have to set url key");
+                    String::new()
+                });
+                let port = utils::get_config_key("database", "port").unwrap_or_else(|| {
+                    tracing::error!("You have to set port key");
+                    String::new()
+                });
+                let name = utils::get_config_key("database", "name").unwrap_or_else(|| {
+                    tracing::error!("You have to set name key");
+                    String::new()
+                });
+                let user = utils::get_config_key("database", "user").unwrap_or_else(|| {
+                    tracing::error!("You have to set user key");
+                    String::new()
+                });
+                let password = utils::get_config_key("database", "password").unwrap_or_else(|| {
+                    tracing::error!("You have to set password key");
+                    String::new()
+                });
                 diesel::set_pool(
                     &diesel::Backend::Mysql,
                     &format!("mysql://{user}:{password}@{url}:{port}/{name}"),
@@ -75,11 +90,26 @@ async fn main() {
                 }
             }
             "postgresql" => {
-                let url = utils::get_config_key("database", "url").unwrap();
-                let port = utils::get_config_key("database", "port").unwrap();
-                let name = utils::get_config_key("database", "name").unwrap();
-                let user = utils::get_config_key("database", "user").unwrap();
-                let password = utils::get_config_key("database", "password").unwrap();
+                let url = utils::get_config_key("database", "url").unwrap_or_else(|| {
+                    tracing::error!("You have to set url key");
+                    String::new()
+                });
+                let port = utils::get_config_key("database", "port").unwrap_or_else(|| {
+                    tracing::error!("You have to set port key");
+                    String::new()
+                });
+                let name = utils::get_config_key("database", "name").unwrap_or_else(|| {
+                    tracing::error!("You have to set name key");
+                    String::new()
+                });
+                let user = utils::get_config_key("database", "user").unwrap_or_else(|| {
+                    tracing::error!("You have to set user key");
+                    String::new()
+                });
+                let password = utils::get_config_key("database", "password").unwrap_or_else(|| {
+                    tracing::error!("You have to set password key");
+                    String::new()
+                });
                 diesel::set_pool(
                     &diesel::Backend::Pg,
                     &format!("postgres://{user}:{password}@{url}:{port}/{name}"),
@@ -92,7 +122,10 @@ async fn main() {
                 }
             }
             "sqlite" => {
-                let path = utils::get_config_key("database", "path").unwrap();
+                let path = utils::get_config_key("database", "path").unwrap_or_else(|| {
+                    tracing::error!("You have to set path key");
+                    String::new()
+                });
                 diesel::set_pool(&diesel::Backend::Sqlite, &path);
                 if diesel::get_pool().is_some() {
                     DbType::Sqlite
