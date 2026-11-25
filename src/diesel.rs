@@ -2,7 +2,7 @@ use super::query_helper;
 use crate::errors::Error;
 use crate::models::{NewRepository, NewUser, Permission, Repository, User, UsersRepositories};
 use crate::rpc::{
-    luclerpc::{Platforms, UpdateServer, User as LucleUser},
+    luclerpc::{ListPlugins, Platforms, UpdateServer, User as LucleUser},
     Hosts,
 };
 use crate::schema::{repositories, users, users_repositories};
@@ -459,6 +459,47 @@ pub async fn list_update_server_by_user(username: String) -> Result<Vec<UpdateSe
                     }
                 }
                 Ok(None) => Err(crate::errors::Error::UserNotFound),
+                Err(err) => Err(crate::errors::Error::Query(err)),
+            }
+        })
+    } else {
+        Err(crate::errors::Error::GetPool)
+    }
+}
+
+pub async fn list_plugins_by_update_server(repository: String) -> Result<ListPlugins, Error> {
+    if let Some(pool) = get_pool() {
+        with_conn!(pool, |conn| {
+            match repositories::table
+                .filter(repositories::dsl::name.eq(repository))
+                .select(Repository::as_select())
+                .load(&mut conn)
+                .await
+                .optional()
+            {
+                Ok(Some(repo)) => {
+                    let mut list_plugins: Vec<String> = Vec::new();
+                    for r in &repo {
+                        let parsed_plugins: Value = serde_json::from_str(&r.plugins)?;
+                        if let Some(list_plug) = parsed_plugins.as_array() {
+                            for list in list_plug {
+                                if let Some(p) = list.as_str() {
+                                    list_plugins.push(p.to_string())
+                                }
+                            }
+                        }
+                    }
+                    let list_plugs = ListPlugins {
+                        plugins_name: list_plugins,
+                    };
+                    Ok(list_plugs)
+                }
+                Ok(None) => {
+                    let list_plugs = ListPlugins {
+                        plugins_name: Vec::new(),
+                    };
+                    Ok(list_plugs)
+                }
                 Err(err) => Err(crate::errors::Error::Query(err)),
             }
         })

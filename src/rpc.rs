@@ -8,7 +8,7 @@ use dotenvy::dotenv;
 use email_address_parser::EmailAddress;
 use luclerpc::{
     lucle_server::{Lucle, LucleServer},
-    Credentials, Database, DatabaseType, Empty, InstallPluginRequest, InstalledPlugin,
+    Credentials, Database, DatabaseType, Empty, InstallPluginRequest, InstalledPlugin, ListPlugins,
     ListPluginsResponse, ListUpdateServer, Platforms, RemovePluginRequest, ResetPassword,
     TogglePluginRequest, UpdateServer, User, UserCreation, Username, WasmPluginReply,
     WasmPluginRequest,
@@ -261,6 +261,20 @@ impl Lucle for LucleApi {
                 let reply = ListUpdateServer { repositories: list };
                 Ok(Response::new(reply))
             }
+            Err(err) => {
+                tracing::error!("{}", err);
+                return Err(Status::internal(err.to_string()));
+            }
+        }
+    }
+    async fn list_plugin_by_update_server(
+        &self,
+        request: Request<UpdateServer>,
+    ) -> Result<Response<ListPlugins>, Status> {
+        let inner = request.into_inner();
+        let repo = inner.path;
+        match diesel::list_plugins_by_update_server(repo).await {
+            Ok(list) => Ok(Response::new(list)),
             Err(err) => {
                 tracing::error!("{}", err);
                 return Err(Status::internal(err.to_string()));
