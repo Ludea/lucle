@@ -27,35 +27,22 @@ use serde_json::Value;
 use std::sync::{Mutex, OnceLock};
 use url::Url;
 
-pub const MYSQL_MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
-// SQLite/PostgreSQL don't accept MySQL's AUTO_INCREMENT/native ENUM syntax,
-// so each backend gets its own portable migration set rather than sharing
-// MYSQL_MIGRATIONS. See migrations_sqlite/, migrations_postgres/, and
-// models.rs's per-backend ToSql/FromSql impls for Permission.
+pub const MYSQL_MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations_mysql");
 pub const SQLITE_MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations_sqlite");
 pub const POSTGRES_MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations_postgres");
 
-// Interim multi-backend pool: diesel_async's upstream `MultiConnection` trait
-// (which would let a single Pool<C> cover all three backends) isn't released
-// yet, so this enum + the with_conn! macro below stand in for it. Every
-// function using with_conn! runs the *same* Diesel DSL body against whichever
-// concrete connection type the pool holds — the query code itself doesn't
-// change per backend, only which connection type executes it.
-pub enum DbPool {
-    Mysql(Pool<AsyncMysqlConnection>),
-    Pg(Pool<AsyncPgConnection>),
-    Sqlite(Pool<SyncConnectionWrapper<SqliteConnection>>),
+type SqliteCon = SyncConnectionWrapper<SqliteConnection>;
+
+#[allow(clippy::large_enum_variant)]
+#[derive(diesel::MultiConnection)]
+#[diesel_async]
+pub enum MultiConnection {
+    Mysql(AsyncMysqlConnection),
+    Sqlite(SqliteCon),
+    Pg(AsyncPgConnection),
 }
 
-impl Clone for DbPool {
-    fn clone(&self) -> Self {
-        match self {
-            DbPool::Mysql(p) => DbPool::Mysql(p.clone()),
-            DbPool::Pg(p) => DbPool::Pg(p.clone()),
-            DbPool::Sqlite(p) => DbPool::Sqlite(p.clone()),
-        }
-    }
-}
+pub type DbPool = Pool<MultiConnection>;
 
 pub static POOL: OnceLock<Mutex<Option<DbPool>>> = OnceLock::new();
 
@@ -84,24 +71,9 @@ impl Backend {
     }
 }
 
-pub fn set_pool(backend: &Backend, db_url: &str) {
-    let pool = match backend {
-        Backend::Mysql => {
-            let manager = AsyncDieselConnectionManager::<AsyncMysqlConnection>::new(db_url);
-            DbPool::Mysql(Pool::builder(manager).build().unwrap())
-        }
-        Backend::Pg => {
-            let manager = AsyncDieselConnectionManager::<AsyncPgConnection>::new(db_url);
-            DbPool::Pg(Pool::builder(manager).build().unwrap())
-        }
-        Backend::Sqlite => {
-            let manager =
-                AsyncDieselConnectionManager::<SyncConnectionWrapper<SqliteConnection>>::new(
-                    db_url,
-                );
-            DbPool::Sqlite(Pool::builder(manager).build().unwrap())
-        }
-    };
+pub fn set_pool(db_url: &str) {
+    let manager = AsyncDieselConnectionManager::<MultiConnection>::new(db_url);
+    let pool = Pool::builder(manager).build().unwrap();
     let cell = POOL.get_or_init(|| Mutex::new(None));
     *cell.lock().unwrap() = Some(pool);
 }
@@ -115,29 +87,12 @@ pub fn get_pool() -> Option<DbPool> {
     }
 }
 
-// Runs `$body` (an async block using `$conn`) against whichever backend
-// `$pool` (a DbPool) actually holds. `$body` must be pure Diesel DSL with no
-// backend-specific syntax — that's what makes running the identical code
-// against three different connection types sound rather than three separately
-// hand-verified implementations.
 #[macro_export]
 macro_rules! with_conn {
-    ($pool:expr, |$conn:ident| $body:expr) => {
-        match $pool {
-            DbPool::Mysql(p) => {
-                let mut $conn = p.get().await?;
-                $body
-            }
-            DbPool::Pg(p) => {
-                let mut $conn = p.get().await?;
-                $body
-            }
-            DbPool::Sqlite(p) => {
-                let mut $conn = p.get().await?;
-                $body
-            }
-        }
-    };
+    ($pool:expr, |$conn:ident| $body:expr) => {{
+        let mut $conn = $pool.get().await?;
+        $body
+    }};
 }
 
 pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Error> {
@@ -158,7 +113,7 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
                     .await?;
             }
 
-            set_pool(&Backend::Pg, database_url);
+            set_pool(database_url);
             if let Some(pool) = get_pool() {
                 run_migrations(&pool, POSTGRES_MIGRATIONS).await?;
             } else {
@@ -177,7 +132,7 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
                     })?;
             }
 
-            set_pool(&Backend::Sqlite, database_url);
+            set_pool(database_url);
             if let Some(pool) = get_pool() {
                 run_migrations(&pool, SQLITE_MIGRATIONS).await?;
             } else {
@@ -207,7 +162,7 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
                 }
             }
 
-            set_pool(&Backend::Mysql, database_url);
+            set_pool(database_url);
             if let Some(pool) = get_pool() {
                 run_migrations(&pool, MYSQL_MIGRATIONS).await?;
             } else {

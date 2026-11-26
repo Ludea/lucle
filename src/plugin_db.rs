@@ -1,4 +1,4 @@
-use crate::diesel::{get_pool, DbPool};
+use crate::diesel::get_pool;
 use crate::errors::Error;
 use crate::models::NewPlugin;
 use crate::models::Plugin;

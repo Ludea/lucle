@@ -94,9 +94,6 @@ impl FromSql<UsersRepositoriesPermissionEnum, diesel::mysql::Mysql> for Permissi
     }
 }
 
-// SQLite has no native enum type — UsersRepositoriesPermissionEnum maps to
-// Text there (see schema.rs's sqlite_type annotation), so this stores the
-// same lowercase strings as the MySQL native enum does.
 impl ToSql<UsersRepositoriesPermissionEnum, diesel::sqlite::Sqlite> for Permission {
     fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> serialize::Result {
         let value = match *self {
@@ -122,10 +119,6 @@ impl FromSql<UsersRepositoriesPermissionEnum, diesel::sqlite::Sqlite> for Permis
     }
 }
 
-// PostgreSQL path, same Text-backed approach as SQLite above. NOT verified
-// against a live PostgreSQL server in this environment (no server available
-// to test against) — compiles and mirrors the SQLite impl exactly, but
-// please test this against a real Postgres instance before relying on it.
 impl ToSql<UsersRepositoriesPermissionEnum, diesel::pg::Pg> for Permission {
     fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::pg::Pg>) -> serialize::Result {
         let value = match *self {
@@ -147,6 +140,30 @@ impl FromSql<UsersRepositoriesPermissionEnum, diesel::pg::Pg> for Permission {
             "pending" => Ok(Permission::Pending),
             _ => Err("Unrecognized enum variant".into()),
         }
+    }
+}
+
+impl diesel::sql_types::HasSqlType<UsersRepositoriesPermissionEnum>
+    for crate::diesel::MultiBackend
+{
+    fn metadata(lookup: &mut Self::MetadataLookup) -> Self::TypeMetadata {
+        crate::diesel::MultiBackend::lookup_sql_type::<UsersRepositoriesPermissionEnum>(lookup)
+    }
+}
+
+impl ToSql<UsersRepositoriesPermissionEnum, crate::diesel::MultiBackend> for Permission {
+    fn to_sql<'b>(
+        &'b self,
+        out: &mut Output<'b, '_, crate::diesel::MultiBackend>,
+    ) -> serialize::Result {
+        out.set_value((UsersRepositoriesPermissionEnum, self));
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<UsersRepositoriesPermissionEnum, crate::diesel::MultiBackend> for Permission {
+    fn from_sql(bytes: crate::diesel::MultiRawValue<'_>) -> deserialize::Result<Self> {
+        bytes.from_sql::<Self, UsersRepositoriesPermissionEnum>()
     }
 }
 

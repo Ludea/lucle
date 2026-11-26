@@ -15,10 +15,6 @@ mod rpc;
 pub mod schema;
 mod utils;
 
-// rpc::rpc_api() takes this but doesn't currently read it (its param is
-// `_db`) — the real source of truth for "is a database available" is
-// diesel::get_pool(), populated below. Kept as a marker rather than removed
-// outright since rpc_api()'s signature already expects it.
 pub enum DbType {
     Mysql,
     Postgresql,
@@ -78,10 +74,7 @@ async fn main() {
                     tracing::error!("You have to set password key");
                     String::new()
                 });
-                diesel::set_pool(
-                    &diesel::Backend::Mysql,
-                    &format!("mysql://{user}:{password}@{url}:{port}/{name}"),
-                );
+                diesel::set_pool(&format!("mysql://{user}:{password}@{url}:{port}/{name}"));
                 if diesel::get_pool().is_some() {
                     DbType::Mysql
                 } else {
@@ -110,10 +103,7 @@ async fn main() {
                     tracing::error!("You have to set password key");
                     String::new()
                 });
-                diesel::set_pool(
-                    &diesel::Backend::Pg,
-                    &format!("postgres://{user}:{password}@{url}:{port}/{name}"),
-                );
+                diesel::set_pool(&format!("postgres://{user}:{password}@{url}:{port}/{name}"));
                 if diesel::get_pool().is_some() {
                     DbType::Postgresql
                 } else {
@@ -126,7 +116,7 @@ async fn main() {
                     tracing::error!("You have to set path key");
                     String::new()
                 });
-                diesel::set_pool(&diesel::Backend::Sqlite, &path);
+                diesel::set_pool(&path);
                 if diesel::get_pool().is_some() {
                     DbType::Sqlite
                 } else {
