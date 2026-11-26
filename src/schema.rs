@@ -5,6 +5,7 @@ pub mod sql_types {
     #[diesel(
         mysql_type(name = "Enum"),
         sqlite_type(name = "Text"),
+        mariadb_type(name = "Enum"),
         postgres_type(name = "Text")
     )]
     pub struct UsersRepositoriesPermissionEnum;

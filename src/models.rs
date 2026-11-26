@@ -14,7 +14,6 @@ use std::io::Write;
 
 #[derive(Debug, Queryable, Selectable)]
 #[diesel(table_name = users)]
-#[diesel(check_for_backend(diesel::mysql::Mysql, diesel::sqlite::Sqlite, diesel::pg::Pg))]
 pub struct User {
     pub id: i32,
     pub username: String,
@@ -37,7 +36,6 @@ pub struct NewUser {
 
 #[derive(Insertable, Selectable, Queryable, Debug, PartialEq)]
 #[diesel(table_name = repositories)]
-#[diesel(check_for_backend(diesel::mysql::Mysql, diesel::sqlite::Sqlite, diesel::pg::Pg))]
 pub struct Repository {
     pub id: i32,
     pub name: String,
@@ -57,7 +55,6 @@ pub struct NewRepository {
 
 #[derive(Insertable, Selectable, Queryable, Debug, PartialEq)]
 #[diesel(table_name = users_repositories)]
-#[diesel(check_for_backend(diesel::mysql::Mysql, diesel::sqlite::Sqlite, diesel::pg::Pg))]
 pub struct UsersRepositories {
     pub user_id: i32,
     pub repository_name: String,
@@ -85,6 +82,31 @@ impl ToSql<UsersRepositoriesPermissionEnum, diesel::mysql::Mysql> for Permission
 
 impl FromSql<UsersRepositoriesPermissionEnum, diesel::mysql::Mysql> for Permission {
     fn from_sql(bytes: diesel::mysql::MysqlValue) -> deserialize::Result<Self> {
+        match bytes.as_bytes() {
+            b"read" => Ok(Permission::Read),
+            b"write" => Ok(Permission::Write),
+            b"pending" => Ok(Permission::Pending),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+impl ToSql<UsersRepositoriesPermissionEnum, diesel::mariadb::Mariadb> for Permission {
+    fn to_sql<'b>(
+        &'b self,
+        out: &mut Output<'b, '_, diesel::mariadb::Mariadb>,
+    ) -> serialize::Result {
+        match *self {
+            Permission::Read => out.write_all(b"read")?,
+            Permission::Write => out.write_all(b"write")?,
+            Permission::Pending => out.write_all(b"pending")?,
+        }
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<UsersRepositoriesPermissionEnum, diesel::mariadb::Mariadb> for Permission {
+    fn from_sql(bytes: diesel::mariadb::MariadbValue) -> deserialize::Result<Self> {
         match bytes.as_bytes() {
             b"read" => Ok(Permission::Read),
             b"write" => Ok(Permission::Write),
@@ -169,7 +191,6 @@ impl FromSql<UsersRepositoriesPermissionEnum, crate::diesel::MultiBackend> for P
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = plugins)]
-#[diesel(check_for_backend(diesel::mysql::Mysql, diesel::pg::Pg, diesel::sqlite::Sqlite,))]
 pub struct Plugin {
     pub id: String,
     pub name: String,

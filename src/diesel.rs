@@ -20,7 +20,8 @@ use diesel::sqlite::SqliteConnection;
 use diesel_async::pooled_connection::{deadpool::Pool, AsyncDieselConnectionManager};
 use diesel_async::sync_connection_wrapper::SyncConnectionWrapper;
 use diesel_async::{
-    AsyncConnection, AsyncMigrationHarness, AsyncMysqlConnection, AsyncPgConnection, RunQueryDsl,
+    AsyncConnection, AsyncMariadbConnection, AsyncMigrationHarness, AsyncMysqlConnection,
+    AsyncPgConnection, RunQueryDsl,
 };
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use serde_json::Value;
@@ -40,6 +41,7 @@ pub enum MultiConnection {
     Mysql(AsyncMysqlConnection),
     Sqlite(SqliteCon),
     Pg(AsyncPgConnection),
+    Mariadb(AsyncMariadbConnection),
 }
 
 pub type DbPool = Pool<MultiConnection>;
@@ -50,6 +52,7 @@ pub enum Backend {
     Pg,
     Sqlite,
     Mysql,
+    Mariadb,
 }
 
 impl Backend {
@@ -65,6 +68,10 @@ impl Backend {
             _ if database_url.starts_with("mysql://") => {
                 available_schemes.push("`mysql://`");
                 Backend::Mysql
+            }
+            _ if database_url.starts_with("mariadb://") => {
+                available_schemes.push("`mariadb://`");
+                Backend::Mariadb
             }
             _ => Backend::Sqlite,
         }
@@ -89,8 +96,12 @@ pub fn get_pool() -> Option<DbPool> {
 
 #[macro_export]
 macro_rules! with_conn {
-    ($pool:expr, |$conn:ident| $body:expr) => {{
+    ($pool:expr, |mut $conn:ident| $body:expr) => {{
         let mut $conn = $pool.get().await?;
+        $body
+    }};
+    ($pool:expr, |$conn:ident| $body:expr) => {{
+        let $conn = $pool.get().await?;
         $body
     }};
 }
@@ -169,20 +180,44 @@ pub async fn create_database(database_url: &str) -> Result<(), crate::errors::Er
                 return Err(crate::errors::Error::GetPool);
             }
         }
+        Backend::Mariadb => {
+            if AsyncMysqlConnection::establish(database_url).await.is_err() {
+                let (database, mariadb_url) =
+                    change_database_of_url(database_url, "information_schema")?;
+
+                tracing::info!("Creating database: {database}");
+
+                let mut conn = AsyncMariadbConnection::establish(&mariadb_url)
+                    .await
+                    .map_err(|error| crate::errors::Error::Connection {
+                        error,
+                        url: mariadb_url,
+                    })?;
+                if let Err(err) = query_helper::create_database(&database)
+                    .execute(&mut conn)
+                    .await
+                {
+                    tracing::error!("Unable to create database: {}", err);
+                    return Err(crate::errors::Error::Query(err));
+                }
+            }
+
+            set_pool(database_url);
+            if let Some(pool) = get_pool() {
+                run_migrations(&pool, MYSQL_MIGRATIONS).await?;
+            } else {
+                return Err(crate::errors::Error::GetPool);
+            }
+        }
     }
     Ok(())
 }
 
-// AsyncMigrationHarness::new() takes conn by value, not &mut, so the `mut`
-// with_conn! always binds is unused here (but is needed by every other
-// with_conn! call site in this file, which do run &mut queries) — allowed
-// rather than special-casing the shared macro for this one caller.
-#[allow(unused_mut)]
 async fn run_migrations(
     pool: &DbPool,
     migrations: EmbeddedMigrations,
 ) -> Result<(), crate::errors::Error> {
-    with_conn!(pool.clone(), |conn| {
+    with_conn!(pool, |conn| {
         let mut harness = AsyncMigrationHarness::new(conn);
         if let Err(err) = harness.run_pending_migrations(migrations) {
             tracing::error!("Unable to run migrations: {}", err);
@@ -244,7 +279,7 @@ pub async fn create_user(username: String, password: String, email: String) -> R
     let argon2 = Argon2::default();
     let password_hash = argon2.hash_password(password.as_bytes())?.to_string();
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             let now = select(diesel::dsl::now)
                 .get_result::<NaiveDateTime>(&mut conn)
                 .await?;
@@ -275,7 +310,7 @@ pub async fn register_update_server(
     list_plugin: Vec<String>,
 ) -> Result<(), Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             let now = select(diesel::dsl::now)
                 .get_result::<NaiveDateTime>(&mut conn)
                 .await?;
@@ -322,7 +357,7 @@ pub async fn register_update_server(
 
 pub async fn list_update_server_by_user(username: String) -> Result<Vec<UpdateServer>, Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             match users::table
                 .filter(users::dsl::username.eq(username.clone()))
                 .select(User::as_select())
@@ -424,7 +459,7 @@ pub async fn list_update_server_by_user(username: String) -> Result<Vec<UpdateSe
 
 pub async fn list_plugins_by_update_server(repository: String) -> Result<ListPlugins, Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             match repositories::table
                 .filter(repositories::dsl::name.eq(repository))
                 .select(Repository::as_select())
@@ -465,7 +500,7 @@ pub async fn list_plugins_by_update_server(repository: String) -> Result<ListPlu
 
 pub async fn join_update_server(username: String, repository: String) -> Result<(), Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             match users::table
                 .filter(users::dsl::username.eq(username))
                 .select(User::as_select())
@@ -494,7 +529,7 @@ pub async fn join_update_server(username: String, repository: String) -> Result<
 
 pub async fn delete_repo(path: String) -> Result<(), Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             diesel::delete(repositories::table.filter(repositories::dsl::name.eq(path.clone())))
                 .execute(&mut conn)
                 .await?;
@@ -514,7 +549,7 @@ pub async fn delete_repo(path: String) -> Result<(), Error> {
 
 pub async fn login(username_or_email: String, password: String) -> Result<LucleUser, Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             match users::table
                 .filter(users::dsl::username.eq(username_or_email.clone()))
                 .select(User::as_select())
@@ -710,7 +745,7 @@ pub async fn login(username_or_email: String, password: String) -> Result<LucleU
 
 pub async fn is_table_created() -> Result<(), Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             match users::table.count().get_result::<i64>(&mut conn).await {
                 Ok(user_count) => {
                     if user_count > 0 {
@@ -729,7 +764,7 @@ pub async fn is_table_created() -> Result<(), Error> {
 
 pub async fn is_default_user_created() -> Result<(), Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             match users::table.count().get_result::<i64>(&mut conn).await {
                 Ok(user_count) => {
                     if user_count > 0 {
@@ -748,7 +783,7 @@ pub async fn is_default_user_created() -> Result<(), Error> {
 
 pub async fn reset_password(email: String) -> Result<(), Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             match users::table
                 .filter(users::dsl::email.eq(email.clone()))
                 .select(User::as_select())
@@ -856,7 +891,7 @@ pub async fn reset_password(email: String) -> Result<(), Error> {
 
 pub async fn list_plugin_by_repository(repository_name: String) -> Result<Vec<String>, Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             match repositories::table
                 .filter(repositories::dsl::name.eq(&repository_name))
                 .select(Repository::as_select())
@@ -887,7 +922,7 @@ pub async fn list_plugin_by_repository(repository_name: String) -> Result<Vec<St
 
 pub async fn get_repository_by_plugin(plugin_name: &str) -> Result<String, Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             let all_repos = repositories::table
                 .select(Repository::as_select())
                 .load(&mut conn)

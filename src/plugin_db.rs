@@ -10,7 +10,7 @@ use std::collections::HashMap;
 
 pub async fn list_plugins() -> Result<Vec<Plugin>, Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             plugins::table
                 .order(plugins::dsl::installed_at.desc())
                 .select(Plugin::as_select())
@@ -25,7 +25,7 @@ pub async fn list_plugins() -> Result<Vec<Plugin>, Error> {
 
 pub async fn install_plugin(new_plugin: NewPlugin) -> Result<Plugin, Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             diesel::insert_into(plugins::table)
                 .values(&new_plugin)
                 .execute(&mut conn)
@@ -46,7 +46,7 @@ pub async fn install_plugin(new_plugin: NewPlugin) -> Result<Plugin, Error> {
 
 pub async fn toggle_plugin(plugin_id: &str) -> Result<Plugin, Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             let current = plugins::table
                 .find(plugin_id)
                 .select(Plugin::as_select())
@@ -79,7 +79,7 @@ pub async fn toggle_plugin(plugin_id: &str) -> Result<Plugin, Error> {
 
 pub async fn remove_plugin(plugin_id: &str) -> Result<(), Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             let count = diesel::delete(plugins::table.find(plugin_id))
                 .execute(&mut conn)
                 .await
@@ -100,7 +100,7 @@ pub async fn get_plugin_version(
     plugins_name: Vec<String>,
 ) -> Result<HashMap<String, String>, Error> {
     if let Some(pool) = get_pool() {
-        with_conn!(pool, |conn| {
+        with_conn!(pool, |mut conn| {
             match plugins::table
                 .filter(plugins::dsl::name.eq_any(plugins_name))
                 .select(Plugin::as_select())
