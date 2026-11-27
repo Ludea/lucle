@@ -156,7 +156,11 @@ function BuildProgressDialog({
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           {error ? (
-            <Typography color="error" variant="body2" sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" }}>
+            <Typography
+              color="error"
+              variant="body2"
+              sx={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.8rem" }}
+            >
               {error}
             </Typography>
           ) : done ? (
@@ -244,7 +248,7 @@ function BinariesTable({
   };
 
   const handleBuildStart = (version: string, sourceDir: string) => {
-        setBuildDialogOpen(false);
+    setBuildDialogOpen(false);
     setBuildProgressOpen(true);
     setBuildProgress(null);
     setBuildError(null);
@@ -255,9 +259,16 @@ function BinariesTable({
     const platformKey: string = keys[0] ?? "";
     const path = `${repo_name}/${type}/${platformKey}`;
     const effectiveBuildPath = buildPath.trim() || ".build";
-console.log("handleBuildStart:", { version, sourceDir, buildPath, path: `${repo_name}/${type}/${platformKey}` });
+    console.log("handleBuildStart:", {
+      version,
+      sourceDir,
+      buildPath,
+      path: `${repo_name}/${type}/${platformKey}`,
+    });
 
-    const iterator = build(client, path, version, sourceDir, effectiveBuildPath)[Symbol.asyncIterator]();
+    const iterator = build(client, path, version, sourceDir, effectiveBuildPath)[
+      Symbol.asyncIterator
+    ]();
 
     const readNext = (): Promise<void> =>
       iterator
@@ -405,7 +416,6 @@ console.log("handleBuildStart:", { version, sourceDir, buildPath, path: `${repo_
         onClose={() => setBuildDialogOpen(false)}
         onBuild={handleBuildStart}
       />
-
 
       <BuildProgressDialog
         open={buildProgressOpen}
